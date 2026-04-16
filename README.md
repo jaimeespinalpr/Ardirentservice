@@ -19,3 +19,4 @@ Static landing page for camera rentals, audiovisual production, photography, vid
    - `HOSTINGER_SSH_USER`
    - `HOSTINGER_SSH_KEY`
    - `HOSTINGER_REMOTE_PATH` (usually `/public_html/`)
+5. GitHub Pages deployment has been removed so the repo only publishes to Hostinger.
