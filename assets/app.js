@@ -211,9 +211,9 @@ const translations = {
         },
         {
           tag: "Prime",
-          title: "Sony FE 35mm f/2.8",
-          text: "Specs: 35mm prime | f/2.8 | min focus 0.35m | 49mm filter | 120g. Best for: travel kits, street work, and ultra-light setups.",
-          alt: "Sony FE 35mm f/2.8 lens",
+          title: "Sony Carl Zeiss Sonnar T* FE 35mm f/2.8 ZA",
+          text: "Specs: 35mm prime | f/2.8 | min focus 0.35m | 49mm filter | 120g. Best for: travel kits, street work, and ultra-light setups. Legacy Sony-Zeiss lens still valued for compact size and sharp rendering.",
+          alt: "Sony Carl Zeiss Sonnar T* FE 35mm f/2.8 ZA lens",
         },
         {
           tag: "Macro",
@@ -550,9 +550,9 @@ const translations = {
         },
         {
           tag: "Fija",
-          title: "Sony FE 35mm f/2.8",
-          text: "Especificaciones: fija 35mm | f/2.8 | enfoque min. 0.35 m | filtro 49 mm | 120 g. Mejor para: viajes, street y configuraciones ultra ligeras.",
-          alt: "Lente Sony FE 35mm f/2.8",
+          title: "Sony Carl Zeiss Sonnar T* FE 35mm f/2.8 ZA",
+          text: "Especificaciones: fija 35mm | f/2.8 | enfoque min. 0.35 m | filtro 49 mm | 120 g. Mejor para: viajes, street y configuraciones ultra ligeras. Es un lente Sony-Zeiss con anos en el mercado y muy valorado por su tamano compacto y nitidez.",
+          alt: "Lente Sony Carl Zeiss Sonnar T* FE 35mm f/2.8 ZA",
         },
         {
           tag: "Macro",
