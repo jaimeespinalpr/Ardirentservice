@@ -1,0 +1,26 @@
+name: Deploy codex to Hostinger via scp
+
+on:
+  push:
+    branches:
+      - codex/ardi-site
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout codex branch
+        uses: actions/checkout@v3
+        with:
+          ref: codex/ardi-site
+
+      - name: Copy files via SCP
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          source: "./*"
+          target: ${{ secrets.HOSTINGER_REMOTE_PATH }}
+          rm: true
