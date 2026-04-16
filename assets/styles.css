@@ -1,16 +1,16 @@
 :root {
-  color-scheme: dark;
-  --bg: #05070d;
-  --bg-soft: rgba(12, 18, 32, 0.76);
-  --panel: rgba(13, 20, 36, 0.84);
-  --panel-2: rgba(16, 24, 44, 0.92);
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --text: #f4f7fb;
-  --muted: #a9b5cb;
-  --accent: #7dd3ff;
-  --accent-2: #f7b84b;
-  --accent-3: #8f86ff;
-  --shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+  color-scheme: light;
+  --bg: #f7f7f7;
+  --bg-soft: rgba(255, 255, 255, 0.88);
+  --panel: rgba(255, 255, 255, 0.94);
+  --panel-2: rgba(240, 240, 240, 0.96);
+  --panel-border: rgba(0, 0, 0, 0.12);
+  --text: #0a0a0a;
+  --muted: #525252;
+  --accent: #000000;
+  --accent-2: #111111;
+  --accent-3: #2a2a2a;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
   --radius: 24px;
   --container: 1160px;
 }
@@ -28,10 +28,9 @@ body {
   font-family: "Manrope", system-ui, sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at 15% 10%, rgba(125, 211, 255, 0.18), transparent 24%),
-    radial-gradient(circle at 80% 20%, rgba(143, 134, 255, 0.16), transparent 22%),
-    radial-gradient(circle at 70% 80%, rgba(247, 184, 75, 0.11), transparent 24%),
-    linear-gradient(180deg, #05070d 0%, #070b14 100%);
+    radial-gradient(circle at 15% 10%, rgba(0, 0, 0, 0.05), transparent 24%),
+    radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.04), transparent 22%),
+    linear-gradient(180deg, #ffffff 0%, #f1f1f1 100%);
   min-height: 100vh;
 }
 
@@ -59,19 +58,19 @@ a {
 .ambient-left {
   top: -5rem;
   left: -8rem;
-  background: rgba(125, 211, 255, 0.45);
+  background: rgba(0, 0, 0, 0.15);
 }
 
 .ambient-right {
   right: -10rem;
   top: 16rem;
-  background: rgba(247, 184, 75, 0.34);
+  background: rgba(0, 0, 0, 0.12);
 }
 
 .ambient-center {
   left: 40%;
   bottom: -10rem;
-  background: rgba(143, 134, 255, 0.26);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .site-header {
@@ -79,8 +78,8 @@ a {
   top: 0;
   z-index: 20;
   backdrop-filter: blur(16px);
-  background: rgba(5, 7, 13, 0.66);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.86);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .nav {
@@ -97,17 +96,19 @@ a {
   gap: 0.9rem;
 }
 
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 2.8rem;
-  height: 2.8rem;
-  border-radius: 16px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-3));
-  color: #08101c;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  box-shadow: 0 12px 28px rgba(125, 211, 255, 0.24);
+.brand-logo {
+  display: block;
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #fff;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+}
+
+.brand-logo-footer {
+  width: 2.4rem;
+  height: 2.4rem;
 }
 
 .brand-text strong,
@@ -159,14 +160,14 @@ a {
 }
 
 .button-primary {
-  color: #08101c;
-  background: linear-gradient(135deg, var(--accent), #95e3ff);
+  color: #ffffff;
+  background: linear-gradient(135deg, #000000, #333333);
 }
 
 .button-secondary,
 .button-ghost {
-  border: 1px solid var(--panel-border);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .reveal {
@@ -211,7 +212,7 @@ a {
 
 .eyebrow {
   margin: 0 0 1rem;
-  color: var(--accent);
+  color: #000;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.14em;
@@ -269,8 +270,8 @@ h1 {
 .mini-card {
   padding: 1rem;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .stats strong,
@@ -290,7 +291,7 @@ h1 {
   position: relative;
   overflow: hidden;
   border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(18, 25, 45, 0.96), rgba(8, 11, 18, 0.98));
+  background: linear-gradient(180deg, #111111, #000000);
   min-height: 100%;
 }
 
@@ -300,7 +301,7 @@ h1 {
   width: 20rem;
   height: 20rem;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(143, 134, 255, 0.26), transparent 68%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 68%);
   filter: blur(8px);
 }
 
@@ -320,8 +321,9 @@ h1 {
   margin-bottom: 1rem;
   padding: 0.42rem 0.72rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--accent);
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid rgba(0, 0, 0, 0.14);
   font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -335,7 +337,7 @@ h1 {
 }
 
 .card-note {
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.78);
   line-height: 1.75;
   margin: 0 0 1.5rem;
 }
@@ -369,6 +371,39 @@ h1 {
 .vision-card p {
   color: var(--muted);
   line-height: 1.75;
+}
+
+.section-split {
+  padding-top: 0;
+}
+
+.split-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.split-card {
+  padding: 1.75rem;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
+}
+
+.split-card-dark {
+  background: linear-gradient(180deg, #111111, #000000);
+}
+
+.split-card-dark h2,
+.split-card-dark p {
+  color: #ffffff;
+}
+
+.split-card p {
+  color: var(--muted);
+  line-height: 1.75;
+  margin-bottom: 0;
 }
 
 .feature-grid,
@@ -415,6 +450,18 @@ h1 {
 
 .equipment-card {
   background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  overflow: hidden;
+}
+
+.equipment-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 18px;
+  margin-bottom: 1rem;
+  background: #fff;
 }
 
 .inventory-strip {
@@ -422,7 +469,7 @@ h1 {
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.82);
 }
 
 .inventory-strip strong,
@@ -446,7 +493,7 @@ h1 {
 }
 
 .process-panel {
-  background: linear-gradient(180deg, rgba(18, 26, 49, 0.95), rgba(9, 12, 20, 0.98));
+  background: linear-gradient(180deg, #ffffff, #efefef);
 }
 
 .steps {
@@ -460,8 +507,8 @@ h1 {
 .steps li {
   padding: 1rem;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .steps span {
@@ -470,13 +517,18 @@ h1 {
 }
 
 .vision-card {
-  background: linear-gradient(180deg, rgba(15, 21, 38, 0.96), rgba(10, 14, 24, 0.98));
+  background: linear-gradient(180deg, #ffffff, #f0f0f0);
 }
 
 .vision-card-accent {
   background:
-    radial-gradient(circle at top right, rgba(247, 184, 75, 0.16), transparent 36%),
-    linear-gradient(180deg, rgba(17, 23, 42, 0.98), rgba(9, 12, 21, 0.98));
+    radial-gradient(circle at top right, rgba(0, 0, 0, 0.06), transparent 36%),
+    linear-gradient(180deg, #111111, #000000);
+}
+
+.vision-card-accent h2,
+.vision-card-accent p {
+  color: #ffffff;
 }
 
 .contact-section {
@@ -486,20 +538,20 @@ h1 {
 .contact-card {
   display: grid;
   gap: 0.8rem;
-  background: linear-gradient(180deg, rgba(14, 21, 36, 0.95), rgba(8, 11, 18, 0.98));
+  background: linear-gradient(180deg, #ffffff, #efefef);
 }
 
 .contact-card a {
   display: block;
   padding: 0.95rem 1rem;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .site-footer {
   padding: 1.5rem 0 2.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .footer-inner {
@@ -511,6 +563,20 @@ h1 {
   font-size: 0.94rem;
 }
 
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.brand-logo-footer {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
 @media (max-width: 960px) {
   .nav-links,
   .nav-cta {
@@ -520,6 +586,7 @@ h1 {
   .hero-grid,
   .production-grid,
   .contact-grid,
+  .split-grid,
   .feature-grid,
   .equipment-grid,
   .vision-grid,

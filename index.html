@@ -7,7 +7,10 @@
       name="description"
       content="Ardi Rent & Service LLC provides camera rentals, photography, video production, live streaming, podcast support, and creative production services."
     />
+    <meta name="theme-color" content="#000000" />
     <title>Ardi Rent & Service LLC</title>
+    <link rel="icon" href="assets/ardi-logo.jpg" />
+    <link rel="apple-touch-icon" href="assets/ardi-logo.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -24,7 +27,7 @@
     <header class="site-header">
       <div class="container nav">
         <a class="brand" href="#top">
-          <span class="brand-mark">AR</span>
+          <img class="brand-logo" src="assets/ardi-logo.jpg" alt="Ardi Rent & Service logo" />
           <span class="brand-text">
             <strong>Ardi Rent & Service</strong>
             <small>LLC</small>
@@ -105,6 +108,28 @@
         </div>
       </section>
 
+      <section class="section section-split">
+        <div class="container split-grid">
+          <article class="split-card split-card-dark">
+            <p class="eyebrow">Rentals</p>
+            <h2>Camera gear for shoots, events, and content days.</h2>
+            <p>
+              The rental side centers on Sony bodies, cine-style video gear, stabilization, and
+              specialty lenses for different production needs.
+            </p>
+          </article>
+
+          <article class="split-card">
+            <p class="eyebrow">Services</p>
+            <h2>Photography, video, podcast, and livestream support.</h2>
+            <p>
+              The service side focuses on content creation, production coordination, and helping
+              clients turn gear into finished media.
+            </p>
+          </article>
+        </div>
+      </section>
+
       <section class="section" id="services">
         <div class="container">
           <div class="section-heading">
@@ -153,45 +178,101 @@
         <div class="container">
           <div class="section-heading">
             <p class="eyebrow">Equipment</p>
-            <h2>Selected inventory from the equipment list.</h2>
+            <h2>Featured cameras from the inventory list.</h2>
             <p>
-              The full document includes more items, but these are the categories and flagship
-              tools that should shape the public-facing website.
+              These are the camera bodies and camera systems that should be featured first on the
+              website.
             </p>
           </div>
 
           <div class="equipment-grid">
             <article class="equipment-card">
+              <img
+                src="assets/cameras/sony-a7r-iii.jpg"
+                alt="Sony a7R III camera"
+                loading="lazy"
+                decoding="async"
+              />
               <span class="fleet-tag">Camera bodies</span>
               <h3>Sony bodies for stills and video</h3>
-              <p>
-                Sony a7R III, a7R IV, a7S III, a7 IV, Alpha 1, and the Sony PXW-Z150 4K XDCAM
-                camcorder for streaming and event work.
-              </p>
+              <p>Sony a7R III, a7R IV, a7S III, a7 IV, and Alpha 1.</p>
             </article>
             <article class="equipment-card">
-              <span class="fleet-tag">Lenses</span>
-              <h3>Prime and zoom lens options</h3>
-              <p>
-                12-24mm f/2.8 GM, 12-24mm f/4, 20mm f/1.8 G, 35mm f/1.4 GM, 50mm f/1.2 GM,
-                70-200mm f/2.8 GM II, 200-600mm, and more.
-              </p>
+              <img
+                src="assets/cameras/sony-a7r-iv.jpg"
+                alt="Sony a7R IV camera"
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="fleet-tag">High resolution</span>
+              <h3>Sony a7R IV</h3>
+              <p>Great for detail-heavy photography, branded content, and crisp commercial work.</p>
             </article>
             <article class="equipment-card">
-              <span class="fleet-tag">Motion</span>
-              <h3>Stabilization and capture</h3>
-              <p>
-                DJI Osmo Pocket 4K 60fps, DJI Ronin SC, Zhiyun Crane 2, GoPro 10, plus support
-                gear for dynamic shooting.
-              </p>
+              <img
+                src="assets/cameras/sony-a7s-iii.jpg"
+                alt="Sony a7S III camera"
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="fleet-tag">Video-first</span>
+              <h3>Sony a7S III</h3>
+              <p>Built for cinematic shooting, low-light work, and hybrid photo/video workflows.</p>
             </article>
             <article class="equipment-card">
-              <span class="fleet-tag">Macro and specialty</span>
-              <h3>Tools for detail work</h3>
-              <p>
-                90mm f/2.8 Macro, 135mm f/1.8 GM, teleconverter 1.4x, and the Tamron 28-200mm
-                f/2.8-5.6 for flexible shooting setups.
-              </p>
+              <img
+                src="assets/cameras/sony-a7-iv.jpg"
+                alt="Sony a7 IV camera"
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="fleet-tag">Hybrid</span>
+              <h3>Sony a7 IV</h3>
+              <p>A flexible all-rounder for clients who need one body that can do both.</p>
+            </article>
+            <article class="equipment-card">
+              <img
+                src="assets/cameras/sony-alpha-1.jpg"
+                alt="Sony Alpha 1 camera"
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="fleet-tag">Flagship</span>
+              <h3>Sony Alpha 1</h3>
+              <p>A top-tier body for premium production and demanding commercial shoots.</p>
+            </article>
+            <article class="equipment-card">
+              <img
+                src="assets/cameras/gopro-hero10-black.jpg"
+                alt="GoPro Hero10 Black camera"
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="fleet-tag">Action</span>
+              <h3>GoPro Hero10 Black</h3>
+              <p>Perfect for action footage, creative angles, and compact on-the-go capture.</p>
+            </article>
+            <article class="equipment-card">
+              <img
+                src="assets/cameras/dji-osmo-pocket.jpg"
+                alt="DJI Osmo Pocket camera"
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="fleet-tag">Compact</span>
+              <h3>DJI Osmo Pocket</h3>
+              <p>A small, stabilized camera for mobile work, behind-the-scenes, and quick content.</p>
+            </article>
+            <article class="equipment-card">
+              <img
+                src="assets/cameras/sony-pxw-z150.jpg"
+                alt="Sony PXW-Z150 camcorder"
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="fleet-tag">Broadcast</span>
+              <h3>Sony PXW-Z150 4K XDCAM</h3>
+              <p>The streaming and event camcorder used for live production and long-form coverage.</p>
             </article>
           </div>
 
@@ -295,7 +376,10 @@
 
     <footer class="site-footer">
       <div class="container footer-inner">
-        <p>Ardi Rent & Service LLC</p>
+        <p class="footer-brand">
+          <img class="brand-logo brand-logo-footer" src="assets/ardi-logo.jpg" alt="Ardi Rent & Service logo" />
+          <span>Ardi Rent & Service LLC</span>
+        </p>
         <p>Camera rentals, production services, and visual storytelling.</p>
       </div>
     </footer>
