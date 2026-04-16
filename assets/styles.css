@@ -438,6 +438,23 @@ h1 {
   line-height: 1.75;
 }
 
+#equipment-cameras,
+#equipment-waterhousings,
+#equipment-accessories {
+  scroll-margin-top: 6.5rem;
+}
+
+.equipment-jump-links {
+  margin-top: 0.4rem;
+  font-size: 0.92rem;
+}
+
+.equipment-jump-links a {
+  color: #111;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .section-split {
   padding-top: 0;
 }
