@@ -100,15 +100,96 @@ a {
   display: block;
   width: 3.2rem;
   height: 3.2rem;
-  border-radius: 50%;
-  object-fit: cover;
-  background: #fff;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+  border-radius: 0;
+  object-fit: contain;
+  background: transparent;
+  box-shadow: none;
 }
 
-.brand-logo-footer {
-  width: 2.4rem;
-  height: 2.4rem;
+.brand-logo-wide {
+  width: 8rem;
+  height: 2.2rem;
+  object-fit: cover;
+  object-position: center 72%;
+}
+
+.brand-logo-compact {
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0.05rem;
+}
+
+.hero-brand-stack {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  justify-items: start;
+}
+
+.hero-brand-logo {
+  display: block;
+  width: min(100%, 20rem);
+  height: 5rem;
+  object-fit: cover;
+  object-position: center 72%;
+}
+
+.section-brand {
+  padding-top: 0;
+}
+
+.brand-showcase {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.brand-card {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  padding: 1.6rem;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--panel-border);
+  text-align: center;
+}
+
+.brand-card p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.brand-card-light {
+  background: linear-gradient(180deg, #ffffff, #f3f3f3);
+  color: var(--text);
+}
+
+.brand-card-dark {
+  background: linear-gradient(180deg, #111111, #000000);
+  color: #ffffff;
+}
+
+.brand-card-dark p {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.brand-showcase-logo {
+  display: block;
+  width: min(100%, 17rem);
+  height: 5rem;
+  object-fit: cover;
+  object-position: center 72%;
+}
+
+.brand-showcase-logo-square {
+  width: min(100%, 14rem);
+  height: auto;
+  object-fit: contain;
+}
+
+.brand-card-light .brand-showcase-logo-square {
+  width: min(100%, 13rem);
 }
 
 .brand-text strong,
@@ -572,11 +653,6 @@ h1 {
   font-weight: 700;
 }
 
-.brand-logo-footer {
-  width: 2.5rem;
-  height: 2.5rem;
-}
-
 @media (max-width: 960px) {
   .nav-links,
   .nav-cta {
@@ -586,6 +662,7 @@ h1 {
   .hero-grid,
   .production-grid,
   .contact-grid,
+  .brand-showcase,
   .split-grid,
   .feature-grid,
   .equipment-grid,
