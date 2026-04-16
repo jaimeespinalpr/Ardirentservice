@@ -203,13 +203,51 @@ const translations = {
       lead1:
         "The pitch document makes it clear: the goal is not only to launch a beautiful website, but to build a commercial foundation that generates revenue, order, and scalability.",
       lead2:
-        "That means the site should help clients request equipment, ask about production support, and understand that Ardi can coordinate projects directly or through a network of photographers, videographers, and technicians.",
+        "That means the site should help clients describe the project, ask for production support, and understand how much gear they may need before they request a quote. Ardi can then coordinate projects directly or through a network of photographers, videographers, and technicians.",
       workflowTitle: "How the workflow should feel",
       steps: [
         ["1. Tell us about the project", "Send the shoot type, date, location, and gear needs."],
         ["2. Confirm the best setup", "We match the right equipment and support level to the job."],
         ["3. Deliver or coordinate", "Gear rental, production help, or both, depending on the request."],
       ],
+      form: {
+        eyebrow: "Tell us about your project",
+        title: "Not sure how much gear you need?",
+        lead:
+          "Fill out this quick brief and we’ll email you a suggested setup, reference idea, or equipment list.",
+        labels: {
+          name: "Full name",
+          email: "Email address",
+          phone: "WhatsApp or phone",
+          projectType: "What are you creating?",
+          timeOfDay: "Day or night?",
+          noise: "Will there be loud noise?",
+          gear: "How much gear do you think you need?",
+          date: "Shoot date",
+          location: "Location",
+          notes: "What do you want to make?",
+        },
+        placeholders: {
+          name: "Your name",
+          email: "you@email.com",
+          phone: "Optional",
+          date: "Pick a date",
+          location: "City, venue, or studio",
+          notes:
+            "Tell us what you want to create, any reference ideas, and anything we should know.",
+        },
+        submit: "Send project brief",
+        helper: "We’ll review your answers and reply by email with a recommended setup.",
+        statusSuccess: "Thanks. Your brief was sent, and we’ll reply by email soon.",
+        statusError:
+          "Something went wrong sending the form. Please email us at ardirentservice@gmail.com or try again.",
+        options: {
+          projectType: ["Select one", "Photo shoot", "Video production", "Podcast", "Livestream", "Event coverage", "Other"],
+          timeOfDay: ["Select one", "Day", "Night", "Both / not sure"],
+          noise: ["Select one", "Quiet", "Moderate", "Loud", "Not sure"],
+          gear: ["Select one", "Just guidance", "One camera", "Camera + lenses", "Full production kit", "Not sure"],
+        },
+      },
     },
     vision: {
       eyebrow: "Business vision",
@@ -222,9 +260,9 @@ const translations = {
     },
     contact: {
       eyebrow: "Contact",
-      title: "Ready to turn the documents into a real bilingual website.",
+      title: "Prefer WhatsApp or email?",
       lead:
-        "The next step is to finish the live pages with your real contact details, portfolio links, and the exact gear/services you want to prioritize on the homepage.",
+        "The project brief above is the best way to request a setup recommendation. If you want a fast reply or a simple question answered, use WhatsApp or email below.",
       quick: "Quick actions",
       whatsapp: "WhatsApp 939-366-1442",
       email: "ardirentservice@gmail.com",
@@ -437,13 +475,51 @@ const translations = {
       lead1:
         "El documento del pitch deja claro que el objetivo no es solo lanzar un sitio bonito, sino construir una base comercial que genere ingresos, orden y escalabilidad.",
       lead2:
-        "Eso significa que el sitio debe ayudar a los clientes a solicitar equipo, preguntar por soporte de producción y entender que Ardi puede coordinar proyectos directamente o a través de una red de fotógrafos, videógrafos y técnicos.",
+        "Eso significa que el sitio debe ayudar a los clientes a describir el proyecto, preguntar por soporte de producción y entender cuánto equipo pueden necesitar antes de pedir una cotización. Ardi puede entonces coordinar proyectos directamente o a través de una red de fotógrafos, videógrafos y técnicos.",
       workflowTitle: "Cómo debe sentirse el flujo de trabajo",
       steps: [
         ["1. Cuéntanos del proyecto", "Envía el tipo de sesión, la fecha, la ubicación y las necesidades de equipo."],
         ["2. Confirmamos la mejor configuración", "Emparejamos el equipo y el nivel de soporte correcto para el trabajo."],
         ["3. Entregamos o coordinamos", "Alquiler, apoyo de producción o ambos, según lo que necesites."],
       ],
+      form: {
+        eyebrow: "Cuéntanos de tu proyecto",
+        title: "¿No estás seguro de cuánto equipo necesitas?",
+        lead:
+          "Completa este brief rápido y te enviaremos por correo una configuración sugerida, una idea de referencia o una lista de equipo.",
+        labels: {
+          name: "Nombre completo",
+          email: "Correo electrónico",
+          phone: "WhatsApp o teléfono",
+          projectType: "¿Qué vas a crear?",
+          timeOfDay: "¿De día o de noche?",
+          noise: "¿Habrá ruido fuerte?",
+          gear: "¿Cuánto equipo crees que necesitas?",
+          date: "Fecha de la sesión",
+          location: "Lugar",
+          notes: "¿Qué quieres hacer?",
+        },
+        placeholders: {
+          name: "Tu nombre",
+          email: "tu@email.com",
+          phone: "Opcional",
+          date: "Elige una fecha",
+          location: "Ciudad, lugar o estudio",
+          notes:
+            "Cuéntanos qué quieres crear, ideas de referencia y cualquier otra cosa que debamos saber.",
+        },
+        submit: "Enviar brief del proyecto",
+        helper: "Revisaremos tus respuestas y te contestaremos por correo con una configuración recomendada.",
+        statusSuccess: "Gracias. Enviamos tu brief y te responderemos por correo pronto.",
+        statusError:
+          "Algo salió mal al enviar el formulario. Escribe a ardirentservice@gmail.com o intenta otra vez.",
+        options: {
+          projectType: ["Selecciona una opción", "Sesión de fotos", "Producción de video", "Podcast", "Livestream", "Cobertura de evento", "Otro"],
+          timeOfDay: ["Selecciona una opción", "Día", "Noche", "Ambos / no estoy seguro"],
+          noise: ["Selecciona una opción", "Silencioso", "Moderado", "Fuerte", "No estoy seguro"],
+          gear: ["Selecciona una opción", "Solo guía", "Una cámara", "Cámara + lentes", "Equipo de producción completo", "No estoy seguro"],
+        },
+      },
     },
     vision: {
       eyebrow: "Visión del negocio",
@@ -456,9 +532,9 @@ const translations = {
     },
     contact: {
       eyebrow: "Contacto",
-      title: "Listos para convertir los documentos en un sitio bilingüe real.",
+      title: "¿Prefieres WhatsApp o correo?",
       lead:
-        "El siguiente paso es terminar las páginas con tus datos reales de contacto, enlaces de portafolio y el equipo/servicios exactos que quieres priorizar en la portada.",
+        "El brief de arriba es la mejor forma de pedir una recomendación de equipo. Si quieres una respuesta rápida o una pregunta simple, usa WhatsApp o correo abajo.",
       quick: "Acciones rápidas",
       whatsapp: "WhatsApp 939-366-1442",
       email: "ardirentservice@gmail.com",
@@ -495,6 +571,23 @@ const setTexts = (items, values, root = document) => {
 
 const setSectionDescription = (selector, value, root = document) => {
   setText(`${selector} p:not(.eyebrow)`, value, root);
+};
+
+const setSelectOptions = (selector, values, root = document) => {
+  const options = root.querySelectorAll(`${selector} option`);
+  options.forEach((option, index) => {
+    if (values[index] !== undefined) {
+      option.textContent = values[index];
+    }
+  });
+};
+
+const setFieldPlaceholders = (fields, values, root = document) => {
+  fields.forEach((name) => {
+    const field = root.querySelector(`[data-form-placeholder="${name}"]`);
+    if (!field || values[name] === undefined) return;
+    field.setAttribute("placeholder", values[name]);
+  });
 };
 
 const applyCards = (containerSelector, cards) => {
@@ -654,6 +747,65 @@ const applyCopy = (lang) => {
     if (span) span.textContent = text;
   });
 
+  const projectForm = document.querySelector("#project-brief");
+  if (projectForm) {
+    const langField = projectForm.querySelector('[name="lang"]');
+    if (langField) {
+      langField.value = lang;
+    }
+    setText("#project-brief .form-eyebrow", copy.production.form.eyebrow);
+    setText("#project-brief .form-title", copy.production.form.title);
+    setText("#project-brief .form-lead", copy.production.form.lead);
+    setText("#project-brief .form-submit", copy.production.form.submit);
+    setText("#project-brief .form-helper", copy.production.form.helper);
+
+    const labelMap = [
+      ["name", copy.production.form.labels.name],
+      ["email", copy.production.form.labels.email],
+      ["phone", copy.production.form.labels.phone],
+      ["projectType", copy.production.form.labels.projectType],
+      ["timeOfDay", copy.production.form.labels.timeOfDay],
+      ["noise", copy.production.form.labels.noise],
+      ["gear", copy.production.form.labels.gear],
+      ["date", copy.production.form.labels.date],
+      ["location", copy.production.form.labels.location],
+      ["notes", copy.production.form.labels.notes],
+    ];
+    labelMap.forEach(([key, value]) => {
+      setText(`[data-form-label="${key}"]`, value, projectForm);
+    });
+
+    setFieldPlaceholders(
+      ["name", "email", "phone", "date", "location", "notes"],
+      copy.production.form.placeholders,
+      projectForm
+    );
+
+    setSelectOptions('[name="project_type"]', copy.production.form.options.projectType, projectForm);
+    setSelectOptions('[name="time_of_day"]', copy.production.form.options.timeOfDay, projectForm);
+    setSelectOptions('[name="noise_level"]', copy.production.form.options.noise, projectForm);
+    setSelectOptions('[name="equipment_need"]', copy.production.form.options.gear, projectForm);
+
+    const status = projectForm.querySelector("[data-form-status]");
+    if (status) {
+      const params = new URLSearchParams(window.location.search);
+      const statusKey = params.get("sent") === "1" ? "success" : params.get("error") === "1" ? "error" : null;
+      if (statusKey === "success") {
+        status.hidden = false;
+        status.dataset.state = "success";
+        status.textContent = copy.production.form.statusSuccess;
+      } else if (statusKey === "error") {
+        status.hidden = false;
+        status.dataset.state = "error";
+        status.textContent = copy.production.form.statusError;
+      } else {
+        status.hidden = true;
+        status.dataset.state = "";
+        status.textContent = "";
+      }
+    }
+  }
+
   setText("#vision .vision-card .eyebrow", copy.vision.eyebrow);
   const visionCards = document.querySelectorAll("#vision .vision-card");
   if (visionCards[0]) {
@@ -704,6 +856,7 @@ const revealTargets = document.querySelectorAll(
     ".equipment-card",
     ".inventory-strip",
     ".process-panel",
+    ".project-form",
     ".vision-card",
     ".contact-card",
     ".section",

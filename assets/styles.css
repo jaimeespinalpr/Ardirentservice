@@ -573,8 +573,136 @@ h1 {
   align-items: start;
 }
 
+.production-stack {
+  display: grid;
+  gap: 1rem;
+}
+
 .process-panel {
   background: linear-gradient(180deg, #ffffff, #efefef);
+}
+
+.project-form {
+  position: relative;
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 22px;
+  border: 1px solid var(--panel-border);
+  background: linear-gradient(180deg, #ffffff, #f2f2f2);
+  box-shadow: var(--shadow);
+}
+
+.form-head {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.form-head h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+.form-lead {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.field-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field-grid-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.field span {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 0.92rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text);
+  font: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 8rem;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: rgba(82, 82, 82, 0.75);
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.08);
+}
+
+.field-full {
+  grid-column: 1 / -1;
+}
+
+.form-status {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text);
+  line-height: 1.55;
+}
+
+.form-status[data-state="success"] {
+  background: #000000;
+  color: #ffffff;
+}
+
+.form-status[data-state="error"] {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text);
+}
+
+.form-submit {
+  width: 100%;
+}
+
+.form-helper {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .steps {
@@ -662,6 +790,7 @@ h1 {
   .hero-grid,
   .production-grid,
   .contact-grid,
+  .production-stack,
   .split-grid,
   .feature-grid,
   .equipment-grid,
@@ -711,6 +840,11 @@ h1 {
 
   .header-actions {
     margin-left: auto;
+  }
+
+  .field-grid,
+  .field-grid-three {
+    grid-template-columns: 1fr;
   }
 
   .lang-button {

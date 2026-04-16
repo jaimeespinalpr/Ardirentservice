@@ -58,7 +58,7 @@
             </button>
           </div>
 
-          <a class="button button-ghost nav-cta" href="#contact">Request a quote</a>
+          <a class="button button-ghost nav-cta" href="#project-brief">Request a quote</a>
         </div>
       </div>
     </header>
@@ -76,7 +76,7 @@
             </p>
 
             <div class="hero-actions">
-              <a class="button button-primary" href="#contact">Request availability</a>
+              <a class="button button-primary" href="#project-brief">Request availability</a>
               <a class="button button-secondary" href="#equipment">Explore inventory</a>
             </div>
 
@@ -448,28 +448,140 @@
               scalability.
             </p>
             <p class="lead">
-              That means the site should help clients request equipment, ask about production
-              support, and understand that Ardi can coordinate projects directly or through a
-              network of photographers, videographers, and technicians.
+              That means the site should help clients describe the project, ask for production
+              support, and understand how much gear they may need before they request a quote.
+              Ardi can then coordinate projects directly or through a network of photographers,
+              videographers, and technicians.
             </p>
           </div>
 
-          <div class="process-panel">
-            <h3>How the workflow should feel</h3>
-            <ol class="steps">
-              <li>
-                <strong>1. Tell us about the project</strong>
-                <span>Send the shoot type, date, location, and gear needs.</span>
-              </li>
-              <li>
-                <strong>2. Confirm the best setup</strong>
-                <span>We match the right equipment and support level to the job.</span>
-              </li>
-              <li>
-                <strong>3. Deliver or coordinate</strong>
-                <span>Gear rental, production help, or both, depending on the request.</span>
-              </li>
-            </ol>
+          <div class="production-stack">
+            <div class="process-panel">
+              <h3>How the workflow should feel</h3>
+              <ol class="steps">
+                <li>
+                  <strong>1. Tell us about the project</strong>
+                  <span>Send the shoot type, date, location, and gear needs.</span>
+                </li>
+                <li>
+                  <strong>2. Confirm the best setup</strong>
+                  <span>We match the right equipment and support level to the job.</span>
+                </li>
+                <li>
+                  <strong>3. Deliver or coordinate</strong>
+                  <span>Gear rental, production help, or both, depending on the request.</span>
+                </li>
+              </ol>
+            </div>
+
+            <form class="project-form" id="project-brief" action="lead.php" method="post">
+              <input type="hidden" name="lang" value="en" data-form-lang />
+              <input type="text" name="company" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
+              <div class="form-head">
+                <p class="eyebrow form-eyebrow">Tell us about your project</p>
+                <h3 class="form-title">Not sure how much gear you need?</h3>
+                <p class="form-lead">
+                  Fill out this quick brief and we’ll email you a suggested setup, reference idea,
+                  or equipment list.
+                </p>
+              </div>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span data-form-label="name">Full name</span>
+                  <input type="text" name="name" autocomplete="name" required placeholder="Your name" data-form-placeholder="name" />
+                </label>
+                <label class="field">
+                  <span data-form-label="email">Email address</span>
+                  <input type="email" name="email" autocomplete="email" required placeholder="you@email.com" data-form-placeholder="email" />
+                </label>
+                <label class="field">
+                  <span data-form-label="phone">WhatsApp or phone</span>
+                  <input type="tel" name="phone" autocomplete="tel" placeholder="Optional" data-form-placeholder="phone" />
+                </label>
+                <label class="field">
+                  <span data-form-label="projectType">What are you creating?</span>
+                  <select name="project_type" required>
+                    <option value="" data-form-option="projectTypeEmpty">Select one</option>
+                    <option value="photo" data-form-option="projectTypePhoto">Photo shoot</option>
+                    <option value="video" data-form-option="projectTypeVideo">Video production</option>
+                    <option value="podcast" data-form-option="projectTypePodcast">Podcast</option>
+                    <option value="livestream" data-form-option="projectTypeLivestream">Livestream</option>
+                    <option value="event" data-form-option="projectTypeEvent">Event coverage</option>
+                    <option value="other" data-form-option="projectTypeOther">Other</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="field-grid field-grid-three">
+                <label class="field">
+                  <span data-form-label="timeOfDay">Day or night?</span>
+                  <select name="time_of_day" required>
+                    <option value="" data-form-option="timeEmpty">Select one</option>
+                    <option value="day" data-form-option="timeDay">Day</option>
+                    <option value="night" data-form-option="timeNight">Night</option>
+                    <option value="both" data-form-option="timeBoth">Both / not sure</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span data-form-label="noise">Will there be loud noise?</span>
+                  <select name="noise_level" required>
+                    <option value="" data-form-option="noiseEmpty">Select one</option>
+                    <option value="quiet" data-form-option="noiseQuiet">Quiet</option>
+                    <option value="moderate" data-form-option="noiseModerate">Moderate</option>
+                    <option value="loud" data-form-option="noiseLoud">Loud</option>
+                    <option value="unsure" data-form-option="noiseUnsure">Not sure</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span data-form-label="gear">How much gear do you think you need?</span>
+                  <select name="equipment_need" required>
+                    <option value="" data-form-option="gearEmpty">Select one</option>
+                    <option value="guidance" data-form-option="gearGuidance">Just guidance</option>
+                    <option value="one-camera" data-form-option="gearOneCamera">One camera</option>
+                    <option value="camera-lenses" data-form-option="gearCameraLenses">Camera + lenses</option>
+                    <option value="full-kit" data-form-option="gearFullKit">Full production kit</option>
+                    <option value="unsure" data-form-option="gearUnsure">Not sure</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span data-form-label="date">Shoot date</span>
+                  <input type="date" name="shoot_date" data-form-placeholder="date" />
+                </label>
+                <label class="field">
+                  <span data-form-label="location">Location</span>
+                  <input
+                    type="text"
+                    name="location"
+                    autocomplete="street-address"
+                    placeholder="City, venue, or studio"
+                    data-form-placeholder="location"
+                  />
+                </label>
+              </div>
+
+              <label class="field field-full">
+                <span data-form-label="notes">What do you want to make?</span>
+                <textarea
+                  name="project_notes"
+                  rows="5"
+                  required
+                  placeholder="Tell us what you want to create, any reference ideas, and anything we should know."
+                  data-form-placeholder="notes"
+                ></textarea>
+              </label>
+
+              <p class="form-status" hidden data-form-status></p>
+              <button class="button button-primary form-submit" type="submit" data-form-submit>
+                Send project brief
+              </button>
+              <p class="form-helper">
+                We’ll review your answers and reply by email with a recommended setup.
+              </p>
+            </form>
           </div>
         </div>
       </section>
