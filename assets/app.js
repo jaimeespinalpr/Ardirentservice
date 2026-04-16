@@ -51,20 +51,20 @@ const translations = {
     },
     about: {
       eyebrow: "About us",
-      title: "Ardiel Jimenez brings surf, image-making, and production together.",
+      title: "Ardiel Jimenez: 30 years of ocean, image, and production.",
       lead1:
-        "Public profiles and surf coverage show Ardiel as a creative rooted in the Canary Islands, with a strong connection to the water and a sharp eye for photography, cinema, music, and travel.",
+        "Born in Maspalomas, Gran Canaria, Ardiel built his career between professional bodyboarding and visual storytelling. After years of working closely with photographers and filmmakers, he moved from being in front of the lens to creating his own photo and video work.",
       lead2:
-        "That background helps explain why Ardi Rent & Service feels like both a rental company and a visual studio. The brand is built around gear, story, and the ability to move between the sea, the studio, and the set.",
+        "In 2011 he won the ISA DK World Championship, and then shifted fully into audiovisual production. Today, based in Puerto Rico, he works on photography and video projects for brands, magazines, businesses, and independent productions, combining sports experience with a strong technical eye.",
       facts: [
-        ["Origin", "Canary Islands roots"],
-        ["Focus", "Photography, video, and creative direction"],
-        ["Energy", "Ocean-driven and production-ready"],
+        ["Origin", "Maspalomas, Gran Canaria (Canary Islands)"],
+        ["Current base", "Puerto Rico"],
+        ["Profile", "Pro bodyboarder, photographer, camera operator, audiovisual creator"],
       ],
       portraitCaption: "Public profile portrait",
       actionCaption: "Surf coverage and action work",
       quote:
-        "The brand is built around gear, story, and the ability to move between the sea, the studio, and the set.",
+        "After competing around the world, I chose to tell stories from behind the camera.",
       quoteSource: "Ardi Rent & Service",
     },
     services: {
@@ -341,20 +341,20 @@ const translations = {
     },
     about: {
       eyebrow: "Acerca de nosotros",
-      title: "Ardiel Jimenez une surf, imagen y producción.",
+      title: "Ardiel Jimenez: 30 anos entre el oceano, la imagen y la produccion.",
       lead1:
-        "Los perfiles públicos y la cobertura de surf muestran a Ardiel como un creativo con raíces en las Islas Canarias, una fuerte conexión con el agua y un ojo preciso para la fotografía, el cine, la música y los viajes.",
+        "Nacido en Maspalomas, Gran Canaria, Ardiel construyo su carrera entre el bodyboard profesional y la narrativa visual. Tras anos trabajando junto a fotografos y realizadores, paso de estar frente al objetivo a crear sus propios proyectos de foto y video.",
       lead2:
-        "Ese trasfondo ayuda a explicar por qué Ardi Rent & Service se siente como una empresa de alquiler y también como un estudio visual. La marca está construida alrededor del equipo, la historia y la capacidad de moverse entre el mar, el estudio y el set.",
+        "En 2011 gano el Campeonato Mundial DK ISA y luego se enfoco de lleno en la produccion audiovisual. Hoy, desde Puerto Rico, realiza trabajos de fotografia y video para marcas, revistas, negocios y producciones independientes, combinando experiencia deportiva con una mirada tecnica y creativa.",
       facts: [
-        ["Origen", "Raíces en las Islas Canarias"],
-        ["Enfoque", "Fotografía, video y dirección creativa"],
-        ["Energía", "Guiado por el océano y listo para producción"],
+        ["Origen", "Maspalomas, Gran Canaria (Islas Canarias)"],
+        ["Residencia actual", "Puerto Rico"],
+        ["Perfil", "Bodyboarder profesional, fotografo, camara y realizador audiovisual"],
       ],
       portraitCaption: "Retrato de perfil público",
       actionCaption: "Cobertura de surf y trabajo en acción",
       quote:
-        "La marca está construida alrededor del equipo, la historia y la capacidad de moverse entre el mar, el estudio y el set.",
+        "Despues de competir por el mundo, elegi contar historias desde detras de la camara.",
       quoteSource: "Ardi Rent & Service",
     },
     services: {
