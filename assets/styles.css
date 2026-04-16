@@ -146,6 +146,61 @@ a {
   color: var(--muted);
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.language-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.22rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+}
+
+.lang-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.42rem 0.65rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.lang-button:hover,
+.lang-button:focus-visible {
+  transform: translateY(-1px);
+}
+
+.lang-button img {
+  display: block;
+  width: 1.35rem;
+  height: 0.9rem;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+.lang-button.is-active {
+  background: #000000;
+  color: #ffffff;
+}
+
 .nav-links a:hover,
 .nav-links a:focus-visible {
   color: var(--text);
@@ -634,6 +689,7 @@ h1 {
 
   .nav {
     min-height: 70px;
+    gap: 0.75rem;
   }
 
   .hero-copy {
@@ -651,5 +707,17 @@ h1 {
   .footer-inner {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .header-actions {
+    margin-left: auto;
+  }
+
+  .lang-button {
+    padding: 0.42rem 0.5rem;
+  }
+
+  .lang-button span {
+    display: none;
   }
 }
