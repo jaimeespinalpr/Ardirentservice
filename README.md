@@ -1,6 +1,6 @@
-# Ardi Rent Service
+# Ardi Rent & Service LLC
 
-Static landing page prepared for GitHub-based deployment to Hostinger.
+Static landing page for camera rentals, audiovisual production, photography, video, podcast, and live streaming.
 
 ## Structure
 
@@ -10,6 +10,6 @@ Static landing page prepared for GitHub-based deployment to Hostinger.
 
 ## Next steps
 
-1. Replace the placeholder contact links with real WhatsApp, email, and form data.
-2. Add the three source documents so the content can be aligned with the real business details.
-3. Connect the repository to GitHub and configure Hostinger deployment.
+1. Replace the placeholder contact links with real WhatsApp, email, and booking details.
+2. Add product photos, production portfolio images, and any pricing structure you want visible.
+3. If the site needs a booking or deposit flow, connect it later to a commerce system such as Shopify.

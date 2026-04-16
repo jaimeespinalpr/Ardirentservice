@@ -1,5 +1,15 @@
 const revealTargets = document.querySelectorAll(
-  ".section, .hero-card, .feature-card, .fleet-card, .steps li, .contact-card"
+  [
+    ".hero-copy",
+    ".hero-card",
+    ".feature-card",
+    ".equipment-card",
+    ".inventory-strip",
+    ".process-panel",
+    ".vision-card",
+    ".contact-card",
+    ".section",
+  ].join(", ")
 );
 
 revealTargets.forEach((element) => {
@@ -15,7 +25,7 @@ const observer = new IntersectionObserver(
       }
     });
   },
-  { threshold: 0.18 }
+  { threshold: 0.16 }
 );
 
 revealTargets.forEach((element) => observer.observe(element));
