@@ -1,4 +1,4 @@
-name: Deploy codex to Hostinger via scp
+name: Deploy codex to Hostinger via scp (v2)
 
 on:
   push:
