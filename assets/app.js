@@ -4,6 +4,7 @@ const translations = {
     description:
       "Ardi Rent & Service LLC provides camera rentals, photography, video production, live streaming, podcast support, and creative production services.",
     nav: {
+      about: "About",
       services: "Services",
       equipment: "Equipment",
       lenses: "Lenses",
@@ -47,6 +48,24 @@ const translations = {
         text:
           "The service side focuses on content creation, production coordination, and helping clients turn gear into finished media.",
       },
+    },
+    about: {
+      eyebrow: "About us",
+      title: "Ardiel Jimenez brings surf, image-making, and production together.",
+      lead1:
+        "Public profiles and surf coverage show Ardiel as a creative rooted in the Canary Islands, with a strong connection to the water and a sharp eye for photography, cinema, music, and travel.",
+      lead2:
+        "That background helps explain why Ardi Rent & Service feels like both a rental company and a visual studio. The brand is built around gear, story, and the ability to move between the sea, the studio, and the set.",
+      facts: [
+        ["Origin", "Canary Islands roots"],
+        ["Focus", "Photography, video, and creative direction"],
+        ["Energy", "Ocean-driven and production-ready"],
+      ],
+      portraitCaption: "Public profile portrait",
+      actionCaption: "Surf coverage and action work",
+      quote:
+        "The brand is built around gear, story, and the ability to move between the sea, the studio, and the set.",
+      quoteSource: "Ardi Rent & Service",
     },
     services: {
       eyebrow: "Services",
@@ -275,6 +294,7 @@ const translations = {
     description:
       "Ardi Rent & Service LLC ofrece alquiler de cámaras, fotografía, producción de video, transmisiones en vivo, soporte para podcasts y servicios creativos.",
     nav: {
+      about: "Acerca de",
       services: "Servicios",
       equipment: "Equipo",
       lenses: "Lentes",
@@ -318,6 +338,24 @@ const translations = {
         text:
           "La parte de servicios se enfoca en creación de contenido, coordinación de producción y en ayudar a los clientes a convertir el equipo en contenido final.",
       },
+    },
+    about: {
+      eyebrow: "Acerca de nosotros",
+      title: "Ardiel Jimenez une surf, imagen y producción.",
+      lead1:
+        "Los perfiles públicos y la cobertura de surf muestran a Ardiel como un creativo con raíces en las Islas Canarias, una fuerte conexión con el agua y un ojo preciso para la fotografía, el cine, la música y los viajes.",
+      lead2:
+        "Ese trasfondo ayuda a explicar por qué Ardi Rent & Service se siente como una empresa de alquiler y también como un estudio visual. La marca está construida alrededor del equipo, la historia y la capacidad de moverse entre el mar, el estudio y el set.",
+      facts: [
+        ["Origen", "Raíces en las Islas Canarias"],
+        ["Enfoque", "Fotografía, video y dirección creativa"],
+        ["Energía", "Guiado por el océano y listo para producción"],
+      ],
+      portraitCaption: "Retrato de perfil público",
+      actionCaption: "Cobertura de surf y trabajo en acción",
+      quote:
+        "La marca está construida alrededor del equipo, la historia y la capacidad de moverse entre el mar, el estudio y el set.",
+      quoteSource: "Ardi Rent & Service",
     },
     services: {
       eyebrow: "Servicios",
@@ -546,6 +584,7 @@ const translations = {
 
 const selectors = {
   nav: {
+    about: '.nav-links a[href="#about"]',
     services: '.nav-links a[href="#services"]',
     equipment: '.nav-links a[href="#equipment"]',
     lenses: '.nav-links a[href="#lenses"]',
@@ -622,6 +661,7 @@ const applyCopy = (lang) => {
 
   setTexts(
     [
+      selectors.nav.about,
       selectors.nav.services,
       selectors.nav.equipment,
       selectors.nav.lenses,
@@ -629,6 +669,7 @@ const applyCopy = (lang) => {
       selectors.nav.contact,
     ],
     [
+      copy.nav.about,
       copy.nav.services,
       copy.nav.equipment,
       copy.nav.lenses,
@@ -684,6 +725,29 @@ const applyCopy = (lang) => {
     if (title) title.textContent = content.title;
     if (text) text.textContent = content.text;
   });
+
+  setText("#about .eyebrow", copy.about.eyebrow);
+  setText("#about h2", copy.about.title);
+  const aboutParagraphs = document.querySelectorAll("#about .about-copy > p");
+  if (aboutParagraphs[0]) aboutParagraphs[0].textContent = copy.about.lead1;
+  if (aboutParagraphs[1]) aboutParagraphs[1].textContent = copy.about.lead2;
+
+  const aboutFacts = document.querySelectorAll("#about .about-fact");
+  aboutFacts.forEach((item, index) => {
+    const pair = copy.about.facts[index];
+    if (!pair) return;
+    const [label, value] = pair;
+    const span = item.querySelector("span");
+    const strong = item.querySelector("strong");
+    if (span) span.textContent = label;
+    if (strong) strong.textContent = value;
+  });
+
+  const aboutCaptions = document.querySelectorAll("#about figcaption");
+  if (aboutCaptions[0]) aboutCaptions[0].textContent = copy.about.portraitCaption;
+  if (aboutCaptions[1]) aboutCaptions[1].textContent = copy.about.actionCaption;
+  setText("#about .about-quote p", copy.about.quote);
+  setText("#about .about-quote span", copy.about.quoteSource);
 
   setText('#services .section-heading .eyebrow', copy.services.eyebrow);
   setText('#services .section-heading h2', copy.services.title);
