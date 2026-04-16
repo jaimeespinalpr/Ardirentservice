@@ -635,6 +635,10 @@ h1 {
   margin-top: 1rem;
 }
 
+.equipment-subheading {
+  margin-top: 2.5rem;
+}
+
 .lens-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
