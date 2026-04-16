@@ -529,6 +529,10 @@ h1 {
   margin-top: 1rem;
 }
 
+.lens-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .equipment-card {
   background: linear-gradient(180deg, var(--panel), var(--panel-2));
   overflow: hidden;
@@ -543,6 +547,18 @@ h1 {
   border-radius: 18px;
   margin-bottom: 1rem;
   background: #fff;
+}
+
+.lens-card img {
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  object-position: center;
+  padding: 0.9rem;
+  background: linear-gradient(180deg, #ffffff, #f4f4f4);
+}
+
+.lens-strip {
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .inventory-strip {
@@ -666,6 +682,7 @@ h1 {
   .split-grid,
   .feature-grid,
   .equipment-grid,
+  .lens-grid,
   .vision-grid,
   .inventory-strip,
   .mini-grid,
