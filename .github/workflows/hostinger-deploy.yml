@@ -36,7 +36,7 @@ jobs:
           HOSTINGER_REMOTE_PATH: ${{ secrets.HOSTINGER_REMOTE_PATH }}
         run: |
           set -euo pipefail
-          REMOTE_PATH="${HOSTINGER_REMOTE_PATH:-/public_html/}"
+          REMOTE_PATH="${HOSTINGER_REMOTE_PATH:-/home/u467534899/domains/ardirentservice.com/public_html/}"
           rsync -az --delete \
             --exclude '.git/' \
             --exclude '.github/' \

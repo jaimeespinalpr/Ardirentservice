@@ -18,5 +18,5 @@ Static landing page for camera rentals, audiovisual production, photography, vid
    - `HOSTINGER_SSH_PORT` (usually `22`)
    - `HOSTINGER_SSH_USER`
    - `HOSTINGER_SSH_KEY`
-   - `HOSTINGER_REMOTE_PATH` (usually `/public_html/`)
+   - `HOSTINGER_REMOTE_PATH` (`/home/u467534899/domains/ardirentservice.com/public_html/`)
 5. GitHub Pages deployment has been removed so the repo only publishes to Hostinger.
