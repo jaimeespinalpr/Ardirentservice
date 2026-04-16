@@ -1,0 +1,46 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches:
+      - codex/ardi-site
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$HOSTINGER_SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p "${HOSTINGER_SSH_PORT:-22}" -H "$HOSTINGER_SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Sync site to Hostinger
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          HOSTINGER_REMOTE_PATH: ${{ secrets.HOSTINGER_REMOTE_PATH }}
+        run: |
+          set -euo pipefail
+          REMOTE_PATH="${HOSTINGER_REMOTE_PATH:-/public_html/}"
+          rsync -az --delete \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude 'README.md' \
+            --exclude '.DS_Store' \
+            -e "ssh -i ~/.ssh/id_rsa -p ${HOSTINGER_SSH_PORT:-22}" \
+            ./ "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${REMOTE_PATH}"
