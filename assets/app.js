@@ -25,14 +25,14 @@ const translations = {
         ["Production-first", "Photography, video, podcast, livestream support"],
         ["Scalable", "Built to grow into a booking and commerce system"],
       ],
-      brandLabel: "Brand seal",
-      brandTitle: "Square marks only, so the logo always shows complete.",
+      brandLabel: "Quick booking",
+      brandTitle: "Availability and response within the same day.",
       brandNote:
-        "We are only using logo files that show the full mark. That keeps the site clean, readable, and consistent on every screen.",
+        "Tell us the date, type of production, and location. We confirm the gear and send your quote fast.",
       mini: [
-        ["Light mode", "Black square"],
-        ["Dark mode", "White square"],
-        ["Rule", "No cropped marks"],
+        ["Response time", "Same day"],
+        ["Coverage", "Islandwide service"],
+        ["Delivery", "Pickup or on-site dropoff"],
       ],
     },
     split: {
@@ -315,14 +315,14 @@ const translations = {
         ["Primero la producción", "Fotografía, video, podcasts y soporte para livestream"],
         ["Escalable", "Construido para crecer hacia un sistema de reservas y comercio"],
       ],
-      brandLabel: "Sello de marca",
-      brandTitle: "Solo marcas cuadradas, para que el logo siempre se vea completo.",
+      brandLabel: "Disponibilidad rapida",
+      brandTitle: "Confirma equipo y fecha el mismo dia.",
       brandNote:
-        "Solo estamos usando archivos de logo que muestran la marca completa. Así el sitio se mantiene limpio, legible y consistente en cualquier pantalla.",
+        "Cuentanos fecha, tipo de produccion y lugar. Confirmamos disponibilidad y te enviamos cotizacion rapido.",
       mini: [
-        ["Modo claro", "Cuadro negro"],
-        ["Modo oscuro", "Cuadro blanco"],
-        ["Regla", "Sin marcas recortadas"],
+        ["Tiempo de respuesta", "El mismo dia"],
+        ["Cobertura", "Servicio en toda la isla"],
+        ["Entrega", "Recogido o entrega en locacion"],
       ],
     },
     split: {
