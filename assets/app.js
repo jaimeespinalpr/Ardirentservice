@@ -588,7 +588,7 @@ const translations = {
           {
             tag: "Carcasa",
             title: "Aquatech Edge Waterhousing (Sony Full Frame)",
-            text: "Compatible con cuerpos Sony full frame, incluyendo Sony 7C3, 7R4 y 7R3, para producción subacuática y captura híbrida en mar.",
+            text: "Compatible con cuerpos Sony 7 Alpha 3, 7 Alpha R3, 7 Alpha R4 y 7 Alpha S3 para producción subacuática y captura híbrida en mar.",
             alt: "Carcasa Aquatech Edge para cámaras Sony full frame",
           },
           {
