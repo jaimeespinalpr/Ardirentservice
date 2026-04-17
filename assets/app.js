@@ -72,6 +72,39 @@ const translations = {
         "After competing around the world, I chose to tell stories from behind the camera.",
       quoteSource: "Ardi Rent & Service",
     },
+    projects: {
+      eyebrow: "Projects & achievements",
+      title: "Event production, official coverage, and competitive milestones.",
+      lead:
+        "This section highlights major projects and professional achievements tied to Ardi’s event work, surfing media coverage, and career track record.",
+      cards: [
+        {
+          title: "La Marginal Surfing Pro (WSL QS)",
+          text:
+            "Project and media work linked to La Marginal in Arecibo, including support around World Surf League competition windows.",
+        },
+        {
+          title: "ISA World Surfing Games — Arecibo 2024",
+          text:
+            "Work tied to the global surf event hosted at La Marginal, one of the final Olympic qualification stages for Paris 2024.",
+        },
+        {
+          title: "Official photographer — MundoRad Magazine",
+          text:
+            "Ongoing editorial collaboration and official photography role for surf and lifestyle-focused publication work.",
+        },
+        {
+          title: "ISA DK World Champion (2011)",
+          text:
+            "International competitive milestone in bodyboarding that supports Ardi’s credibility in high-performance ocean environments.",
+        },
+        {
+          title: "Media credits in Puerto Rico and LATAM surf outlets",
+          text:
+            "Photo credits and coverage in surf platforms and sports media, including event galleries and editorial features.",
+        },
+      ],
+    },
     services: {
       eyebrow: "Services",
       title: "Everything a modern creator or brand needs to get content produced.",
@@ -284,11 +317,11 @@ const translations = {
     },
     production: {
       eyebrow: "Production model",
-      title: "Built to support work, not just display it.",
+      title: "Built to support your project, not just showcase gear.",
       lead1:
-        "The pitch document makes it clear: the goal is not only to launch a beautiful website, but to build a commercial foundation that generates revenue, order, and scalability.",
+        "This website is designed as a commercial base that generates bookings, keeps projects organized, and scales with demand.",
       lead2:
-        "That means the site should help clients describe the project, ask for production support, and understand how much gear they may need before they request a quote. Ardi can then coordinate projects directly or through a network of photographers, videographers, and technicians.",
+        "Clients can describe the project, request production support, and estimate gear needs before asking for a quote. From there, Ardi coordinates directly or through a trusted network of photographers, videographers, and technicians.",
       workflowTitle: "How the workflow should feel",
       steps: [
         ["1. Tell us about the project", "Send the shoot type, date, location, and gear needs."],
@@ -428,6 +461,39 @@ const translations = {
       quote:
         "Después de competir por el mundo, elegí contar historias desde detrás de la cámara.",
       quoteSource: "Ardi Rent & Service",
+    },
+    projects: {
+      eyebrow: "Proyectos y logros",
+      title: "Producción de eventos, cobertura oficial e hitos competitivos.",
+      lead:
+        "Esta sección reúne proyectos clave y logros profesionales vinculados al trabajo de Ardi en eventos, cobertura de surf y trayectoria competitiva.",
+      cards: [
+        {
+          title: "La Marginal Surfing Pro (WSL QS)",
+          text:
+            "Trabajo de proyecto y cobertura vinculado a La Marginal en Arecibo, incluyendo apoyo en ventanas de competencia de la World Surf League.",
+        },
+        {
+          title: "ISA World Surfing Games — Arecibo 2024",
+          text:
+            "Participación en el evento global celebrado en La Marginal, una de las etapas finales de clasificación olímpica hacia París 2024.",
+        },
+        {
+          title: "Fotógrafo oficial — MundoRad Magazine",
+          text:
+            "Colaboración editorial continua y rol oficial de fotografía para contenido de surf, cultura y estilo de vida.",
+        },
+        {
+          title: "Campeón Mundial ISA DK (2011)",
+          text:
+            "Hito competitivo internacional en bodyboard que fortalece la credibilidad de Ardi en entornos de alto rendimiento en el mar.",
+        },
+        {
+          title: "Créditos en medios de Puerto Rico y LATAM",
+          text:
+            "Créditos fotográficos y cobertura en plataformas de surf y medios deportivos, incluyendo galerías de eventos y editoriales.",
+        },
+      ],
     },
     services: {
       eyebrow: "Servicios",
@@ -808,11 +874,11 @@ const translations = {
     },
     production: {
       eyebrow: "Modelo de producción",
-      title: "Hecho para apoyar el trabajo, no solo para mostrarlo.",
+      title: "Hecho para apoyar tu proyecto, no solo para mostrar equipo.",
       lead1:
-        "El documento del pitch deja claro que el objetivo no es solo lanzar un sitio bonito, sino construir una base comercial que genere ingresos, orden y escalabilidad.",
+        "Este sitio está diseñado como una base comercial que genere reservas, mantenga orden operativo y escale con la demanda.",
       lead2:
-        "Eso significa que el sitio debe ayudar a los clientes a describir el proyecto, preguntar por soporte de producción y entender cuánto equipo pueden necesitar antes de pedir una cotización. Ardi puede entonces coordinar proyectos directamente o a través de una red de fotógrafos, videógrafos y técnicos.",
+        "Aquí los clientes describen su proyecto, piden soporte de producción y estiman cuánto equipo necesitan antes de cotizar. Luego Ardi coordina directamente o mediante una red de fotógrafos, videógrafos y técnicos de confianza.",
       workflowTitle: "Cómo debe sentirse el flujo de trabajo",
       steps: [
         ["1. Cuéntanos del proyecto", "Envía el tipo de sesión, la fecha, la ubicación y las necesidades de equipo."],
@@ -1154,6 +1220,19 @@ const applyCopy = (lang) => {
   if (aboutCaptions[1]) aboutCaptions[1].textContent = copy.about.actionCaption;
   setText("#about .about-quote p", copy.about.quote);
   setText("#about .about-quote span", copy.about.quoteSource);
+
+  setText("#projects .section-heading .eyebrow", copy.projects.eyebrow);
+  setText("#projects .section-heading h2", copy.projects.title);
+  setSectionDescription("#projects .section-heading", copy.projects.lead);
+  const projectCards = document.querySelectorAll("#projects .feature-card");
+  projectCards.forEach((item, index) => {
+    const card = copy.projects.cards[index];
+    if (!card) return;
+    const title = item.querySelector("h3");
+    const text = item.querySelector("p");
+    if (title) title.textContent = card.title;
+    if (text) text.textContent = card.text;
+  });
 
   setText('#services .section-heading .eyebrow', copy.services.eyebrow);
   setText('#services .section-heading h2', copy.services.title);
