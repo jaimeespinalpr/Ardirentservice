@@ -82,16 +82,31 @@
           </span>
         </a>
 
-        <nav class="nav-links" aria-label="Primary">
+        <nav class="nav-links" id="primary-nav" aria-label="Primary">
           <a href="#about">About</a>
           <a href="#services">Services</a>
           <a href="#equipment">Equipment</a>
           <a href="#lenses">Lenses</a>
           <a href="#production">Production</a>
           <a href="#contact">Contact</a>
+          <a href="#project-brief" class="nav-mobile-cta">Request a quote</a>
         </nav>
 
         <div class="header-actions">
+          <button
+            class="menu-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="primary-nav"
+            aria-label="Open menu"
+          >
+            <span class="menu-toggle-bars" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+            <span class="menu-toggle-label">Menu</span>
+          </button>
           <div class="language-switcher" aria-label="Language selector">
             <button class="lang-button" type="button" data-lang="es" aria-pressed="false">
               <img src="assets/flags/es.svg" alt="" aria-hidden="true" />

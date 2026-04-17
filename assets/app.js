@@ -12,6 +12,11 @@ const translations = {
       contact: "Contact",
       cta: "Request a quote",
       aria: "Primary",
+      languageSwitcherAria: "Language selector",
+      menuOpen: "Menu",
+      menuClose: "Close",
+      menuOpenAria: "Open menu",
+      menuCloseAria: "Close menu",
     },
     hero: {
       eyebrow: "Camera rentals and creative production",
@@ -20,6 +25,7 @@ const translations = {
         "Ardi Rent & Service LLC is built for photography, video, podcasts, live streaming, and high-end audiovisual production. The business combines equipment rental, creative services, and lead generation into a scalable operation.",
       primary: "Request availability",
       secondary: "Explore inventory",
+      statsAria: "Key highlights",
       stats: [
         ["Camera-ready", "Sony bodies, cinema camcorder, action cameras"],
         ["Production-first", "Photography, video, podcast, livestream support"],
@@ -99,6 +105,7 @@ const translations = {
       eyebrow: "Equipment",
       title: "Featured cameras from the inventory list.",
       desc: "These are the camera bodies and camera systems that should be featured first on the website.",
+      jumpLinks: ["Cameras", "Waterhousings", "Accessories"],
       cards: [
         {
           tag: "Hybrid",
@@ -149,6 +156,18 @@ const translations = {
           alt: "Sony PXW-Z150 camcorder",
         },
       ],
+      water: {
+        eyebrow: "Waterhousings & Accessories",
+        title: "Underwater housings and accessories.",
+        desc:
+          "Dedicated underwater support gear for camera bodies, action cameras, and rig control below the surface.",
+      },
+      accessories: {
+        eyebrow: "Production Accessories",
+        title: "Support gear and production accessories.",
+        desc:
+          "Essential support accessories used on set for stable camera movement and professional production workflows.",
+      },
       strip: [
         ["Full inventory", "Gear list available for quotes and production planning."],
         ["Streaming-ready", "Ideal for live production and hybrid events."],
@@ -334,6 +353,7 @@ const translations = {
       whatsapp: "WhatsApp 939-366-1442",
       email: "ardirentservice@gmail.com",
       quote: "Request a quote",
+      quoteSubject: "Request a quote",
     },
     footer: "Camera rentals, production services, and visual storytelling.",
   },
@@ -350,6 +370,11 @@ const translations = {
       contact: "Contacto",
       cta: "Solicitar cotización",
       aria: "Principal",
+      languageSwitcherAria: "Selector de idioma",
+      menuOpen: "Menu",
+      menuClose: "Cerrar",
+      menuOpenAria: "Abrir menu",
+      menuCloseAria: "Cerrar menu",
     },
     hero: {
       eyebrow: "Alquiler de cámaras y producción creativa",
@@ -358,6 +383,7 @@ const translations = {
         "Ardi Rent & Service LLC está pensado para fotografía, video, podcasts, transmisiones en vivo y producción audiovisual de alto nivel. El negocio combina alquiler de equipo, servicios creativos y generación de clientes en una operación escalable.",
       primary: "Consultar disponibilidad",
       secondary: "Ver inventario",
+      statsAria: "Puntos clave",
       stats: [
         ["Listo para cámara", "Cuerpos Sony, camcorder de cine, cámaras de acción"],
         ["Primero la producción", "Fotografía, video, podcasts y soporte para livestream"],
@@ -438,6 +464,7 @@ const translations = {
       title: "Cámaras destacadas del inventario.",
       desc:
         "Estos son los cuerpos y sistemas de cámara que deben destacarse primero en el sitio.",
+      jumpLinks: ["Cámaras", "Carcasas acuáticas", "Accesorios"],
       cards: [
         {
           tag: "Híbrida",
@@ -488,6 +515,184 @@ const translations = {
           alt: "Videocámara Sony PXW-Z150",
         },
       ],
+      water: {
+        eyebrow: "Carcasas acuáticas y accesorios",
+        title: "Carcasas y accesorios subacuáticos.",
+        desc:
+          "Equipo dedicado para trabajo bajo el agua con cámaras, cámaras de acción y control de rig en entornos marinos.",
+        cards: [
+          {
+            tag: "Carcasa",
+            title: "Aquatec Edge Waterhousing (Sony Full Frame)",
+            text: "Compatible con cuerpos Sony full frame, incluyendo Sony 7C3, 7R4 y 7R3, para producción subacuática y captura híbrida en mar.",
+            alt: "Carcasa Aquatec Edge para cámaras Sony full frame",
+          },
+          {
+            tag: "Carcasa",
+            title: "Waterhousing for Sony Alpha 1",
+            text: "Carcasa subacuática de alto rendimiento para producción full frame premium en condiciones de agua exigentes.",
+            alt: "Carcasa subacuática para Sony Alpha 1",
+          },
+          {
+            tag: "Flotación",
+            title: "GoPro Floaty (Orange) for HERO13 / HERO12",
+            text: "Dispositivo flotante naranja que ayuda a mantener la HERO13 y HERO12 a flote y visibles durante actividades acuáticas.",
+            alt: "Flotador naranja GoPro Floaty para HERO13 y HERO12",
+          },
+          {
+            tag: "Puertos",
+            title: "Aquatec Flat Ports (P35, P100, P130)",
+            text: "Set de puertos planos Aquatec P35, P100 y P130 para distintas configuraciones de lente y escenarios de filmación bajo el agua.",
+            alt: "Puerto plano Aquatec",
+          },
+          {
+            tag: "Domo",
+            title: "Aquatec Dome Ports (Large and Medium)",
+            text: "Puertos tipo domo Aquatec en tamaños mediano y grande para cobertura más amplia y mejor control de perspectiva subacuática.",
+            alt: "Puerto domo Aquatec",
+          },
+          {
+            tag: "Accesorio",
+            title: "Aquatec Pistol Grip",
+            text: "Empuñadura ergonómica Aquatec para mejorar el control con una mano y el manejo del equipo al grabar bajo el agua.",
+            alt: "Empuñadura Aquatec",
+          },
+        ],
+      },
+      accessories: {
+        eyebrow: "Accesorios de producción",
+        title: "Equipo de soporte y accesorios de producción.",
+        desc:
+          "Accesorios esenciales usados en set para movimiento estable de cámara y flujos de producción profesionales.",
+        cards: [
+          {
+            tag: "Trípode",
+            title: "SmallRig AD-01 Heavy Duty Tripod with Fluid Head (Bumblebee Edition)",
+            text: "Sistema de trípode robusto con cabezal fluido para video estable, paneos suaves y control preciso de inclinación.",
+            alt: "Trípode SmallRig AD-01 con cabezal fluido",
+          },
+          {
+            tag: "Video inalámbrico",
+            title: "DJI SDR Transmission Combo",
+            text: "Kit de transmisión inalámbrica para monitoreo confiable en set, visualización de dirección y flujos flexibles cámara-monitor.",
+            alt: "DJI SDR Transmission Combo",
+          },
+          {
+            tag: "Audio",
+            title: "Audio-Technica BPHS1 Broadcast Stereo Headset",
+            text: "Headset estéreo de broadcast con micrófono boom para comunicación clara en producciones en vivo y cobertura de eventos.",
+            alt: "Headset estéreo broadcast Audio-Technica BPHS1",
+          },
+          {
+            tag: "Audio",
+            title: "DJI Mic Mini 2-Person Compact Wireless Microphone System (Camera and Smartphone)",
+            text: "Sistema compacto inalámbrico para dos personas, ideal para entrevistas, vlogs y grabación móvil con cámara o smartphone.",
+            alt: "Sistema inalámbrico DJI Mic Mini para 2 personas",
+          },
+          {
+            tag: "Rig",
+            title: "SmallRig Basic Shoulder Rig Kit",
+            text: "Rig de hombro para operación handheld más estable y movimiento de cámara más fluido en sesiones largas.",
+            alt: "Kit SmallRig Basic Shoulder Rig",
+          },
+          {
+            tag: "Iluminación",
+            title: "Godox V100 Flash for Sony",
+            text: "Flash de alta potencia para sistemas Sony, ideal para retratos, eventos y luz de relleno controlada en condiciones mixtas.",
+            alt: "Flash Godox V100 para Sony",
+          },
+          {
+            tag: "Disparador flash",
+            title: "Godox X3S Touchscreen TTL Wireless Flash Trigger for Sony",
+            text: "Disparador TTL inalámbrico con pantalla táctil para control remoto rápido y gestión de setups de iluminación múltiple.",
+            alt: "Disparador flash inalámbrico Godox X3S para Sony",
+          },
+          {
+            tag: "Iluminación",
+            title: "Godox Collapsible Diffusion Dome",
+            text: "Domo difusor plegable para una luz más suave y favorecedora en retratos, eventos y uso de flash en interiores.",
+            alt: "Domo difusor plegable Godox",
+          },
+          {
+            tag: "Monitor",
+            title: "Atomos Shinobi 7\" 4K HDMI/SDI Monitor",
+            text: "Monitor de producción de 7 pulgadas con HDMI/SDI 4K para exposición precisa, herramientas de enfoque y monitoreo en campo.",
+            alt: "Monitor Atomos Shinobi 7 pulgadas 4K HDMI SDI",
+          },
+          {
+            tag: "Convertidor",
+            title: "Blackmagic Design HDMI to SDI 6G Mini Converter",
+            text: "Convertidor compacto HDMI a SDI para conversión de señal confiable en multicámara, producción en vivo y monitoreo profesional.",
+            alt: "Convertidor Blackmagic Design HDMI a SDI 6G",
+          },
+          {
+            tag: "Filtros",
+            title: "Tilta Mirage VND Kit with Mirage Matte Box",
+            text: "Kit de filtro ND variable con matte box para controlar exposición rápido, limpiar altas luces y mejorar sombreado del lente.",
+            alt: "Kit Tilta Mirage VND con matte box",
+          },
+          {
+            tag: "Soporte de luz",
+            title: "NanLite Mini Tripod and Handle for PavoTube II 6C",
+            text: "Mini trípode y empuñadura para PavoTube II 6C, útil para control de luz en mano y colocación rápida en mesa en set.",
+            alt: "Mini trípode y empuñadura Nanlite para PavoTube II 6C",
+          },
+          {
+            tag: "Teleprompter",
+            title: "Desview T12 Foldable Portable Teleprompter",
+            text: "Teleprompter plegable para mejorar entrega en cámara, entrevistas guionadas y presentaciones en estudio o locación.",
+            alt: "Teleprompter portátil plegable Desview T12",
+          },
+          {
+            tag: "Video inalámbrico",
+            title: "Inke Bembox Dual Brand Wireless Video Transmitter",
+            text: "Transmisor inalámbrico para monitoreo de cámara flexible, baja latencia y colaboración eficiente en set.",
+            alt: "Transmisor de video inalámbrico Inke Bembox",
+          },
+          {
+            tag: "Rig de cámara",
+            title: "Tilta TA-T18EB Pro Kit for Sony A7S III (Black)",
+            text: "Kit pro de cage para Sony A7S III con puntos de montaje para mejor rigging, manejo y armado rápido en set.",
+            alt: "Kit pro Tilta TA-T18EB para Sony A7S III",
+          },
+          {
+            tag: "Adaptador de lente",
+            title: "Metabones MB PL-EB71PL to E-Mount Adapter (Internal Flocking)",
+            text: "Adaptador PL a E-Mount con flocking interno para mejorar contraste, reducir reflejos internos e integrar ópticas de cine.",
+            alt: "Adaptador Metabones MB PL-EB71PL a E-Mount",
+          },
+          {
+            tag: "Video inalámbrico",
+            title: "Accsoon CineEye 2S Pro Wireless Video Transmitter & Receiver",
+            text: "Sistema transmisor/receptor inalámbrico para monitoreo de video de baja latencia y colaboración en múltiples dispositivos.",
+            alt: "Transmisor y receptor inalámbrico Accsoon CineEye 2S Pro",
+          },
+          {
+            tag: "Audio",
+            title: "Rode Wireless GO II Compact Mic System + GoPro Great Wearable Mic BLK Lavaliers",
+            text: "Sistema compacto inalámbrico con lavaliers wearables para captura de voz limpia en entrevistas y presentaciones en cámara.",
+            alt: "Sistema Rode Wireless GO II con lavaliers",
+          },
+          {
+            tag: "Trípode",
+            title: "IImage EK60AAM Fluid Drag Video Head and Tripod",
+            text: "Cabezal fluid drag con trípode para paneos más suaves, tilts controlados y soporte estable en entorno de producción.",
+            alt: "Trípode y cabezal de video IImage EK60AAM",
+          },
+          {
+            tag: "Iluminación",
+            title: "Nanlite PavoTube II 15X RGB LED Pixel Tube Lights",
+            text: "Tubos LED RGB para control creativo de color, luz práctica y acentos dinámicos en foto y video.",
+            alt: "Tubos de luz Nanlite PavoTube II 15X RGB LED",
+          },
+          {
+            tag: "Estabilizador",
+            title: "DJI Ronin SC Gimbal Stabilizer",
+            text: "Gimbal motorizado compacto para movimiento cinematográfico fluido, seguimiento handheld y tomas run-and-gun estabilizadas.",
+            alt: "Estabilizador gimbal DJI Ronin SC",
+          },
+        ],
+      },
       strip: [
         ["Inventario completo", "Lista de equipo disponible para cotizaciones y planificación de producción."],
         ["Lista para streaming", "Ideal para producción en vivo y eventos híbridos."],
@@ -673,6 +878,7 @@ const translations = {
       whatsapp: "WhatsApp 939-366-1442",
       email: "ardirentservice@gmail.com",
       quote: "Solicitar cotización",
+      quoteSubject: "Solicitar cotizacion",
     },
     footer: "Alquiler de cámaras, servicios de producción y narrativa visual.",
   },
@@ -687,6 +893,7 @@ const selectors = {
     production: '.nav-links a[href="#production"]',
     contact: '.nav-links a[href="#contact"]',
     cta: ".nav-cta",
+    mobileCta: ".nav-mobile-cta",
     aria: ".nav-links",
   },
 };
@@ -706,6 +913,25 @@ const setTexts = (items, values, root = document) => {
 
 const setSectionDescription = (selector, value, root = document) => {
   setText(`${selector} p:not(.eyebrow)`, value, root);
+};
+
+const applyCardsToGrid = (grid, cards = []) => {
+  if (!grid) return;
+  const cardElements = grid.querySelectorAll(".equipment-card");
+  cards.forEach((card, index) => {
+    const element = cardElements[index];
+    if (!element) return;
+
+    const image = element.querySelector("img");
+    const tag = element.querySelector(".fleet-tag");
+    const title = element.querySelector("h3");
+    const text = element.querySelector("p");
+
+    if (image && card.alt) image.alt = card.alt;
+    if (tag && card.tag) tag.textContent = card.tag;
+    if (title && card.title) title.textContent = card.title;
+    if (text && card.text) text.textContent = card.text;
+  });
 };
 
 const setSelectOptions = (selector, values, root = document) => {
@@ -771,6 +997,43 @@ const applyCards = (containerSelector, cards) => {
   });
 };
 
+const extractCardsFromGrid = (grid) => {
+  if (!grid) return [];
+  return Array.from(grid.querySelectorAll(".equipment-card")).map((element) => ({
+    alt: element.querySelector("img")?.getAttribute("alt") || "",
+    tag: element.querySelector(".fleet-tag")?.textContent?.trim() || "",
+    title: element.querySelector("h3")?.textContent?.trim() || "",
+    text: element.querySelector("p")?.textContent?.trim() || "",
+  }));
+};
+
+const runtimeDefaults = (() => {
+  const jumpLinks = Array.from(
+    document.querySelectorAll("#equipment .equipment-jump-links a")
+  ).map((link) => link.textContent?.trim() || "");
+
+  const subheadings = document.querySelectorAll("#equipment .equipment-subheading");
+  const grids = document.querySelectorAll("#equipment .equipment-grid");
+
+  return {
+    equipment: {
+      jumpLinks,
+      water: {
+        eyebrow: subheadings[0]?.querySelector(".eyebrow")?.textContent?.trim() || "",
+        title: subheadings[0]?.querySelector("h2")?.textContent?.trim() || "",
+        desc: subheadings[0]?.querySelector("p:not(.eyebrow)")?.textContent?.trim() || "",
+        cards: extractCardsFromGrid(grids[1]),
+      },
+      accessories: {
+        eyebrow: subheadings[1]?.querySelector(".eyebrow")?.textContent?.trim() || "",
+        title: subheadings[1]?.querySelector("h2")?.textContent?.trim() || "",
+        desc: subheadings[1]?.querySelector("p:not(.eyebrow)")?.textContent?.trim() || "",
+        cards: extractCardsFromGrid(grids[2]),
+      },
+    },
+  };
+})();
+
 const applyCopy = (lang) => {
   const copy = translations[lang] || translations.en;
 
@@ -788,6 +1051,16 @@ const applyCopy = (lang) => {
   const twitterDescription = document.querySelector('meta[name="twitter:description"]');
   if (twitterDescription) {
     twitterDescription.content = copy.description;
+  }
+  const localBusinessSchema = document.querySelector('script[type="application/ld+json"]');
+  if (localBusinessSchema) {
+    try {
+      const schemaData = JSON.parse(localBusinessSchema.textContent || "{}");
+      schemaData.description = copy.description;
+      localBusinessSchema.textContent = JSON.stringify(schemaData, null, 2);
+    } catch (error) {
+      // Ignore malformed schema to avoid blocking UI translations.
+    }
   }
 
   setTexts(
@@ -810,13 +1083,20 @@ const applyCopy = (lang) => {
   );
 
   setText(selectors.nav.cta, copy.nav.cta);
+  setText(selectors.nav.mobileCta, copy.nav.cta);
   selectors.nav.aria && document.querySelector(selectors.nav.aria)?.setAttribute("aria-label", copy.nav.aria);
+  document
+    .querySelector(".language-switcher")
+    ?.setAttribute("aria-label", copy.nav.languageSwitcherAria || "Language selector");
 
   setText(".hero .eyebrow", copy.hero.eyebrow);
   setText(".hero h1", copy.hero.title);
   setText(".hero .lead", copy.hero.lead);
   setText(".hero .button-primary", copy.hero.primary);
   setText(".hero .button-secondary", copy.hero.secondary);
+  document
+    .querySelector(".hero .stats")
+    ?.setAttribute("aria-label", copy.hero.statsAria || "Key highlights");
 
   const statItems = document.querySelectorAll(".hero .stats li");
   statItems.forEach((item, index) => {
@@ -896,7 +1176,34 @@ const applyCopy = (lang) => {
   setText('#equipment .section-heading .eyebrow', copy.equipment.eyebrow);
   setText('#equipment .section-heading h2', copy.equipment.title);
   setSectionDescription('#equipment .section-heading', copy.equipment.desc);
-  applyCards("#equipment", copy.equipment.cards);
+  const equipmentGrids = document.querySelectorAll("#equipment .equipment-grid");
+  applyCardsToGrid(equipmentGrids[0], copy.equipment.cards);
+
+  const jumpLinks = copy.equipment.jumpLinks || runtimeDefaults.equipment.jumpLinks;
+  const jumpLinkElements = document.querySelectorAll("#equipment .equipment-jump-links a");
+  jumpLinkElements.forEach((link, index) => {
+    if (jumpLinks[index]) link.textContent = jumpLinks[index];
+  });
+
+  const waterCopy = copy.equipment.water || runtimeDefaults.equipment.water;
+  const accessoriesCopy = copy.equipment.accessories || runtimeDefaults.equipment.accessories;
+  const equipmentSubheadings = document.querySelectorAll("#equipment .equipment-subheading");
+  if (equipmentSubheadings[0] && waterCopy) {
+    setText(".eyebrow", waterCopy.eyebrow, equipmentSubheadings[0]);
+    setText("h2", waterCopy.title, equipmentSubheadings[0]);
+    setText("p:not(.eyebrow)", waterCopy.desc, equipmentSubheadings[0]);
+  }
+  if (equipmentSubheadings[1] && accessoriesCopy) {
+    setText(".eyebrow", accessoriesCopy.eyebrow, equipmentSubheadings[1]);
+    setText("h2", accessoriesCopy.title, equipmentSubheadings[1]);
+    setText("p:not(.eyebrow)", accessoriesCopy.desc, equipmentSubheadings[1]);
+  }
+
+  applyCardsToGrid(equipmentGrids[1], waterCopy.cards || runtimeDefaults.equipment.water.cards);
+  applyCardsToGrid(
+    equipmentGrids[2],
+    accessoriesCopy.cards || runtimeDefaults.equipment.accessories.cards
+  );
 
   const equipmentStrip = document.querySelectorAll("#equipment .inventory-strip > div");
   equipmentStrip.forEach((item, index) => {
@@ -1022,7 +1329,13 @@ const applyCopy = (lang) => {
   const contactLinks = document.querySelectorAll("#contact .contact-card a");
   if (contactLinks[0]) contactLinks[0].textContent = copy.contact.whatsapp;
   if (contactLinks[1]) contactLinks[1].textContent = copy.contact.email;
-  if (contactLinks[2]) contactLinks[2].textContent = copy.contact.quote;
+  if (contactLinks[2]) {
+    contactLinks[2].textContent = copy.contact.quote;
+    contactLinks[2].setAttribute(
+      "href",
+      `mailto:ardirentservice@gmail.com?subject=${encodeURIComponent(copy.contact.quoteSubject || copy.contact.quote)}`
+    );
+  }
 
   setText(".site-footer p:last-child", copy.footer);
 
@@ -1031,6 +1344,16 @@ const applyCopy = (lang) => {
     button.classList.toggle("is-active", active);
     button.setAttribute("aria-pressed", active ? "true" : "false");
   });
+
+  const menuToggle = document.querySelector(".menu-toggle");
+  if (menuToggle) {
+    const menuOpen = document.querySelector(".site-header")?.classList.contains("is-menu-open");
+    const menuLabel = menuToggle.querySelector(".menu-toggle-label");
+    const menuText = menuOpen ? copy.nav.menuClose : copy.nav.menuOpen;
+    if (menuLabel) menuLabel.textContent = menuText;
+    menuToggle.setAttribute("aria-label", menuOpen ? copy.nav.menuCloseAria : copy.nav.menuOpenAria);
+    menuToggle.setAttribute("aria-expanded", menuOpen ? "true" : "false");
+  }
 
   localStorage.setItem("ardi-language", lang);
 };
@@ -1079,6 +1402,46 @@ revealTargets.forEach((element) => observer.observe(element));
 
 const initialLanguage = getInitialLanguage();
 applyCopy(initialLanguage);
+
+const isMobileMenuViewport = () => window.matchMedia("(max-width: 960px)").matches;
+const siteHeader = document.querySelector(".site-header");
+const menuToggle = document.querySelector(".menu-toggle");
+const menuLinks = document.querySelectorAll(".nav-links a");
+
+const syncMenuUi = () => {
+  const activeLang = document.documentElement.lang === "es" ? "es" : "en";
+  applyCopy(activeLang);
+};
+
+const setMenuOpen = (open) => {
+  if (!siteHeader || !menuToggle) return;
+  siteHeader.classList.toggle("is-menu-open", open);
+  syncMenuUi();
+};
+
+if (menuToggle && siteHeader) {
+  menuToggle.addEventListener("click", () => {
+    const willOpen = !siteHeader.classList.contains("is-menu-open");
+    setMenuOpen(willOpen);
+  });
+
+  menuLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      if (isMobileMenuViewport()) setMenuOpen(false);
+    });
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!isMobileMenuViewport()) return;
+    const target = event.target;
+    if (!(target instanceof Node)) return;
+    if (!siteHeader.contains(target)) setMenuOpen(false);
+  });
+
+  window.addEventListener("resize", () => {
+    if (!isMobileMenuViewport()) setMenuOpen(false);
+  });
+}
 
 document.querySelectorAll(".lang-button").forEach((button) => {
   button.addEventListener("click", () => {
