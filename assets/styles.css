@@ -356,7 +356,9 @@ h1 {
   position: relative;
   overflow: hidden;
   border-radius: var(--radius);
-  background: linear-gradient(180deg, #111111, #000000);
+  background:
+    linear-gradient(180deg, rgba(12, 12, 12, 0.28) 0%, rgba(0, 0, 0, 0.7) 62%, rgba(0, 0, 0, 0.88) 100%),
+    url("./hero/ardiel-sunset-training.jpg") center / cover no-repeat;
   min-height: 100%;
 }
 
