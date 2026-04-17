@@ -617,9 +617,9 @@ const translations = {
           },
           {
             tag: "Accesorio",
-            title: "Aquatec Pistol Grip",
-            text: "Empuñadura ergonómica Aquatec para mejorar el control con una mano y el manejo del equipo al grabar bajo el agua.",
-            alt: "Empuñadura Aquatec",
+            title: "Aquatech Pistol Grip",
+            text: "Empuñadura ergonómica Aquatech para mejorar el control con una mano y el manejo del equipo al grabar bajo el agua.",
+            alt: "Empuñadura Aquatech",
           },
         ],
       },

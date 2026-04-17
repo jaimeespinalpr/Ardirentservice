@@ -740,6 +740,13 @@ h1 {
   background: linear-gradient(180deg, #ffffff, #f4f4f4);
 }
 
+.product-photo-clean {
+  object-fit: contain !important;
+  object-position: center;
+  padding: 0.75rem;
+  background: #ffffff !important;
+}
+
 .lens-strip {
   background: rgba(255, 255, 255, 0.92);
 }
