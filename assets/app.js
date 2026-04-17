@@ -105,7 +105,7 @@ const translations = {
       eyebrow: "Equipment",
       title: "Featured cameras from the inventory list.",
       desc: "These are the camera bodies and camera systems that should be featured first on the website.",
-      jumpLinks: ["Cameras", "Waterhousings", "Accessories"],
+      jumpLinks: ["Cameras", "Waterhousings", "Accessories", "Lenses"],
       cards: [
         {
           tag: "Hybrid",
@@ -464,7 +464,7 @@ const translations = {
       title: "Cámaras destacadas del inventario.",
       desc:
         "Estos son los cuerpos y sistemas de cámara que deben destacarse primero en el sitio.",
-      jumpLinks: ["Cámaras", "Carcasas acuáticas", "Accesorios"],
+      jumpLinks: ["Cámaras", "Carcasas acuáticas", "Accesorios", "Lentes"],
       cards: [
         {
           tag: "Híbrida",
