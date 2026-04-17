@@ -125,6 +125,65 @@
     <main id="top">
       <section class="section section-alt" id="equipment">
         <div class="container">
+          <section
+            class="rental-system"
+            id="rental-system"
+            data-daily-rate-cents="5000"
+            data-availability-endpoint="rentals_availability.php"
+            data-checkout-endpoint="rentals_checkout.php"
+          >
+            <div class="rental-top">
+              <p class="eyebrow" data-rental-copy="eyebrow">Rent by date</p>
+              <h2 data-rental-copy="title">Choose your rental dates first.</h2>
+              <p class="rental-note" data-rental-copy="note">
+                Pick the date range first so we can show exactly what is available.
+              </p>
+            </div>
+
+            <form class="rental-dates" data-rental-dates>
+              <label class="field">
+                <span data-rental-copy="startLabel">Start date</span>
+                <input type="date" name="start_date" required />
+              </label>
+              <label class="field">
+                <span data-rental-copy="endLabel">End date</span>
+                <input type="date" name="end_date" required />
+              </label>
+              <button class="button button-primary" type="submit" data-rental-copy="checkButton">
+                Check availability
+              </button>
+            </form>
+
+            <p class="rental-status" data-rental-status data-state="info">
+              Select your dates to unlock rentals.
+            </p>
+
+            <div class="rental-cart">
+              <h3 data-rental-copy="cartTitle">Rental cart</h3>
+              <ul class="rental-cart-list" data-rental-cart-list>
+                <li data-rental-copy="emptyCart">No equipment selected yet.</li>
+              </ul>
+              <p class="rental-cart-total" data-rental-copy="totalLabel">Total: $0.00</p>
+              <form class="rental-checkout" data-rental-checkout>
+                <label class="field">
+                  <span data-rental-copy="nameLabel">Full name</span>
+                  <input type="text" name="name" required />
+                </label>
+                <label class="field">
+                  <span data-rental-copy="emailLabel">Email</span>
+                  <input type="email" name="email" required />
+                </label>
+                <label class="field">
+                  <span data-rental-copy="phoneLabel">WhatsApp / phone</span>
+                  <input type="tel" name="phone" />
+                </label>
+                <button class="button button-primary" type="submit" data-rental-copy="payButton">
+                  Pay and reserve
+                </button>
+              </form>
+            </div>
+          </section>
+
           <div class="section-heading" id="equipment-cameras">
             <p class="eyebrow">Equipment</p>
             <h2>Featured cameras from the inventory list.</h2>

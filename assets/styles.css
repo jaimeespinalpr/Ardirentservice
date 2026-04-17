@@ -957,6 +957,140 @@ h1 {
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
+.rental-system {
+  margin-bottom: 1.6rem;
+  padding: 1.1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: linear-gradient(180deg, #ffffff, #f1f1f1);
+  box-shadow: var(--shadow);
+}
+
+.rental-top h2 {
+  margin: 0 0 0.45rem;
+}
+
+.rental-note {
+  margin: 0;
+  color: var(--muted);
+}
+
+.rental-dates {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  align-items: end;
+}
+
+.rental-dates .field {
+  margin: 0;
+}
+
+.rental-status {
+  margin: 0.8rem 0 0;
+  padding: 0.65rem 0.8rem;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+  font-size: 0.94rem;
+}
+
+.rental-status[data-state="error"] {
+  border-color: rgba(120, 0, 0, 0.35);
+  background: rgba(255, 228, 228, 0.9);
+}
+
+.rental-status[data-state="success"] {
+  border-color: rgba(0, 110, 0, 0.28);
+  background: rgba(226, 252, 226, 0.9);
+}
+
+.rental-cart {
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.rental-cart h3 {
+  margin: 0 0 0.55rem;
+}
+
+.rental-cart-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.rental-cart-total {
+  margin: 0.8rem 0 0.6rem;
+  font-weight: 700;
+}
+
+.rental-checkout {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.rental-card-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.65rem;
+}
+
+.rental-availability-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.rental-availability-badge.available {
+  border-color: rgba(0, 120, 0, 0.32);
+  background: rgba(222, 250, 222, 0.95);
+}
+
+.rental-availability-badge.unavailable {
+  border-color: rgba(130, 0, 0, 0.35);
+  background: rgba(255, 228, 228, 0.95);
+}
+
+.rental-card-button {
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0.5rem 0.78rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rental-card-button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.equipment-card.is-unavailable {
+  opacity: 0.6;
+}
+
+.equipment-card.is-selected {
+  border-color: rgba(0, 0, 0, 0.32);
+}
+
 .site-footer {
   padding: 1.5rem 0 2.25rem;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
@@ -1060,6 +1194,8 @@ h1 {
   .hero-grid,
   .production-grid,
   .contact-grid,
+  .rental-dates,
+  .rental-checkout,
   .production-stack,
   .about-grid,
   .split-grid,

@@ -1350,6 +1350,10 @@ const applyCopy = (lang) => {
     menuToggle.setAttribute("aria-expanded", menuOpen ? "true" : "false");
   }
 
+  if (typeof window.updateRentalCopy === "function") {
+    window.updateRentalCopy(lang);
+  }
+
   localStorage.setItem("ardi-language", lang);
 };
 
@@ -1369,7 +1373,6 @@ const markCurrentPageInNav = () => {
     "about.html": "about",
     "services.html": "services",
     "equipment.html": "equipment",
-    "lenses.html": "lenses",
     "production.html": "production",
     "contact.html": "contact",
   };
@@ -1421,6 +1424,420 @@ revealTargets.forEach((element) => observer.observe(element));
 const initialLanguage = getInitialLanguage();
 applyCopy(initialLanguage);
 markCurrentPageInNav();
+
+const rentalCopy = {
+  en: {
+    eyebrow: "Rent by date",
+    title: "Choose your rental dates first.",
+    note: "Pick the date range first so we can show exactly what is available.",
+    startLabel: "Start date",
+    endLabel: "End date",
+    checkButton: "Check availability",
+    cartTitle: "Rental cart",
+    emptyCart: "No equipment selected yet.",
+    totalLabel: "Total",
+    nameLabel: "Full name",
+    emailLabel: "Email",
+    phoneLabel: "WhatsApp / phone",
+    payButton: "Pay and reserve",
+    statusSelectDates: "Select your dates to unlock rentals.",
+    statusChecking: "Checking availability...",
+    statusReady: "Availability updated. Add available gear to your cart.",
+    statusUnavailable: "Some items are not available for these dates.",
+    statusBackendMissing:
+      "Availability and payment require PHP hosting. Local static preview cannot process rentals.",
+    statusConfirmed: "Reservation confirmed and paid. Your selected dates are now blocked.",
+    statusCancelled: "Checkout was cancelled. No reservation was created.",
+    statusConflict: "Those dates were just booked by another order. Choose another range.",
+    statusError: "We could not process that request. Please try again.",
+    badgeLocked: "Select dates",
+    badgeAvailable: "Available",
+    badgeUnavailable: "Not available",
+    buttonAdd: "Add",
+    buttonRemove: "Remove",
+    buttonUnavailable: "Unavailable",
+    buttonLoading: "Checking...",
+    perDay: "/day",
+  },
+  es: {
+    eyebrow: "Alquila por fecha",
+    title: "Elige primero las fechas de renta.",
+    note: "Selecciona el rango de fechas primero para mostrar disponibilidad real.",
+    startLabel: "Fecha de inicio",
+    endLabel: "Fecha de fin",
+    checkButton: "Ver disponibilidad",
+    cartTitle: "Carrito de renta",
+    emptyCart: "Aun no has seleccionado equipos.",
+    totalLabel: "Total",
+    nameLabel: "Nombre completo",
+    emailLabel: "Correo",
+    phoneLabel: "WhatsApp / telefono",
+    payButton: "Pagar y reservar",
+    statusSelectDates: "Selecciona fechas para desbloquear alquileres.",
+    statusChecking: "Verificando disponibilidad...",
+    statusReady: "Disponibilidad actualizada. Agrega equipos disponibles al carrito.",
+    statusUnavailable: "Algunos equipos no estan disponibles en esas fechas.",
+    statusBackendMissing:
+      "La disponibilidad y el cobro requieren hosting con PHP. En vista local estatica no se procesa renta.",
+    statusConfirmed: "Reserva confirmada y pagada. Esas fechas ya quedaron bloqueadas.",
+    statusCancelled: "El checkout fue cancelado. No se creo ninguna reserva.",
+    statusConflict: "Esas fechas ya se reservaron en otra orden. Elige otro rango.",
+    statusError: "No se pudo procesar la solicitud. Intenta otra vez.",
+    badgeLocked: "Elige fechas",
+    badgeAvailable: "Disponible",
+    badgeUnavailable: "No disponible",
+    buttonAdd: "Agregar",
+    buttonRemove: "Quitar",
+    buttonUnavailable: "No disponible",
+    buttonLoading: "Verificando...",
+    perDay: "/dia",
+  },
+};
+
+const setupRentalSystem = () => {
+  const root = document.querySelector("#rental-system");
+  if (!root) return;
+
+  const host = (window.location.hostname || "").toLowerCase();
+  const isStaticRuntime = window.location.protocol === "file:" || host.endsWith("github.io");
+  const availabilityEndpoint = root.getAttribute("data-availability-endpoint") || "rentals_availability.php";
+  const checkoutEndpoint = root.getAttribute("data-checkout-endpoint") || "rentals_checkout.php";
+  const dailyRateCents = Number.parseInt(root.getAttribute("data-daily-rate-cents") || "5000", 10) || 5000;
+
+  const datesForm = root.querySelector("[data-rental-dates]");
+  const checkoutForm = root.querySelector("[data-rental-checkout]");
+  const cartList = root.querySelector("[data-rental-cart-list]");
+  const statusNode = root.querySelector("[data-rental-status]");
+  if (!datesForm || !checkoutForm || !cartList || !statusNode) return;
+
+  const startInput = datesForm.querySelector('[name="start_date"]');
+  const endInput = datesForm.querySelector('[name="end_date"]');
+  const checkoutName = checkoutForm.querySelector('[name="name"]');
+  const checkoutEmail = checkoutForm.querySelector('[name="email"]');
+  const checkoutPhone = checkoutForm.querySelector('[name="phone"]');
+  const checkButton = datesForm.querySelector('button[type="submit"]');
+  const payButton = checkoutForm.querySelector('button[type="submit"]');
+  if (!startInput || !endInput || !checkoutName || !checkoutEmail || !checkoutPhone || !checkButton || !payButton) return;
+
+  const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+  const allCards = Array.from(
+    document.querySelectorAll("#equipment .equipment-grid .equipment-card")
+  );
+
+  const slugify = (value) =>
+    value
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+  const state = {
+    lang: document.documentElement.lang === "es" ? "es" : "en",
+    selectedIds: new Set(),
+    unavailable: new Set(),
+    datesReady: false,
+    checking: false,
+    items: [],
+  };
+
+  const copy = () => rentalCopy[state.lang] || rentalCopy.en;
+  const daysSelected = () => {
+    if (!state.datesReady) return 0;
+    const startDate = new Date(startInput.value);
+    const endDate = new Date(endInput.value);
+    const ms = endDate.getTime() - startDate.getTime();
+    return Math.floor(ms / 86400000) + 1;
+  };
+
+  const setStatus = (message, tone = "info") => {
+    statusNode.textContent = message;
+    statusNode.setAttribute("data-state", tone);
+  };
+
+  const createCardControls = () => {
+    allCards.forEach((card) => {
+      const title = card.querySelector("h3")?.textContent?.trim() || "item";
+      const itemId = slugify(title);
+      card.setAttribute("data-rental-item-id", itemId);
+      card.setAttribute("data-rental-item-title", title);
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "rental-card-actions";
+
+      const badge = document.createElement("span");
+      badge.className = "rental-availability-badge";
+      badge.setAttribute("data-rental-badge", itemId);
+      wrapper.appendChild(badge);
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "rental-card-button";
+      button.setAttribute("data-rental-toggle", itemId);
+      wrapper.appendChild(button);
+
+      card.appendChild(wrapper);
+      state.items.push({ id: itemId, title, card, badge, button });
+    });
+  };
+
+  const renderCardStates = () => {
+    const text = copy();
+    state.items.forEach((item) => {
+      const unavailable = state.unavailable.has(item.id);
+      const selected = state.selectedIds.has(item.id);
+
+      item.card.classList.toggle("is-unavailable", unavailable);
+      item.card.classList.toggle("is-selected", selected);
+
+      if (!state.datesReady) {
+        item.badge.textContent = text.badgeLocked;
+        item.badge.classList.remove("available", "unavailable");
+        item.button.textContent = text.buttonAdd;
+        item.button.disabled = true;
+        return;
+      }
+
+      item.badge.textContent = unavailable ? text.badgeUnavailable : text.badgeAvailable;
+      item.badge.classList.toggle("available", !unavailable);
+      item.badge.classList.toggle("unavailable", unavailable);
+
+      if (unavailable) {
+        item.button.textContent = text.buttonUnavailable;
+        item.button.disabled = true;
+      } else {
+        item.button.textContent = selected ? text.buttonRemove : text.buttonAdd;
+        item.button.disabled = state.checking;
+      }
+    });
+  };
+
+  const renderCart = () => {
+    const text = copy();
+    const selectedItems = state.items.filter((item) => state.selectedIds.has(item.id));
+    cartList.innerHTML = "";
+
+    if (selectedItems.length === 0) {
+      const li = document.createElement("li");
+      li.textContent = text.emptyCart;
+      cartList.appendChild(li);
+    } else {
+      selectedItems.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item.title;
+        cartList.appendChild(li);
+      });
+    }
+
+    const totalNode = root.querySelector(".rental-cart-total");
+    if (totalNode) {
+      const days = daysSelected();
+      const total = selectedItems.length * dailyRateCents * Math.max(days, 0);
+      totalNode.textContent = `${text.totalLabel}: ${currency.format(total / 100)}`;
+    }
+  };
+
+  const isValidDateRange = () =>
+    startInput.value !== "" && endInput.value !== "" && startInput.value <= endInput.value;
+
+  const collectItemIds = () => state.items.map((item) => item.id);
+
+  const fetchAvailability = async () => {
+    if (!isValidDateRange()) {
+      state.datesReady = false;
+      state.unavailable = new Set();
+      state.selectedIds.clear();
+      setStatus(copy().statusSelectDates, "info");
+      renderCardStates();
+      renderCart();
+      return;
+    }
+
+    state.datesReady = true;
+    state.checking = true;
+    checkButton.textContent = copy().buttonLoading;
+    setStatus(copy().statusChecking, "info");
+    renderCardStates();
+
+    if (isStaticRuntime) {
+      state.unavailable = new Set();
+      state.checking = false;
+      checkButton.textContent = copy().checkButton;
+      setStatus(copy().statusBackendMissing, "error");
+      renderCardStates();
+      renderCart();
+      return;
+    }
+
+    const params = new URLSearchParams({
+      start_date: startInput.value,
+      end_date: endInput.value,
+      items: collectItemIds().join(","),
+    });
+
+    try {
+      const response = await fetch(`${availabilityEndpoint}?${params.toString()}`, {
+        method: "GET",
+        headers: { Accept: "application/json" },
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "availability_error");
+      }
+
+      const unavailable = Array.isArray(data.unavailable) ? data.unavailable : [];
+      state.unavailable = new Set(unavailable);
+      unavailable.forEach((id) => state.selectedIds.delete(id));
+      setStatus(
+        unavailable.length > 0 ? copy().statusUnavailable : copy().statusReady,
+        unavailable.length > 0 ? "error" : "success"
+      );
+    } catch (error) {
+      setStatus(copy().statusError, "error");
+    } finally {
+      state.checking = false;
+      checkButton.textContent = copy().checkButton;
+      renderCardStates();
+      renderCart();
+    }
+  };
+
+  const checkout = async () => {
+    if (!state.datesReady || !isValidDateRange()) {
+      setStatus(copy().statusSelectDates, "error");
+      return;
+    }
+    const selectedItems = state.items.filter((item) => state.selectedIds.has(item.id));
+    if (selectedItems.length === 0) {
+      setStatus(copy().emptyCart, "error");
+      return;
+    }
+    if (isStaticRuntime) {
+      setStatus(copy().statusBackendMissing, "error");
+      return;
+    }
+
+    payButton.disabled = true;
+    payButton.textContent = copy().buttonLoading;
+
+    try {
+      const response = await fetch(checkoutEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          start_date: startInput.value,
+          end_date: endInput.value,
+          customer: {
+            name: checkoutName.value.trim(),
+            email: checkoutEmail.value.trim(),
+            phone: checkoutPhone.value.trim(),
+          },
+          items: selectedItems.map((item) => ({ id: item.id, title: item.title })),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok || !data.checkout_url) {
+        if (Array.isArray(data.unavailable)) {
+          state.unavailable = new Set(data.unavailable);
+          data.unavailable.forEach((id) => state.selectedIds.delete(id));
+          renderCardStates();
+          renderCart();
+          setStatus(copy().statusConflict, "error");
+          return;
+        }
+        throw new Error(data.error || "checkout_error");
+      }
+
+      window.location.href = data.checkout_url;
+    } catch (error) {
+      setStatus(copy().statusError, "error");
+    } finally {
+      payButton.disabled = false;
+      payButton.textContent = copy().payButton;
+    }
+  };
+
+  const renderCopy = (lang) => {
+    state.lang = lang === "es" ? "es" : "en";
+    const text = copy();
+    root.querySelector('[data-rental-copy="eyebrow"]')?.replaceChildren(document.createTextNode(text.eyebrow));
+    root.querySelector('[data-rental-copy="title"]')?.replaceChildren(document.createTextNode(text.title));
+    root.querySelector('[data-rental-copy="note"]')?.replaceChildren(document.createTextNode(text.note));
+    root.querySelector('[data-rental-copy="startLabel"]')?.replaceChildren(document.createTextNode(text.startLabel));
+    root.querySelector('[data-rental-copy="endLabel"]')?.replaceChildren(document.createTextNode(text.endLabel));
+    checkButton.textContent = state.checking ? text.buttonLoading : text.checkButton;
+    root.querySelector('[data-rental-copy="cartTitle"]')?.replaceChildren(document.createTextNode(text.cartTitle));
+    root.querySelector('[data-rental-copy="nameLabel"]')?.replaceChildren(document.createTextNode(text.nameLabel));
+    root.querySelector('[data-rental-copy="emailLabel"]')?.replaceChildren(document.createTextNode(text.emailLabel));
+    root.querySelector('[data-rental-copy="phoneLabel"]')?.replaceChildren(document.createTextNode(text.phoneLabel));
+    payButton.textContent = text.payButton;
+    renderCardStates();
+    renderCart();
+  };
+
+  const handleQueryStatus = () => {
+    const params = new URLSearchParams(window.location.search);
+    const rentalState = params.get("rental");
+    if (!rentalState) return;
+
+    if (rentalState === "confirmed") setStatus(copy().statusConfirmed, "success");
+    if (rentalState === "cancelled") setStatus(copy().statusCancelled, "info");
+    if (rentalState === "conflict") setStatus(copy().statusConflict, "error");
+    if (rentalState === "error" || rentalState === "unpaid") setStatus(copy().statusError, "error");
+  };
+
+  createCardControls();
+  renderCopy(state.lang);
+  setStatus(copy().statusSelectDates, "info");
+  renderCardStates();
+  renderCart();
+  handleQueryStatus();
+
+  datesForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    void fetchAvailability();
+  });
+
+  [startInput, endInput].forEach((input) => {
+    input.addEventListener("change", () => {
+      if (isValidDateRange()) {
+        void fetchAvailability();
+      } else {
+        state.datesReady = false;
+        state.unavailable = new Set();
+        state.selectedIds.clear();
+        renderCardStates();
+        renderCart();
+        setStatus(copy().statusSelectDates, "info");
+      }
+    });
+  });
+
+  state.items.forEach((item) => {
+    item.button.addEventListener("click", () => {
+      if (!state.datesReady || state.unavailable.has(item.id)) return;
+      if (state.selectedIds.has(item.id)) {
+        state.selectedIds.delete(item.id);
+      } else {
+        state.selectedIds.add(item.id);
+      }
+      renderCardStates();
+      renderCart();
+    });
+  });
+
+  checkoutForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    void checkout();
+  });
+
+  window.updateRentalCopy = renderCopy;
+};
+
+setupRentalSystem();
 
 const isMobileMenuViewport = () => window.matchMedia("(max-width: 960px)").matches;
 const siteHeader = document.querySelector(".site-header");
