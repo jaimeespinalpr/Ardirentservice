@@ -1019,7 +1019,6 @@ const revealTargets = document.querySelectorAll(
     ".project-form",
     ".vision-card",
     ".contact-card",
-    ".section",
   ].join(", ")
 );
 
