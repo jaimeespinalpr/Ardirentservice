@@ -1519,15 +1519,20 @@ const rentalCopy = {
     nameLabel: "Full name",
     emailLabel: "Email",
     phoneLabel: "WhatsApp / phone",
-    payButton: "Reserve (Cash)",
+    payButtonStripe: "Pay with Stripe",
+    payButtonCash: "Reserve (Cash)",
     statusSelectDates: "Select your dates to unlock rentals.",
     statusChecking: "Checking availability...",
     statusReady: "Availability updated. Add available gear to your cart.",
     statusUnavailable: "Some items are not available for these dates.",
     statusBackendMissing:
-      "Cash mode is active. Reservations are saved in this browser for now.",
+      "Stripe mode needs PHP hosting and STRIPE_SECRET_KEY configured on your server.",
+    statusCashMode:
+      "Cash demo mode is active. Reservations are saved in this browser for now.",
     statusConfirmed:
       "Cash reservation confirmed. Your selected dates are now blocked for those items.",
+    statusRedirecting: "Redirecting to Stripe Checkout...",
+    statusStripeError: "Stripe checkout is not configured yet. Please set STRIPE_SECRET_KEY.",
     statusCancelled: "Checkout was cancelled. No reservation was created.",
     statusConflict: "Those dates were just booked by another order. Choose another range.",
     statusError: "We could not process that request. Please try again.",
@@ -1554,15 +1559,20 @@ const rentalCopy = {
     nameLabel: "Nombre completo",
     emailLabel: "Correo",
     phoneLabel: "WhatsApp / telefono",
-    payButton: "Reservar en efectivo",
+    payButtonStripe: "Pagar con Stripe",
+    payButtonCash: "Reservar en efectivo",
     statusSelectDates: "Selecciona fechas para desbloquear alquileres.",
     statusChecking: "Verificando disponibilidad...",
     statusReady: "Disponibilidad actualizada. Agrega equipos disponibles al carrito.",
     statusUnavailable: "Algunos equipos no estan disponibles en esas fechas.",
     statusBackendMissing:
-      "Modo efectivo activo. Las reservas se guardan en este navegador por ahora.",
+      "El modo Stripe requiere hosting con PHP y STRIPE_SECRET_KEY configurado en el servidor.",
+    statusCashMode:
+      "Modo demostración en efectivo activo. Las reservas se guardan en este navegador por ahora.",
     statusConfirmed:
       "Reserva en efectivo confirmada. Esas fechas ya quedaron bloqueadas para esos equipos.",
+    statusRedirecting: "Redirigiendo a Stripe Checkout...",
+    statusStripeError: "Stripe aun no esta configurado. Define STRIPE_SECRET_KEY.",
     statusCancelled: "El checkout fue cancelado. No se creo ninguna reserva.",
     statusConflict: "Esas fechas ya se reservaron en otra orden. Elige otro rango.",
     statusError: "No se pudo procesar la solicitud. Intenta otra vez.",
@@ -1581,6 +1591,12 @@ const setupRentalSystem = () => {
   const root = document.querySelector("#rental-system");
   if (!root) return;
 
+  const host = (window.location.hostname || "").toLowerCase();
+  const isStaticRuntime = window.location.protocol === "file:" || host.endsWith("github.io");
+  const availabilityEndpoint = root.getAttribute("data-availability-endpoint") || "rentals_availability.php";
+  const checkoutEndpoint = root.getAttribute("data-checkout-endpoint") || "rentals_checkout.php";
+  const modePref = (root.getAttribute("data-payment-mode") || "auto").toLowerCase();
+  const isCashMode = modePref === "cash" || (modePref === "auto" && isStaticRuntime);
   const dailyRateCents = Number.parseInt(root.getAttribute("data-daily-rate-cents") || "5000", 10) || 5000;
   const reservationStorageKey = "ardi-rental-cash-reservations-v1";
 
@@ -1622,6 +1638,7 @@ const setupRentalSystem = () => {
   };
 
   const copy = () => rentalCopy[state.lang] || rentalCopy.en;
+  const payButtonLabel = () => (isCashMode ? copy().payButtonCash : copy().payButtonStripe);
   const loadReservations = () => {
     try {
       const raw = localStorage.getItem(reservationStorageKey);
@@ -1769,6 +1786,41 @@ const setupRentalSystem = () => {
     setStatus(copy().statusChecking, "info");
     renderCardStates();
 
+    if (!isCashMode) {
+      const params = new URLSearchParams({
+        start_date: startInput.value,
+        end_date: endInput.value,
+        items: collectItemIds().join(","),
+      });
+
+      try {
+        const response = await fetch(`${availabilityEndpoint}?${params.toString()}`, {
+          method: "GET",
+          headers: { Accept: "application/json" },
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || "availability_error");
+        }
+
+        const unavailable = Array.isArray(data.unavailable) ? data.unavailable : [];
+        state.unavailable = new Set(unavailable);
+        unavailable.forEach((id) => state.selectedIds.delete(id));
+        setStatus(
+          unavailable.length > 0 ? copy().statusUnavailable : copy().statusReady,
+          unavailable.length > 0 ? "error" : "success"
+        );
+      } catch (error) {
+        setStatus(copy().statusBackendMissing, "error");
+      } finally {
+        state.checking = false;
+        checkButton.textContent = copy().checkButton;
+        renderCardStates();
+        renderCart();
+      }
+      return;
+    }
+
     try {
       const unavailable = unavailableForRange(
         startInput.value,
@@ -1808,6 +1860,53 @@ const setupRentalSystem = () => {
 
     payButton.disabled = true;
     payButton.textContent = copy().buttonLoading;
+
+    if (!isCashMode) {
+      try {
+        const response = await fetch(checkoutEndpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            start_date: startInput.value,
+            end_date: endInput.value,
+            customer: {
+              name: checkoutName.value.trim(),
+              email: checkoutEmail.value.trim(),
+              phone: checkoutPhone.value.trim(),
+            },
+            items: selectedItems.map((item) => ({ id: item.id, title: item.title })),
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok || !data.checkout_url) {
+          if (Array.isArray(data.unavailable)) {
+            state.unavailable = new Set(data.unavailable);
+            data.unavailable.forEach((id) => state.selectedIds.delete(id));
+            renderCardStates();
+            renderCart();
+            setStatus(copy().statusConflict, "error");
+            return;
+          }
+          if ((data.details || "").includes("missing_secret_key")) {
+            setStatus(copy().statusStripeError, "error");
+            return;
+          }
+          throw new Error(data.error || "checkout_error");
+        }
+
+        setStatus(copy().statusRedirecting, "info");
+        window.location.href = data.checkout_url;
+      } catch (error) {
+        setStatus(copy().statusStripeError, "error");
+      } finally {
+        payButton.disabled = false;
+        payButton.textContent = payButtonLabel();
+      }
+      return;
+    }
 
     try {
       const selectedIds = selectedItems.map((item) => item.id);
@@ -1869,7 +1968,7 @@ const setupRentalSystem = () => {
     root.querySelector('[data-rental-copy="nameLabel"]')?.replaceChildren(document.createTextNode(text.nameLabel));
     root.querySelector('[data-rental-copy="emailLabel"]')?.replaceChildren(document.createTextNode(text.emailLabel));
     root.querySelector('[data-rental-copy="phoneLabel"]')?.replaceChildren(document.createTextNode(text.phoneLabel));
-    payButton.textContent = text.payButton;
+    payButton.textContent = payButtonLabel();
     renderCardStates();
     renderCart();
   };
@@ -1890,7 +1989,7 @@ const setupRentalSystem = () => {
   startInput.setAttribute("min", today);
   endInput.setAttribute("min", today);
   renderCopy(state.lang);
-  setStatus(copy().statusBackendMissing, "info");
+  setStatus(isCashMode ? copy().statusCashMode : copy().statusSelectDates, "info");
   renderCardStates();
   renderCart();
   handleQueryStatus();
