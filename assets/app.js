@@ -413,11 +413,11 @@ const translations = {
     },
     about: {
       eyebrow: "Acerca de nosotros",
-      title: "Ardiel Jimenez: 30 anos entre el oceano, la imagen y la produccion.",
+      title: "Ardiel Jiménez: por más de 30 años entre el océano, la imagen y la producción.",
       lead1:
-        "Nacido en Maspalomas, Gran Canaria, Ardiel construyo su carrera entre el bodyboard profesional y la narrativa visual. Tras anos trabajando junto a fotografos y realizadores, paso de estar frente al objetivo a crear sus propios proyectos de foto y video.",
+        "Nacido en Maspalomas, Gran Canaria, Ardiel construyó su carrera entre el bodyboard profesional y la narrativa visual. Tras años trabajando junto a fotógrafos y realizadores, pasó de estar frente al objetivo a crear sus propios proyectos de foto y video.",
       lead2:
-        "En 2011 gano el Campeonato Mundial DK ISA y luego se enfoco de lleno en la produccion audiovisual. Hoy, desde Puerto Rico, realiza trabajos de fotografia y video para marcas, revistas, negocios y producciones independientes, combinando experiencia deportiva con una mirada tecnica y creativa.",
+        "En 2011 ganó el Campeonato Mundial DK ISA y luego se enfocó de lleno en la producción audiovisual. Hoy, desde Puerto Rico, realiza trabajos de fotografía y video para marcas, revistas, negocios y producciones independientes, combinando experiencia deportiva con una mirada técnica y creativa.",
       facts: [
         ["Origen", "Maspalomas, Gran Canaria (Islas Canarias)"],
         ["Residencia actual", "Puerto Rico"],
@@ -426,7 +426,7 @@ const translations = {
       portraitCaption: "Retrato de perfil público",
       actionCaption: "Cobertura de surf y trabajo en acción",
       quote:
-        "Despues de competir por el mundo, elegi contar historias desde detras de la camara.",
+        "Después de competir por el mundo, elegí contar historias desde detrás de la cámara.",
       quoteSource: "Ardi Rent & Service",
     },
     services: {
@@ -754,7 +754,7 @@ const translations = {
         {
           tag: "Fija",
           title: "Sony Carl Zeiss Sonnar T* FE 35mm f/2.8 ZA",
-          text: "Especificaciones: fija 35mm | f/2.8 | enfoque min. 0.35 m | filtro 49 mm | 120 g. Mejor para: viajes, street y configuraciones ultra ligeras. Es un lente Sony-Zeiss con anos en el mercado y muy valorado por su tamano compacto y nitidez.",
+          text: "Especificaciones: fija 35mm | f/2.8 | enfoque min. 0.35 m | filtro 49 mm | 120 g. Mejor para: viajes, street y configuraciones ultra ligeras. Es un lente Sony-Zeiss con años en el mercado y muy valorado por su tamaño compacto y nitidez.",
           alt: "Lente Sony Carl Zeiss Sonnar T* FE 35mm f/2.8 ZA",
         },
         {
