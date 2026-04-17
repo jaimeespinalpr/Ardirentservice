@@ -1512,6 +1512,7 @@ const rentalCopy = {
     startLabel: "Start date",
     endLabel: "End date",
     checkButton: "Check availability",
+    sameDates: "These dates apply to all equipment in your cart.",
     cartTitle: "Rental cart",
     emptyCart: "No equipment selected yet.",
     totalLabel: "Total",
@@ -1524,7 +1525,7 @@ const rentalCopy = {
     statusReady: "Availability updated. Add available gear to your cart.",
     statusUnavailable: "Some items are not available for these dates.",
     statusBackendMissing:
-      "Availability and payment require PHP hosting. Local static preview cannot process rentals.",
+      "Local mode: dates and cart work, but live availability sync and payment require PHP hosting.",
     statusConfirmed: "Reservation confirmed and paid. Your selected dates are now blocked.",
     statusCancelled: "Checkout was cancelled. No reservation was created.",
     statusConflict: "Those dates were just booked by another order. Choose another range.",
@@ -1545,6 +1546,7 @@ const rentalCopy = {
     startLabel: "Fecha de inicio",
     endLabel: "Fecha de fin",
     checkButton: "Ver disponibilidad",
+    sameDates: "Estas fechas aplican a todos los equipos que agregues al carrito.",
     cartTitle: "Carrito de renta",
     emptyCart: "Aun no has seleccionado equipos.",
     totalLabel: "Total",
@@ -1557,7 +1559,7 @@ const rentalCopy = {
     statusReady: "Disponibilidad actualizada. Agrega equipos disponibles al carrito.",
     statusUnavailable: "Algunos equipos no estan disponibles en esas fechas.",
     statusBackendMissing:
-      "La disponibilidad y el cobro requieren hosting con PHP. En vista local estatica no se procesa renta.",
+      "Modo local: fechas y carrito funcionan, pero la disponibilidad en vivo y el cobro requieren hosting con PHP.",
     statusConfirmed: "Reserva confirmada y pagada. Esas fechas ya quedaron bloqueadas.",
     statusCancelled: "El checkout fue cancelado. No se creo ninguna reserva.",
     statusConflict: "Esas fechas ya se reservaron en otra orden. Elige otro rango.",
@@ -1695,6 +1697,10 @@ const setupRentalSystem = () => {
     const text = copy();
     const selectedItems = state.items.filter((item) => state.selectedIds.has(item.id));
     cartList.innerHTML = "";
+    const cartBox = root.querySelector(".rental-cart");
+    if (cartBox) {
+      cartBox.classList.toggle("is-pinned", selectedItems.length > 0);
+    }
 
     if (selectedItems.length === 0) {
       const li = document.createElement("li");
@@ -1742,7 +1748,7 @@ const setupRentalSystem = () => {
       state.unavailable = new Set();
       state.checking = false;
       checkButton.textContent = copy().checkButton;
-      setStatus(copy().statusBackendMissing, "error");
+      setStatus(copy().statusBackendMissing, "info");
       renderCardStates();
       renderCart();
       return;
@@ -1847,6 +1853,7 @@ const setupRentalSystem = () => {
     root.querySelector('[data-rental-copy="note"]')?.replaceChildren(document.createTextNode(text.note));
     root.querySelector('[data-rental-copy="startLabel"]')?.replaceChildren(document.createTextNode(text.startLabel));
     root.querySelector('[data-rental-copy="endLabel"]')?.replaceChildren(document.createTextNode(text.endLabel));
+    root.querySelector('[data-rental-copy="sameDates"]')?.replaceChildren(document.createTextNode(text.sameDates));
     checkButton.textContent = state.checking ? text.buttonLoading : text.checkButton;
     root.querySelector('[data-rental-copy="cartTitle"]')?.replaceChildren(document.createTextNode(text.cartTitle));
     root.querySelector('[data-rental-copy="nameLabel"]')?.replaceChildren(document.createTextNode(text.nameLabel));
@@ -1869,6 +1876,9 @@ const setupRentalSystem = () => {
   };
 
   createCardControls();
+  const today = new Date().toISOString().slice(0, 10);
+  startInput.setAttribute("min", today);
+  endInput.setAttribute("min", today);
   renderCopy(state.lang);
   setStatus(copy().statusSelectDates, "info");
   renderCardStates();
@@ -1882,6 +1892,12 @@ const setupRentalSystem = () => {
 
   [startInput, endInput].forEach((input) => {
     input.addEventListener("change", () => {
+      if (startInput.value !== "") {
+        endInput.setAttribute("min", startInput.value);
+        if (endInput.value !== "" && endInput.value < startInput.value) {
+          endInput.value = startInput.value;
+        }
+      }
       if (isValidDateRange()) {
         void fetchAvailability();
       } else {

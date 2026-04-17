@@ -990,6 +990,12 @@ h1 {
   align-items: end;
 }
 
+.rental-dates-note {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .rental-dates .field {
   margin: 0;
 }
@@ -1017,6 +1023,23 @@ h1 {
   margin-top: 0.9rem;
   padding-top: 0.8rem;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.rental-cart.is-pinned {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  width: min(92vw, 360px);
+  max-height: 70vh;
+  overflow: auto;
+  padding: 0.95rem;
+  margin-top: 0;
+  border-top: 0;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.2);
+  z-index: 45;
 }
 
 .rental-cart h3 {
@@ -1218,6 +1241,14 @@ h1 {
 
   h1 {
     max-width: none;
+  }
+
+  .rental-cart.is-pinned {
+    right: 0.6rem;
+    left: 0.6rem;
+    width: auto;
+    bottom: 0.6rem;
+    max-height: 56vh;
   }
 }
 
