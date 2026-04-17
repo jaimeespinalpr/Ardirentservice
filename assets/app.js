@@ -587,9 +587,9 @@ const translations = {
         cards: [
           {
             tag: "Carcasa",
-            title: "Aquatec Edge Waterhousing (Sony Full Frame)",
+            title: "Aquatech Edge Waterhousing (Sony Full Frame)",
             text: "Compatible con cuerpos Sony full frame, incluyendo Sony 7C3, 7R4 y 7R3, para producción subacuática y captura híbrida en mar.",
-            alt: "Carcasa Aquatec Edge para cámaras Sony full frame",
+            alt: "Carcasa Aquatech Edge para cámaras Sony full frame",
           },
           {
             tag: "Carcasa",
@@ -605,15 +605,15 @@ const translations = {
           },
           {
             tag: "Puertos",
-            title: "Aquatec Flat Ports (P35, P100, P130)",
-            text: "Set de puertos planos Aquatec P35, P100 y P130 para distintas configuraciones de lente y escenarios de filmación bajo el agua.",
-            alt: "Puerto plano Aquatec",
+            title: "Aquatech Flat Ports (P35, P100, P130)",
+            text: "Set de puertos planos Aquatech P35, P100 y P130 para distintas configuraciones de lente y escenarios de filmación bajo el agua.",
+            alt: "Puerto plano Aquatech",
           },
           {
             tag: "Domo",
-            title: "Aquatec Dome Ports (Large and Medium)",
-            text: "Puertos tipo domo Aquatec en tamaños mediano y grande para cobertura más amplia y mejor control de perspectiva subacuática.",
-            alt: "Puerto domo Aquatec",
+            title: "Aquatech Dome Ports (Large and Medium)",
+            text: "Puertos tipo domo Aquatech en tamaños mediano y grande para cobertura más amplia y mejor control de perspectiva subacuática.",
+            alt: "Puerto domo Aquatech",
           },
           {
             tag: "Accesorio",
