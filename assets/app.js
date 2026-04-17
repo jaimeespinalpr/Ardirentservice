@@ -1519,14 +1519,15 @@ const rentalCopy = {
     nameLabel: "Full name",
     emailLabel: "Email",
     phoneLabel: "WhatsApp / phone",
-    payButton: "Pay and reserve",
+    payButton: "Reserve (Cash)",
     statusSelectDates: "Select your dates to unlock rentals.",
     statusChecking: "Checking availability...",
     statusReady: "Availability updated. Add available gear to your cart.",
     statusUnavailable: "Some items are not available for these dates.",
     statusBackendMissing:
-      "Local mode: dates and cart work, but live availability sync and payment require PHP hosting.",
-    statusConfirmed: "Reservation confirmed and paid. Your selected dates are now blocked.",
+      "Cash mode is active. Reservations are saved in this browser for now.",
+    statusConfirmed:
+      "Cash reservation confirmed. Your selected dates are now blocked for those items.",
     statusCancelled: "Checkout was cancelled. No reservation was created.",
     statusConflict: "Those dates were just booked by another order. Choose another range.",
     statusError: "We could not process that request. Please try again.",
@@ -1536,7 +1537,7 @@ const rentalCopy = {
     buttonAdd: "Add",
     buttonRemove: "Remove",
     buttonUnavailable: "Unavailable",
-    buttonLoading: "Checking...",
+    buttonLoading: "Processing...",
     perDay: "/day",
   },
   es: {
@@ -1553,14 +1554,15 @@ const rentalCopy = {
     nameLabel: "Nombre completo",
     emailLabel: "Correo",
     phoneLabel: "WhatsApp / telefono",
-    payButton: "Pagar y reservar",
+    payButton: "Reservar en efectivo",
     statusSelectDates: "Selecciona fechas para desbloquear alquileres.",
     statusChecking: "Verificando disponibilidad...",
     statusReady: "Disponibilidad actualizada. Agrega equipos disponibles al carrito.",
     statusUnavailable: "Algunos equipos no estan disponibles en esas fechas.",
     statusBackendMissing:
-      "Modo local: fechas y carrito funcionan, pero la disponibilidad en vivo y el cobro requieren hosting con PHP.",
-    statusConfirmed: "Reserva confirmada y pagada. Esas fechas ya quedaron bloqueadas.",
+      "Modo efectivo activo. Las reservas se guardan en este navegador por ahora.",
+    statusConfirmed:
+      "Reserva en efectivo confirmada. Esas fechas ya quedaron bloqueadas para esos equipos.",
     statusCancelled: "El checkout fue cancelado. No se creo ninguna reserva.",
     statusConflict: "Esas fechas ya se reservaron en otra orden. Elige otro rango.",
     statusError: "No se pudo procesar la solicitud. Intenta otra vez.",
@@ -1570,7 +1572,7 @@ const rentalCopy = {
     buttonAdd: "Agregar",
     buttonRemove: "Quitar",
     buttonUnavailable: "No disponible",
-    buttonLoading: "Verificando...",
+    buttonLoading: "Procesando...",
     perDay: "/dia",
   },
 };
@@ -1579,11 +1581,8 @@ const setupRentalSystem = () => {
   const root = document.querySelector("#rental-system");
   if (!root) return;
 
-  const host = (window.location.hostname || "").toLowerCase();
-  const isStaticRuntime = window.location.protocol === "file:" || host.endsWith("github.io");
-  const availabilityEndpoint = root.getAttribute("data-availability-endpoint") || "rentals_availability.php";
-  const checkoutEndpoint = root.getAttribute("data-checkout-endpoint") || "rentals_checkout.php";
   const dailyRateCents = Number.parseInt(root.getAttribute("data-daily-rate-cents") || "5000", 10) || 5000;
+  const reservationStorageKey = "ardi-rental-cash-reservations-v1";
 
   const datesForm = root.querySelector("[data-rental-dates]");
   const checkoutForm = root.querySelector("[data-rental-checkout]");
@@ -1623,6 +1622,32 @@ const setupRentalSystem = () => {
   };
 
   const copy = () => rentalCopy[state.lang] || rentalCopy.en;
+  const loadReservations = () => {
+    try {
+      const raw = localStorage.getItem(reservationStorageKey);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      return [];
+    }
+  };
+  const saveReservations = (reservations) => {
+    localStorage.setItem(reservationStorageKey, JSON.stringify(reservations));
+  };
+  const rangesOverlap = (startA, endA, startB, endB) => startA <= endB && endA >= startB;
+  const unavailableForRange = (startDate, endDate, itemIds) => {
+    const reservations = loadReservations();
+    const blocked = new Set();
+    reservations.forEach((reservation) => {
+      if (!reservation || reservation.status !== "reserved_cash") return;
+      if (!rangesOverlap(startDate, endDate, reservation.start_date, reservation.end_date)) return;
+      const ids = Array.isArray(reservation.item_ids) ? reservation.item_ids : [];
+      ids.forEach((id) => {
+        if (itemIds.includes(id)) blocked.add(id);
+      });
+    });
+    return Array.from(blocked);
+  };
   const daysSelected = () => {
     if (!state.datesReady) return 0;
     const startDate = new Date(startInput.value);
@@ -1744,33 +1769,12 @@ const setupRentalSystem = () => {
     setStatus(copy().statusChecking, "info");
     renderCardStates();
 
-    if (isStaticRuntime) {
-      state.unavailable = new Set();
-      state.checking = false;
-      checkButton.textContent = copy().checkButton;
-      setStatus(copy().statusBackendMissing, "info");
-      renderCardStates();
-      renderCart();
-      return;
-    }
-
-    const params = new URLSearchParams({
-      start_date: startInput.value,
-      end_date: endInput.value,
-      items: collectItemIds().join(","),
-    });
-
     try {
-      const response = await fetch(`${availabilityEndpoint}?${params.toString()}`, {
-        method: "GET",
-        headers: { Accept: "application/json" },
-      });
-      const data = await response.json();
-      if (!response.ok || !data.ok) {
-        throw new Error(data.error || "availability_error");
-      }
-
-      const unavailable = Array.isArray(data.unavailable) ? data.unavailable : [];
+      const unavailable = unavailableForRange(
+        startInput.value,
+        endInput.value,
+        collectItemIds()
+      );
       state.unavailable = new Set(unavailable);
       unavailable.forEach((id) => state.selectedIds.delete(id));
       setStatus(
@@ -1797,8 +1801,8 @@ const setupRentalSystem = () => {
       setStatus(copy().emptyCart, "error");
       return;
     }
-    if (isStaticRuntime) {
-      setStatus(copy().statusBackendMissing, "error");
+    if (checkoutName.value.trim() === "" || checkoutEmail.value.trim() === "") {
+      setStatus(copy().statusError, "error");
       return;
     }
 
@@ -1806,37 +1810,43 @@ const setupRentalSystem = () => {
     payButton.textContent = copy().buttonLoading;
 
     try {
-      const response = await fetch(checkoutEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          start_date: startInput.value,
-          end_date: endInput.value,
-          customer: {
-            name: checkoutName.value.trim(),
-            email: checkoutEmail.value.trim(),
-            phone: checkoutPhone.value.trim(),
-          },
-          items: selectedItems.map((item) => ({ id: item.id, title: item.title })),
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok || !data.ok || !data.checkout_url) {
-        if (Array.isArray(data.unavailable)) {
-          state.unavailable = new Set(data.unavailable);
-          data.unavailable.forEach((id) => state.selectedIds.delete(id));
-          renderCardStates();
-          renderCart();
-          setStatus(copy().statusConflict, "error");
-          return;
-        }
-        throw new Error(data.error || "checkout_error");
+      const selectedIds = selectedItems.map((item) => item.id);
+      const unavailableNow = unavailableForRange(startInput.value, endInput.value, selectedIds);
+      if (unavailableNow.length > 0) {
+        state.unavailable = new Set([...state.unavailable, ...unavailableNow]);
+        unavailableNow.forEach((id) => state.selectedIds.delete(id));
+        renderCardStates();
+        renderCart();
+        setStatus(copy().statusConflict, "error");
+        return;
       }
 
-      window.location.href = data.checkout_url;
+      const reservations = loadReservations();
+      reservations.push({
+        id: `cash-${Date.now()}`,
+        status: "reserved_cash",
+        payment_method: "cash",
+        start_date: startInput.value,
+        end_date: endInput.value,
+        item_ids: selectedIds,
+        item_titles: selectedItems.map((item) => item.title),
+        customer: {
+          name: checkoutName.value.trim(),
+          email: checkoutEmail.value.trim(),
+          phone: checkoutPhone.value.trim(),
+        },
+        created_at: new Date().toISOString(),
+      });
+      saveReservations(reservations);
+
+      state.selectedIds.clear();
+      state.unavailable = new Set(
+        unavailableForRange(startInput.value, endInput.value, collectItemIds())
+      );
+      checkoutForm.reset();
+      setStatus(copy().statusConfirmed, "success");
+      renderCardStates();
+      renderCart();
     } catch (error) {
       setStatus(copy().statusError, "error");
     } finally {
@@ -1880,7 +1890,7 @@ const setupRentalSystem = () => {
   startInput.setAttribute("min", today);
   endInput.setAttribute("min", today);
   renderCopy(state.lang);
-  setStatus(copy().statusSelectDates, "info");
+  setStatus(copy().statusBackendMissing, "info");
   renderCardStates();
   renderCart();
   handleQueryStatus();
