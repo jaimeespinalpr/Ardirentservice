@@ -257,6 +257,11 @@ a {
   color: var(--text);
 }
 
+.nav-links a.is-current {
+  color: var(--text);
+  font-weight: 700;
+}
+
 .button {
   display: inline-flex;
   align-items: center;

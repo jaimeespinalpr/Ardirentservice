@@ -886,12 +886,12 @@ const translations = {
 
 const selectors = {
   nav: {
-    about: '.nav-links a[href="#about"]',
-    services: '.nav-links a[href="#services"]',
-    equipment: '.nav-links a[href="#equipment"]',
-    lenses: '.nav-links a[href="#lenses"]',
-    production: '.nav-links a[href="#production"]',
-    contact: '.nav-links a[href="#contact"]',
+    about: '.nav-links a[data-nav-link="about"]',
+    services: '.nav-links a[data-nav-link="services"]',
+    equipment: '.nav-links a[data-nav-link="equipment"]',
+    lenses: '.nav-links a[data-nav-link="lenses"]',
+    production: '.nav-links a[data-nav-link="production"]',
+    contact: '.nav-links a[data-nav-link="contact"]',
     cta: ".nav-cta",
     mobileCta: ".nav-mobile-cta",
     aria: ".nav-links",
@@ -1368,6 +1368,29 @@ const getInitialLanguage = () => {
   return "en";
 };
 
+const markCurrentPageInNav = () => {
+  const path = window.location.pathname.split("/").pop() || "index.html";
+  const pageToKey = {
+    "about.html": "about",
+    "services.html": "services",
+    "equipment.html": "equipment",
+    "lenses.html": "lenses",
+    "production.html": "production",
+    "contact.html": "contact",
+  };
+  const activeKey = pageToKey[path];
+
+  document.querySelectorAll(".nav-links a[data-nav-link]").forEach((link) => {
+    const isActive = !!activeKey && link.getAttribute("data-nav-link") === activeKey;
+    link.classList.toggle("is-current", isActive);
+    if (isActive) {
+      link.setAttribute("aria-current", "page");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
+};
+
 const revealTargets = document.querySelectorAll(
   [
     ".hero-copy",
@@ -1402,6 +1425,7 @@ revealTargets.forEach((element) => observer.observe(element));
 
 const initialLanguage = getInitialLanguage();
 applyCopy(initialLanguage);
+markCurrentPageInNav();
 
 const isMobileMenuViewport = () => window.matchMedia("(max-width: 960px)").matches;
 const siteHeader = document.querySelector(".site-header");
