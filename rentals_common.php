@@ -4,6 +4,22 @@ declare(strict_types=1);
 const DAILY_RATE_CENTS = 5000;
 const CURRENCY = 'usd';
 
+function rental_item_rate_cents(string $itemId): int
+{
+    $cameraRates = [
+        'sony-a7-v' => 7500,
+        'sony-a7s-iii' => 7500,
+        'sony-a7-iv' => 7500,
+        'sony-alpha-1' => 9500,
+        'gopro-hero12-black' => 7500,
+        'gopro-hero13-black' => 7500,
+        'dji-osmo-pocket' => 7500,
+        'sony-pxw-z150-4k-xdcam' => 7500,
+    ];
+
+    return $cameraRates[$itemId] ?? DAILY_RATE_CENTS;
+}
+
 function rental_json(array $payload, int $status = 200): never
 {
     http_response_code($status);

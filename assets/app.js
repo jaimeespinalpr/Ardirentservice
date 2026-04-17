@@ -1684,8 +1684,12 @@ const setupRentalSystem = () => {
     allCards.forEach((card) => {
       const title = card.querySelector("h3")?.textContent?.trim() || "item";
       const itemId = slugify(title);
+      const rateCents =
+        Number.parseInt(card.getAttribute("data-rental-rate-cents") || `${dailyRateCents}`, 10) ||
+        dailyRateCents;
       card.setAttribute("data-rental-item-id", itemId);
       card.setAttribute("data-rental-item-title", title);
+      card.setAttribute("data-rental-rate-cents", String(rateCents));
 
       const wrapper = document.createElement("div");
       wrapper.className = "rental-card-actions";
@@ -1702,7 +1706,7 @@ const setupRentalSystem = () => {
       wrapper.appendChild(button);
 
       card.appendChild(wrapper);
-      state.items.push({ id: itemId, title, card, badge, button });
+      state.items.push({ id: itemId, title, rateCents, card, badge, button });
     });
   };
 
@@ -1753,7 +1757,7 @@ const setupRentalSystem = () => {
     } else {
       selectedItems.forEach((item) => {
         const li = document.createElement("li");
-        li.textContent = item.title;
+        li.textContent = `${item.title} — ${currency.format(item.rateCents / 100)}${text.perDay}`;
         cartList.appendChild(li);
       });
     }
@@ -1761,7 +1765,8 @@ const setupRentalSystem = () => {
     const totalNode = root.querySelector(".rental-cart-total");
     if (totalNode) {
       const days = daysSelected();
-      const total = selectedItems.length * dailyRateCents * Math.max(days, 0);
+      const total =
+        selectedItems.reduce((sum, item) => sum + item.rateCents, 0) * Math.max(days, 0);
       totalNode.textContent = `${text.totalLabel}: ${currency.format(total / 100)}`;
     }
   };
@@ -1879,7 +1884,11 @@ const setupRentalSystem = () => {
               email: checkoutEmail.value.trim(),
               phone: checkoutPhone.value.trim(),
             },
-            items: selectedItems.map((item) => ({ id: item.id, title: item.title })),
+            items: selectedItems.map((item) => ({
+              id: item.id,
+              title: item.title,
+              rate_cents: item.rateCents,
+            })),
           }),
         });
         const data = await response.json();

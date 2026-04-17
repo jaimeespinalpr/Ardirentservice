@@ -34,7 +34,7 @@ foreach ($itemsInput as $entry) {
     if ($id === null || $title === '') {
         continue;
     }
-    $items[$id] = ['id' => $id, 'title' => $title];
+    $items[$id] = ['id' => $id, 'title' => $title, 'rate_cents' => rental_item_rate_cents($id)];
 }
 $items = array_values($items);
 
@@ -50,8 +50,10 @@ if ($unavailable !== []) {
 }
 
 $days = rental_days_between($startDate, $endDate);
-$unitAmount = DAILY_RATE_CENTS * $days;
-$totalAmount = $unitAmount * count($items);
+$totalAmount = 0;
+foreach ($items as $item) {
+    $totalAmount += ((int) $item['rate_cents']) * $days;
+}
 
 $form = [
     'mode' => 'payment',
@@ -65,11 +67,13 @@ $form = [
     'metadata[customer_phone]' => $customerPhone,
     'metadata[item_ids]' => json_encode($itemIds, JSON_UNESCAPED_UNICODE),
     'metadata[item_titles]' => json_encode(array_map(static fn(array $item): string => $item['title'], $items), JSON_UNESCAPED_UNICODE),
+    'metadata[item_rates_cents]' => json_encode(array_map(static fn(array $item): int => (int) $item['rate_cents'], $items), JSON_UNESCAPED_UNICODE),
     'metadata[total_amount_cents]' => (string) $totalAmount,
     'metadata[currency]' => CURRENCY,
 ];
 
 foreach (array_values($items) as $index => $item) {
+    $unitAmount = ((int) $item['rate_cents']) * $days;
     $form["line_items[{$index}][price_data][currency]"] = CURRENCY;
     $form["line_items[{$index}][price_data][unit_amount]"] = (string) $unitAmount;
     $form["line_items[{$index}][price_data][product_data][name]"] = $item['title'];

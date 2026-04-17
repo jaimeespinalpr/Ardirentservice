@@ -29,6 +29,7 @@ $currency = rental_clean_text($metadata['currency'] ?? CURRENCY);
 
 $itemIds = json_decode((string) ($metadata['item_ids'] ?? '[]'), true);
 $itemTitles = json_decode((string) ($metadata['item_titles'] ?? '[]'), true);
+$itemRates = json_decode((string) ($metadata['item_rates_cents'] ?? '[]'), true);
 
 if (!is_array($itemIds) || !is_array($itemTitles) || $startDate === null || $endDate === null || $startDate > $endDate) {
     rental_redirect('equipment.html?rental=error');
@@ -52,6 +53,16 @@ foreach ($itemTitles as $rawTitle) {
     $title = rental_clean_text((string) $rawTitle);
     if ($title !== '') {
         $cleanTitles[] = $title;
+    }
+}
+
+$cleanRates = [];
+if (is_array($itemRates)) {
+    foreach ($itemRates as $rawRate) {
+        $rate = (int) $rawRate;
+        if ($rate > 0) {
+            $cleanRates[] = $rate;
+        }
     }
 }
 
@@ -93,13 +104,13 @@ try {
     ]);
 
     $reservationId = (int) $pdo->lastInsertId();
-    $unitAmount = (int) floor($totalAmount / max(1, count($cleanItemIds)));
     $insertItem = $pdo->prepare(
         'INSERT INTO reservation_items (reservation_id, item_id, item_title, unit_amount_cents) VALUES (?, ?, ?, ?)'
     );
 
     foreach ($cleanItemIds as $index => $itemId) {
         $title = $cleanTitles[$index] ?? $itemId;
+        $unitAmount = (int) ($cleanRates[$index] ?? rental_item_rate_cents($itemId));
         $insertItem->execute([$reservationId, $itemId, $title, $unitAmount]);
     }
 
