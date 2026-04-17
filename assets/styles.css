@@ -700,6 +700,80 @@ h1 {
   color: var(--muted);
 }
 
+.feature-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid transparent;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.feature-card-link:hover,
+.feature-card-link:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.18);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+}
+
+.card-cta {
+  display: inline-flex;
+  margin-top: 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.story-wrap {
+  padding-top: 1.2rem;
+}
+
+.story-article {
+  display: grid;
+  gap: 1.1rem;
+  padding: 1.4rem;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #ffffff, #f1f1f1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
+}
+
+.story-meta {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.story-meta p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.story-section h3 {
+  margin: 0 0 0.5rem;
+}
+
+.story-section p {
+  margin: 0 0 0.8rem;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.story-list,
+.story-sources {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.story-sources a {
+  text-decoration: underline;
+}
+
 .section-alt {
   padding-top: 0;
 }
@@ -731,6 +805,105 @@ h1 {
   border-radius: 18px;
   margin-bottom: 1rem;
   background: #fff;
+}
+
+.equipment-media {
+  position: relative;
+  margin-bottom: 1rem;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  outline: none;
+}
+
+.equipment-media-track {
+  display: flex;
+  transition: transform 280ms ease;
+  will-change: transform;
+}
+
+.equipment-media-slide {
+  min-width: 100%;
+}
+
+.equipment-media .equipment-media-slide img {
+  margin-bottom: 0;
+  border-radius: 0;
+  border: 0;
+}
+
+.equipment-media-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  z-index: 3;
+  transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.equipment-media-nav:hover {
+  transform: translateY(-50%) scale(1.04);
+  background: rgba(255, 255, 255, 1);
+}
+
+.equipment-media-nav.prev {
+  left: 0.5rem;
+}
+
+.equipment-media-nav.next {
+  right: 0.5rem;
+}
+
+.equipment-media-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 0.45rem;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.25rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 3;
+}
+
+.equipment-media-counter {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  z-index: 3;
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem;
+}
+
+.equipment-media-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+}
+
+.equipment-media-dot.is-active {
+  background: #ffffff;
+}
+
+.equipment-media:focus-visible {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.3);
 }
 
 .lens-card img {
@@ -1001,6 +1174,37 @@ h1 {
   margin: 0;
 }
 
+.rental-dates.is-hidden {
+  display: none;
+}
+
+.rental-scope {
+  margin: 0.7rem 0 0;
+  padding: 0.6rem 0.7rem;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.75);
+  display: grid;
+  gap: 0.45rem;
+}
+
+.rental-scope legend {
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.rental-scope-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.rental-scope-option input[type="radio"] {
+  margin: 0;
+}
+
 .rental-status {
   margin: 0.8rem 0 0;
   padding: 0.65rem 0.8rem;
@@ -1024,6 +1228,10 @@ h1 {
   margin-top: 0.9rem;
   padding-top: 0.8rem;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.rental-cart.is-hidden {
+  display: none;
 }
 
 .rental-cart.is-pinned {
@@ -1072,6 +1280,40 @@ h1 {
   gap: 0.5rem;
   align-items: center;
   margin-top: 0.65rem;
+}
+
+.rental-card-actions.has-item-dates {
+  grid-template-columns: 1fr;
+}
+
+.rental-item-dates {
+  display: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.rental-item-dates.is-visible {
+  display: grid;
+}
+
+.rental-item-dates .field {
+  margin: 0;
+}
+
+.rental-item-dates .field span {
+  font-size: 0.8rem;
+}
+
+.rental-item-dates .field input {
+  min-height: 2rem;
+  padding: 0.45rem 0.55rem;
+}
+
+.rental-card-main {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .rental-availability-badge {
@@ -1265,6 +1507,10 @@ h1 {
   .nav {
     min-height: auto;
     gap: 0.75rem;
+  }
+
+  .rental-item-dates {
+    grid-template-columns: 1fr;
   }
 
   .brand-logo {

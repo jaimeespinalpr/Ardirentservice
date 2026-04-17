@@ -77,31 +77,47 @@ const translations = {
       title: "Event production, official coverage, and competitive milestones.",
       lead:
         "This section highlights major projects and professional achievements tied to Ardi’s event work, surfing media coverage, and career track record.",
+      cta: "Open full story",
       cards: [
         {
-          title: "La Marginal Surfing Pro (WSL QS)",
+          title: "La Marginal Surfing Pro (WSL QS 3000) — official return in 2024",
           text:
-            "Project and media work linked to La Marginal in Arecibo, including support around World Surf League competition windows.",
+            "WSL confirmed Puerto Rico’s competitive return at El Rastrial, Arecibo, with an official event window from October 30 to November 3, 2024.",
+        },
+        {
+          title: "La Marginal 2024 finals — results and day-by-day coverage",
+          text:
+            "Full event case: official schedule, daily notes, highlights, and winners from the inaugural competition in Arecibo.",
         },
         {
           title: "ISA World Surfing Games — Arecibo 2024",
           text:
-            "Work tied to the global surf event hosted at La Marginal, one of the final Olympic qualification stages for Paris 2024.",
+            "ISA documentation confirms La Marginal as venue for the Olympic qualification cycle toward Paris 2024, including event agenda and results.",
         },
         {
-          title: "Official photographer — MundoRad Magazine",
+          title: "Arecibo 2025: ALAS + WSL two-window format",
           text:
-            "Ongoing editorial collaboration and official photography role for surf and lifestyle-focused publication work.",
+            "Project growth in 2025 with consecutive ALAS and WSL tournament windows and international athlete participation.",
         },
         {
-          title: "ISA DK World Champion (2011)",
+          title: "ISA Dropknee World Champion (2011)",
           text:
-            "International competitive milestone in bodyboarding that supports Ardi’s credibility in high-performance ocean environments.",
+            "International bodyboarding milestone documented in ISA and period sports media records.",
         },
         {
-          title: "Media credits in Puerto Rico and LATAM surf outlets",
+          title: "Ardiel Jimenez and TURBO Bodyboards",
           text:
-            "Photo credits and coverage in surf platforms and sports media, including event galleries and editorial features.",
+            "Historic note about joining the TURBO team after the ISA Dropknee title, adding trajectory context inside the bodyboard circuit.",
+        },
+        {
+          title: "TV and press coverage in Puerto Rico",
+          text:
+            "Editorial summary of TV and news coverage on La Marginal’s sporting and tourism impact.",
+        },
+        {
+          title: "MundoRad and Puerto Rico surf media ecosystem",
+          text:
+            "Documented context around MundoRad as a recognized surf editorial/sponsor brand in Puerto Rico.",
         },
       ],
     },
@@ -467,31 +483,47 @@ const translations = {
       title: "Producción de eventos, cobertura oficial e hitos competitivos.",
       lead:
         "Esta sección reúne proyectos clave y logros profesionales vinculados al trabajo de Ardi en eventos, cobertura de surf y trayectoria competitiva.",
+      cta: "Abrir historia completa",
       cards: [
         {
-          title: "La Marginal Surfing Pro (WSL QS)",
+          title: "La Marginal Surfing Pro (WSL QS 3000) — regreso oficial 2024",
           text:
-            "Trabajo de proyecto y cobertura vinculado a La Marginal en Arecibo, incluyendo apoyo en ventanas de competencia de la World Surf League.",
+            "La WSL confirmó el regreso competitivo de Puerto Rico con sede en El Rastrial, Arecibo, y ventana oficial del 30 de octubre al 3 de noviembre de 2024.",
+        },
+        {
+          title: "Finales La Marginal 2024 — resultados y cobertura por días",
+          text:
+            "Caso completo de competencia: cronograma oficial, notas diarias, highlights y ganadores del evento inaugural en Arecibo.",
         },
         {
           title: "ISA World Surfing Games — Arecibo 2024",
           text:
-            "Participación en el evento global celebrado en La Marginal, una de las etapas finales de clasificación olímpica hacia París 2024.",
+            "La documentación ISA confirma a La Marginal como sede del ciclo de clasificación olímpica hacia París 2024, con agenda y resultados.",
         },
         {
-          title: "Fotógrafo oficial — MundoRad Magazine",
+          title: "Arecibo 2025: formato doble ventana ALAS + WSL",
           text:
-            "Colaboración editorial continua y rol oficial de fotografía para contenido de surf, cultura y estilo de vida.",
+            "Evolución del proyecto en 2025 con torneos consecutivos ALAS y WSL y participación internacional.",
         },
         {
-          title: "Campeón Mundial ISA DK (2011)",
+          title: "Campeón Mundial ISA Dropknee (2011)",
           text:
-            "Hito competitivo internacional en bodyboard que fortalece la credibilidad de Ardi en entornos de alto rendimiento en el mar.",
+            "Hito internacional de bodyboard documentado en registros ISA y medios deportivos de la época.",
         },
         {
-          title: "Créditos en medios de Puerto Rico y LATAM",
+          title: "Ardiel Jimenez y TURBO Bodyboards",
           text:
-            "Créditos fotográficos y cobertura en plataformas de surf y medios deportivos, incluyendo galerías de eventos y editoriales.",
+            "Nota histórica sobre su integración al equipo TURBO tras el título ISA Dropknee, como contexto de trayectoria en el circuito.",
+        },
+        {
+          title: "Cobertura en TV y prensa de Puerto Rico",
+          text:
+            "Resumen editorial de notas en TV y medios noticiosos sobre La Marginal y su impacto deportivo y turístico.",
+        },
+        {
+          title: "MundoRad y ecosistema editorial de surf en Puerto Rico",
+          text:
+            "Contexto documental de MundoRad como marca editorial/patrocinadora reconocida en el surf local.",
         },
       ],
     },
@@ -1230,8 +1262,10 @@ const applyCopy = (lang) => {
     if (!card) return;
     const title = item.querySelector("h3");
     const text = item.querySelector("p");
+    const cta = item.querySelector(".card-cta");
     if (title) title.textContent = card.title;
     if (text) text.textContent = card.text;
+    if (cta) cta.textContent = copy.projects.cta || "Open full story";
   });
 
   setText('#services .section-heading .eyebrow', copy.services.eyebrow);
@@ -1468,6 +1502,214 @@ const markCurrentPageInNav = () => {
   });
 };
 
+const setupEquipmentMedia = () => {
+  const cards = Array.from(document.querySelectorAll(".equipment-card"));
+  if (cards.length === 0) return;
+
+  const bhUrl = (id, size = "1000x1000") =>
+    `https://static.bhphoto.com/images/images${size}/${id}.jpg`;
+
+  const normalizeList = (value) =>
+    (value || "")
+      .split("|")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+  cards.forEach((card) => {
+    if (card.querySelector(":scope > .equipment-media")) return;
+
+    const firstImage = card.querySelector(":scope > img, img");
+    if (!firstImage) return;
+
+    const bhId = (card.getAttribute("data-bh-id") || "").trim();
+    const extra = normalizeList(card.getAttribute("data-gallery-images"));
+    const sourceList = [];
+
+    if (bhId) {
+      sourceList.push(bhUrl(bhId, "1000x1000"));
+    }
+    sourceList.push(firstImage.currentSrc || firstImage.src);
+    sourceList.push(...extra);
+
+    const uniqueSources = Array.from(new Set(sourceList.filter(Boolean)));
+    if (uniqueSources.length === 0) return;
+
+    const media = document.createElement("div");
+    media.className = "equipment-media";
+    media.tabIndex = 0;
+
+    const track = document.createElement("div");
+    track.className = "equipment-media-track";
+    let counter = null;
+
+    uniqueSources.forEach((src, index) => {
+      const slide = document.createElement("div");
+      slide.className = "equipment-media-slide";
+      const image = firstImage.cloneNode(true);
+      image.src = src;
+      image.loading = index === 0 ? "eager" : "lazy";
+      image.decoding = "async";
+      image.addEventListener("error", () => {
+        if (track.contains(slide)) {
+          slide.remove();
+          const remaining = Array.from(track.children);
+          if (remaining.length <= 1) {
+            prev.remove();
+            next.remove();
+            dotsWrap.remove();
+            counter?.remove();
+            track.style.transform = "translateX(0)";
+          }
+          rebuildDots();
+          move(current);
+        }
+      });
+      slide.appendChild(image);
+      track.appendChild(slide);
+    });
+
+    media.appendChild(track);
+    firstImage.replaceWith(media);
+
+    let current = 0;
+    const count = () => Math.max(track.children.length, 1);
+    const move = (index) => {
+      const length = count();
+      current = ((index % length) + length) % length;
+      track.style.transform = `translateX(-${current * 100}%)`;
+      dots.forEach((dot, dotIndex) => {
+        dot.classList.toggle("is-active", dotIndex === current);
+      });
+      updateCounter();
+    };
+
+    const prev = document.createElement("button");
+    prev.type = "button";
+    prev.className = "equipment-media-nav prev";
+    prev.setAttribute("aria-label", "Previous image");
+    prev.textContent = "‹";
+
+    const next = document.createElement("button");
+    next.type = "button";
+    next.className = "equipment-media-nav next";
+    next.setAttribute("aria-label", "Next image");
+    next.textContent = "›";
+
+    const dotsWrap = document.createElement("div");
+    dotsWrap.className = "equipment-media-dots";
+    counter = document.createElement("span");
+    counter.className = "equipment-media-counter";
+    let dots = [];
+    let autoplayTimer = 0;
+
+    const updateCounter = () => {
+      if (!counter) return;
+      counter.textContent = `${current + 1}/${count()}`;
+    };
+
+    const stopAutoplay = () => {
+      if (autoplayTimer) {
+        window.clearInterval(autoplayTimer);
+        autoplayTimer = 0;
+      }
+      media.classList.remove("is-autoplaying");
+    };
+
+    const startAutoplay = () => {
+      if (count() <= 1) return;
+      stopAutoplay();
+      autoplayTimer = window.setInterval(() => {
+        move(current + 1);
+      }, 4200);
+      media.classList.add("is-autoplaying");
+    };
+
+    const restartAutoplay = () => {
+      stopAutoplay();
+      startAutoplay();
+    };
+
+    const rebuildDots = () => {
+      dotsWrap.innerHTML = "";
+      dots = [];
+      const total = count();
+      for (let index = 0; index < total; index += 1) {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "equipment-media-dot";
+        dot.setAttribute("aria-label", `Go to image ${index + 1}`);
+        dot.addEventListener("click", () => {
+          move(index);
+          restartAutoplay();
+        });
+        dotsWrap.appendChild(dot);
+        dots.push(dot);
+      }
+    };
+    rebuildDots();
+
+    prev.addEventListener("click", () => {
+      move(current - 1);
+      restartAutoplay();
+    });
+    next.addEventListener("click", () => {
+      move(current + 1);
+      restartAutoplay();
+    });
+
+    let startX = 0;
+    media.addEventListener(
+      "touchstart",
+      (event) => {
+        startX = event.changedTouches[0]?.clientX || 0;
+      },
+      { passive: true }
+    );
+    media.addEventListener("touchend", (event) => {
+      const endX = event.changedTouches[0]?.clientX || 0;
+      const delta = endX - startX;
+      if (Math.abs(delta) < 40) return;
+      move(delta < 0 ? current + 1 : current - 1);
+      restartAutoplay();
+    });
+
+    media.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        move(current - 1);
+        restartAutoplay();
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        move(current + 1);
+        restartAutoplay();
+      }
+    });
+
+    media.addEventListener("mouseenter", stopAutoplay);
+    media.addEventListener("mouseleave", startAutoplay);
+    media.addEventListener("focusin", stopAutoplay);
+    media.addEventListener("focusout", startAutoplay);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        stopAutoplay();
+      } else {
+        startAutoplay();
+      }
+    });
+
+    if (count() > 1) {
+      media.appendChild(prev);
+      media.appendChild(next);
+      media.appendChild(counter);
+      media.appendChild(dotsWrap);
+      startAutoplay();
+    }
+
+    move(0);
+    updateCounter();
+  });
+};
+
 const revealTargets = document.querySelectorAll(
   [
     ".hero-copy",
@@ -1503,6 +1745,7 @@ revealTargets.forEach((element) => observer.observe(element));
 const initialLanguage = getInitialLanguage();
 applyCopy(initialLanguage);
 markCurrentPageInNav();
+setupEquipmentMedia();
 
 const rentalCopy = {
   en: {
@@ -1511,17 +1754,26 @@ const rentalCopy = {
     note: "Pick the date range first so we can show exactly what is available.",
     startLabel: "Start date",
     endLabel: "End date",
+    scopeLegend: "Do all items use the same rental dates?",
+    scopeYes: "Yes, all items use the same dates.",
+    scopeNo: "No, I want to choose dates per item.",
     checkButton: "Check availability",
-    sameDates: "These dates apply to all equipment in your cart.",
+    sameDatesShared: "These dates apply to all equipment in your cart.",
+    sameDatesPerItem: "Choose dates on each item card to add it to your cart.",
     cartTitle: "Rental cart",
     emptyCart: "No equipment selected yet.",
     totalLabel: "Total",
     nameLabel: "Full name",
     emailLabel: "Email",
     phoneLabel: "WhatsApp / phone",
+    itemStartLabel: "Start",
+    itemEndLabel: "End",
     payButtonStripe: "Pay with Stripe",
     payButtonCash: "Reserve (Cash)",
     statusSelectDates: "Select your dates to unlock rentals.",
+    statusPerItemMode: "Per-item dates mode is on. Set dates directly on each item.",
+    statusPerItemStripe:
+      "Per-item dates need cash mode for now. Stripe mode only supports one date range for all items.",
     statusChecking: "Checking availability...",
     statusReady: "Availability updated. Add available gear to your cart.",
     statusUnavailable: "Some items are not available for these dates.",
@@ -1545,6 +1797,7 @@ const rentalCopy = {
     buttonUnavailable: "Unavailable",
     buttonLoading: "Processing...",
     perDay: "/day",
+    cartDateLabel: "Dates",
   },
   es: {
     eyebrow: "Alquila por fecha",
@@ -1552,20 +1805,29 @@ const rentalCopy = {
     note: "Selecciona el rango de fechas primero para mostrar disponibilidad real.",
     startLabel: "Fecha de inicio",
     endLabel: "Fecha de fin",
+    scopeLegend: "¿Todos los artículos usan las mismas fechas de renta?",
+    scopeYes: "Sí, todos usan las mismas fechas.",
+    scopeNo: "No, quiero escoger fechas por artículo.",
     checkButton: "Ver disponibilidad",
-    sameDates: "Estas fechas aplican a todos los equipos que agregues al carrito.",
+    sameDatesShared: "Estas fechas aplican a todos los equipos que agregues al carrito.",
+    sameDatesPerItem: "Elige fechas en cada equipo para agregarlo al carrito.",
     cartTitle: "Carrito de renta",
-    emptyCart: "Aun no has seleccionado equipos.",
+    emptyCart: "Aún no has seleccionado equipos.",
     totalLabel: "Total",
     nameLabel: "Nombre completo",
     emailLabel: "Correo",
-    phoneLabel: "WhatsApp / telefono",
+    phoneLabel: "WhatsApp / teléfono",
+    itemStartLabel: "Inicio",
+    itemEndLabel: "Fin",
     payButtonStripe: "Pagar con Stripe",
     payButtonCash: "Reservar en efectivo",
     statusSelectDates: "Selecciona fechas para desbloquear alquileres.",
+    statusPerItemMode: "Modo por artículo activo. Define fechas directamente en cada equipo.",
+    statusPerItemStripe:
+      "Las fechas por artículo requieren modo en efectivo por ahora. Stripe solo acepta una fecha para todos.",
     statusChecking: "Verificando disponibilidad...",
     statusReady: "Disponibilidad actualizada. Agrega equipos disponibles al carrito.",
-    statusUnavailable: "Algunos equipos no estan disponibles en esas fechas.",
+    statusUnavailable: "Algunos equipos no están disponibles en esas fechas.",
     statusBackendMissing:
       "El modo Stripe requiere hosting con PHP y STRIPE_SECRET_KEY configurado en el servidor.",
     statusCashMode:
@@ -1585,7 +1847,8 @@ const rentalCopy = {
     buttonRemove: "Quitar",
     buttonUnavailable: "No disponible",
     buttonLoading: "Procesando...",
-    perDay: "/dia",
+    perDay: "/día",
+    cartDateLabel: "Fechas",
   },
 };
 
@@ -1606,7 +1869,10 @@ const setupRentalSystem = () => {
   const checkoutForm = root.querySelector("[data-rental-checkout]");
   const cartList = root.querySelector("[data-rental-cart-list]");
   const statusNode = root.querySelector("[data-rental-status]");
-  if (!datesForm || !checkoutForm || !cartList || !statusNode) return;
+  const scopeFieldset = root.querySelector("[data-rental-scope]");
+  if (!datesForm || !checkoutForm || !cartList || !statusNode || !scopeFieldset) return;
+  const scopeInputs = Array.from(scopeFieldset.querySelectorAll('input[name="rental_scope"]'));
+  if (scopeInputs.length === 0) return;
 
   const startInput = datesForm.querySelector('[name="start_date"]');
   const endInput = datesForm.querySelector('[name="end_date"]');
@@ -1616,6 +1882,9 @@ const setupRentalSystem = () => {
   const checkButton = datesForm.querySelector('button[type="submit"]');
   const payButton = checkoutForm.querySelector('button[type="submit"]');
   if (!startInput || !endInput || !checkoutName || !checkoutEmail || !checkoutPhone || !checkButton || !payButton) return;
+  const cartBox = root.querySelector(".rental-cart");
+  if (!cartBox) return;
+  const datesNote = root.querySelector('[data-rental-copy="sameDates"]');
 
   const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
   const allCards = Array.from(
@@ -1632,6 +1901,7 @@ const setupRentalSystem = () => {
 
   const state = {
     lang: document.documentElement.lang === "es" ? "es" : "en",
+    sameDatesForAll: true,
     selectedIds: new Set(),
     unavailable: new Set(),
     datesReady: false,
@@ -1667,12 +1937,31 @@ const setupRentalSystem = () => {
     });
     return Array.from(blocked);
   };
-  const daysSelected = () => {
-    if (!state.datesReady) return 0;
-    const startDate = new Date(startInput.value);
-    const endDate = new Date(endInput.value);
-    const ms = endDate.getTime() - startDate.getTime();
+  const isValidRange = (startDate, endDate) =>
+    startDate !== "" && endDate !== "" && startDate <= endDate;
+  const rangeDays = (startDate, endDate) => {
+    if (!isValidRange(startDate, endDate)) return 0;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const ms = end.getTime() - start.getTime();
     return Math.floor(ms / 86400000) + 1;
+  };
+  const sharedRange = () => {
+    if (!isValidRange(startInput.value, endInput.value)) return null;
+    return {
+      start: startInput.value,
+      end: endInput.value,
+      days: rangeDays(startInput.value, endInput.value),
+    };
+  };
+  const itemRange = (item) => {
+    if (state.sameDatesForAll) return sharedRange();
+    if (!isValidRange(item.itemStart.value, item.itemEnd.value)) return null;
+    return {
+      start: item.itemStart.value,
+      end: item.itemEnd.value,
+      days: rangeDays(item.itemStart.value, item.itemEnd.value),
+    };
   };
 
   const setStatus = (message, tone = "info") => {
@@ -1694,32 +1983,80 @@ const setupRentalSystem = () => {
       const wrapper = document.createElement("div");
       wrapper.className = "rental-card-actions";
 
+      const mainRow = document.createElement("div");
+      mainRow.className = "rental-card-main";
+
       const badge = document.createElement("span");
       badge.className = "rental-availability-badge";
       badge.setAttribute("data-rental-badge", itemId);
-      wrapper.appendChild(badge);
+      mainRow.appendChild(badge);
 
       const button = document.createElement("button");
       button.type = "button";
       button.className = "rental-card-button";
       button.setAttribute("data-rental-toggle", itemId);
-      wrapper.appendChild(button);
+      mainRow.appendChild(button);
+
+      const itemDates = document.createElement("div");
+      itemDates.className = "rental-item-dates";
+
+      const itemStartField = document.createElement("label");
+      itemStartField.className = "field";
+      const itemStartText = document.createElement("span");
+      itemStartText.setAttribute("data-rental-item-copy", "itemStartLabel");
+      itemStartField.appendChild(itemStartText);
+      const itemStartInput = document.createElement("input");
+      itemStartInput.type = "date";
+      itemStartInput.setAttribute("data-rental-item-start", itemId);
+      itemStartField.appendChild(itemStartInput);
+
+      const itemEndField = document.createElement("label");
+      itemEndField.className = "field";
+      const itemEndText = document.createElement("span");
+      itemEndText.setAttribute("data-rental-item-copy", "itemEndLabel");
+      itemEndField.appendChild(itemEndText);
+      const itemEndInput = document.createElement("input");
+      itemEndInput.type = "date";
+      itemEndInput.setAttribute("data-rental-item-end", itemId);
+      itemEndField.appendChild(itemEndInput);
+
+      itemDates.appendChild(itemStartField);
+      itemDates.appendChild(itemEndField);
+
+      wrapper.appendChild(mainRow);
+      wrapper.appendChild(itemDates);
 
       card.appendChild(wrapper);
-      state.items.push({ id: itemId, title, rateCents, card, badge, button });
+      state.items.push({
+        id: itemId,
+        title,
+        rateCents,
+        card,
+        wrapper,
+        badge,
+        button,
+        itemDates,
+        itemStart: itemStartInput,
+        itemEnd: itemEndInput,
+      });
     });
   };
 
   const renderCardStates = () => {
     const text = copy();
     state.items.forEach((item) => {
-      const unavailable = state.unavailable.has(item.id);
+      const range = itemRange(item);
+      const hasRange = !!range;
+      const unavailable = hasRange && state.unavailable.has(item.id);
       const selected = state.selectedIds.has(item.id);
+      const locked = !hasRange;
 
       item.card.classList.toggle("is-unavailable", unavailable);
       item.card.classList.toggle("is-selected", selected);
+      item.wrapper.classList.toggle("has-item-dates", !state.sameDatesForAll);
+      item.itemDates.classList.toggle("is-visible", !state.sameDatesForAll);
 
-      if (!state.datesReady) {
+      if (!state.datesReady || locked) {
         item.badge.textContent = text.badgeLocked;
         item.badge.classList.remove("available", "unavailable");
         item.button.textContent = text.buttonAdd;
@@ -1745,10 +2082,8 @@ const setupRentalSystem = () => {
     const text = copy();
     const selectedItems = state.items.filter((item) => state.selectedIds.has(item.id));
     cartList.innerHTML = "";
-    const cartBox = root.querySelector(".rental-cart");
-    if (cartBox) {
-      cartBox.classList.toggle("is-pinned", selectedItems.length > 0);
-    }
+    cartBox.classList.toggle("is-hidden", selectedItems.length === 0);
+    cartBox.classList.toggle("is-pinned", selectedItems.length > 0);
 
     if (selectedItems.length === 0) {
       const li = document.createElement("li");
@@ -1757,26 +2092,67 @@ const setupRentalSystem = () => {
     } else {
       selectedItems.forEach((item) => {
         const li = document.createElement("li");
-        li.textContent = `${item.title} — ${currency.format(item.rateCents / 100)}${text.perDay}`;
+        const range = itemRange(item);
+        const detail =
+          range && !state.sameDatesForAll
+            ? ` (${text.cartDateLabel}: ${range.start} - ${range.end})`
+            : "";
+        li.textContent = `${item.title} — ${currency.format(item.rateCents / 100)}${text.perDay}${detail}`;
         cartList.appendChild(li);
       });
     }
 
     const totalNode = root.querySelector(".rental-cart-total");
     if (totalNode) {
-      const days = daysSelected();
-      const total =
-        selectedItems.reduce((sum, item) => sum + item.rateCents, 0) * Math.max(days, 0);
+      const total = selectedItems.reduce((sum, item) => {
+        const range = itemRange(item);
+        if (!range) return sum;
+        return sum + item.rateCents * range.days;
+      }, 0);
       totalNode.textContent = `${text.totalLabel}: ${currency.format(total / 100)}`;
     }
   };
 
-  const isValidDateRange = () =>
-    startInput.value !== "" && endInput.value !== "" && startInput.value <= endInput.value;
+  const isValidDateRange = () => isValidRange(startInput.value, endInput.value);
 
   const collectItemIds = () => state.items.map((item) => item.id);
+  const refreshPerItemAvailability = () => {
+    if (state.sameDatesForAll) return;
+    if (!isCashMode) {
+      state.unavailable = new Set();
+      return;
+    }
+    state.items.forEach((item) => {
+      const range = itemRange(item);
+      if (!range) {
+        state.unavailable.delete(item.id);
+        state.selectedIds.delete(item.id);
+        return;
+      }
+      const blocked = unavailableForRange(range.start, range.end, [item.id]).includes(item.id);
+      if (blocked) {
+        state.unavailable.add(item.id);
+        state.selectedIds.delete(item.id);
+      } else {
+        state.unavailable.delete(item.id);
+      }
+    });
+  };
 
   const fetchAvailability = async () => {
+    if (!state.sameDatesForAll) {
+      state.datesReady = true;
+      refreshPerItemAvailability();
+      renderCardStates();
+      renderCart();
+      if (!isCashMode) {
+        setStatus(copy().statusPerItemStripe, "error");
+      } else {
+        setStatus(copy().statusPerItemMode, "info");
+      }
+      return;
+    }
+
     if (!isValidDateRange()) {
       state.datesReady = false;
       state.unavailable = new Set();
@@ -1851,7 +2227,7 @@ const setupRentalSystem = () => {
   };
 
   const checkout = async () => {
-    if (!state.datesReady || !isValidDateRange()) {
+    if (state.sameDatesForAll && (!state.datesReady || !isValidDateRange())) {
       setStatus(copy().statusSelectDates, "error");
       return;
     }
@@ -1865,10 +2241,29 @@ const setupRentalSystem = () => {
       return;
     }
 
+    if (!state.sameDatesForAll) {
+      const missingItemRange = selectedItems.some((item) => !itemRange(item));
+      if (missingItemRange) {
+        setStatus(copy().statusPerItemMode, "error");
+        return;
+      }
+      if (!isCashMode) {
+        setStatus(copy().statusPerItemStripe, "error");
+        return;
+      }
+    }
+
     payButton.disabled = true;
     payButton.textContent = copy().buttonLoading;
 
     if (!isCashMode) {
+      const fallbackRange = sharedRange();
+      if (!fallbackRange) {
+        setStatus(copy().statusSelectDates, "error");
+        payButton.disabled = false;
+        payButton.textContent = payButtonLabel();
+        return;
+      }
       try {
         const response = await fetch(checkoutEndpoint, {
           method: "POST",
@@ -1877,8 +2272,8 @@ const setupRentalSystem = () => {
             Accept: "application/json",
           },
           body: JSON.stringify({
-            start_date: startInput.value,
-            end_date: endInput.value,
+            start_date: fallbackRange.start,
+            end_date: fallbackRange.end,
             customer: {
               name: checkoutName.value.trim(),
               email: checkoutEmail.value.trim(),
@@ -1888,6 +2283,8 @@ const setupRentalSystem = () => {
               id: item.id,
               title: item.title,
               rate_cents: item.rateCents,
+              start_date: fallbackRange.start,
+              end_date: fallbackRange.end,
             })),
           }),
         });
@@ -1920,8 +2317,13 @@ const setupRentalSystem = () => {
     }
 
     try {
-      const selectedIds = selectedItems.map((item) => item.id);
-      const unavailableNow = unavailableForRange(startInput.value, endInput.value, selectedIds);
+      const unavailableNow = [];
+      selectedItems.forEach((item) => {
+        const range = itemRange(item);
+        if (!range) return;
+        const blocked = unavailableForRange(range.start, range.end, [item.id]).includes(item.id);
+        if (blocked) unavailableNow.push(item.id);
+      });
       if (unavailableNow.length > 0) {
         state.unavailable = new Set([...state.unavailable, ...unavailableNow]);
         unavailableNow.forEach((id) => state.selectedIds.delete(id));
@@ -1932,14 +2334,27 @@ const setupRentalSystem = () => {
       }
 
       const reservations = loadReservations();
+      const selectedRanges = selectedItems
+        .map((item) => ({ item, range: itemRange(item) }))
+        .filter((entry) => !!entry.range);
+      const startDates = selectedRanges.map((entry) => entry.range.start);
+      const endDates = selectedRanges.map((entry) => entry.range.end);
+      const reservationStart = startDates.sort()[0] || startInput.value;
+      const reservationEnd = endDates.sort().slice(-1)[0] || endInput.value;
       reservations.push({
         id: `cash-${Date.now()}`,
         status: "reserved_cash",
         payment_method: "cash",
-        start_date: startInput.value,
-        end_date: endInput.value,
-        item_ids: selectedIds,
+        start_date: reservationStart,
+        end_date: reservationEnd,
+        item_ids: selectedItems.map((item) => item.id),
         item_titles: selectedItems.map((item) => item.title),
+        per_item_ranges: selectedRanges.map((entry) => ({
+          id: entry.item.id,
+          title: entry.item.title,
+          start_date: entry.range.start,
+          end_date: entry.range.end,
+        })),
         customer: {
           name: checkoutName.value.trim(),
           email: checkoutEmail.value.trim(),
@@ -1950,9 +2365,14 @@ const setupRentalSystem = () => {
       saveReservations(reservations);
 
       state.selectedIds.clear();
-      state.unavailable = new Set(
-        unavailableForRange(startInput.value, endInput.value, collectItemIds())
-      );
+      if (state.sameDatesForAll && isValidDateRange()) {
+        state.unavailable = new Set(
+          unavailableForRange(startInput.value, endInput.value, collectItemIds())
+        );
+      } else {
+        state.unavailable = new Set();
+        refreshPerItemAvailability();
+      }
       checkoutForm.reset();
       setStatus(copy().statusConfirmed, "success");
       renderCardStates();
@@ -1961,7 +2381,7 @@ const setupRentalSystem = () => {
       setStatus(copy().statusError, "error");
     } finally {
       payButton.disabled = false;
-      payButton.textContent = copy().payButton;
+      payButton.textContent = payButtonLabel();
     }
   };
 
@@ -1973,12 +2393,27 @@ const setupRentalSystem = () => {
     root.querySelector('[data-rental-copy="note"]')?.replaceChildren(document.createTextNode(text.note));
     root.querySelector('[data-rental-copy="startLabel"]')?.replaceChildren(document.createTextNode(text.startLabel));
     root.querySelector('[data-rental-copy="endLabel"]')?.replaceChildren(document.createTextNode(text.endLabel));
-    root.querySelector('[data-rental-copy="sameDates"]')?.replaceChildren(document.createTextNode(text.sameDates));
+    root.querySelector('[data-rental-copy="scopeLegend"]')?.replaceChildren(document.createTextNode(text.scopeLegend));
+    root.querySelector('[data-rental-copy="scopeYes"]')?.replaceChildren(document.createTextNode(text.scopeYes));
+    root.querySelector('[data-rental-copy="scopeNo"]')?.replaceChildren(document.createTextNode(text.scopeNo));
+    if (datesNote) {
+      datesNote.replaceChildren(
+        document.createTextNode(state.sameDatesForAll ? text.sameDatesShared : text.sameDatesPerItem)
+      );
+    }
     checkButton.textContent = state.checking ? text.buttonLoading : text.checkButton;
     root.querySelector('[data-rental-copy="cartTitle"]')?.replaceChildren(document.createTextNode(text.cartTitle));
     root.querySelector('[data-rental-copy="nameLabel"]')?.replaceChildren(document.createTextNode(text.nameLabel));
     root.querySelector('[data-rental-copy="emailLabel"]')?.replaceChildren(document.createTextNode(text.emailLabel));
     root.querySelector('[data-rental-copy="phoneLabel"]')?.replaceChildren(document.createTextNode(text.phoneLabel));
+    state.items.forEach((item) => {
+      item.card
+        .querySelector('[data-rental-item-copy="itemStartLabel"]')
+        ?.replaceChildren(document.createTextNode(text.itemStartLabel));
+      item.card
+        .querySelector('[data-rental-item-copy="itemEndLabel"]')
+        ?.replaceChildren(document.createTextNode(text.itemEndLabel));
+    });
     payButton.textContent = payButtonLabel();
     renderCardStates();
     renderCart();
@@ -1999,6 +2434,10 @@ const setupRentalSystem = () => {
   const today = new Date().toISOString().slice(0, 10);
   startInput.setAttribute("min", today);
   endInput.setAttribute("min", today);
+  state.items.forEach((item) => {
+    item.itemStart.setAttribute("min", today);
+    item.itemEnd.setAttribute("min", today);
+  });
   renderCopy(state.lang);
   setStatus(isCashMode ? copy().statusCashMode : copy().statusSelectDates, "info");
   renderCardStates();
@@ -2018,6 +2457,10 @@ const setupRentalSystem = () => {
           endInput.value = startInput.value;
         }
       }
+      if (!state.sameDatesForAll) {
+        renderCopy(state.lang);
+        return;
+      }
       if (isValidDateRange()) {
         void fetchAvailability();
       } else {
@@ -2031,9 +2474,56 @@ const setupRentalSystem = () => {
     });
   });
 
+  scopeInputs.forEach((input) => {
+    input.addEventListener("change", () => {
+      state.sameDatesForAll = input.value === "shared";
+      datesForm.classList.toggle("is-hidden", !state.sameDatesForAll);
+      state.selectedIds.clear();
+      state.unavailable = new Set();
+      state.datesReady = state.sameDatesForAll ? isValidDateRange() : true;
+      if (state.sameDatesForAll) {
+        if (isValidDateRange()) {
+          void fetchAvailability();
+        } else {
+          setStatus(copy().statusSelectDates, "info");
+        }
+      } else {
+        refreshPerItemAvailability();
+        setStatus(isCashMode ? copy().statusPerItemMode : copy().statusPerItemStripe, isCashMode ? "info" : "error");
+      }
+      renderCopy(state.lang);
+    });
+  });
+
+  state.items.forEach((item) => {
+    [item.itemStart, item.itemEnd].forEach((input) => {
+      input.addEventListener("change", () => {
+        if (item.itemStart.value !== "") {
+          item.itemEnd.setAttribute("min", item.itemStart.value);
+          if (item.itemEnd.value !== "" && item.itemEnd.value < item.itemStart.value) {
+            item.itemEnd.value = item.itemStart.value;
+          }
+        } else {
+          item.itemEnd.setAttribute("min", today);
+        }
+        if (!state.sameDatesForAll) {
+          refreshPerItemAvailability();
+          if (!isCashMode) {
+            setStatus(copy().statusPerItemStripe, "error");
+          } else {
+            setStatus(copy().statusPerItemMode, "info");
+          }
+          renderCardStates();
+          renderCart();
+        }
+      });
+    });
+  });
+
   state.items.forEach((item) => {
     item.button.addEventListener("click", () => {
-      if (!state.datesReady || state.unavailable.has(item.id)) return;
+      const range = itemRange(item);
+      if (!state.datesReady || !range || state.unavailable.has(item.id)) return;
       if (state.selectedIds.has(item.id)) {
         state.selectedIds.delete(item.id);
       } else {

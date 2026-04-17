@@ -153,6 +153,17 @@
                 Check availability
               </button>
             </form>
+            <fieldset class="rental-scope" data-rental-scope>
+              <legend data-rental-copy="scopeLegend">Do all items use the same rental dates?</legend>
+              <label class="rental-scope-option">
+                <input type="radio" name="rental_scope" value="shared" checked />
+                <span data-rental-copy="scopeYes">Yes, all items use the same dates.</span>
+              </label>
+              <label class="rental-scope-option">
+                <input type="radio" name="rental_scope" value="per_item" />
+                <span data-rental-copy="scopeNo">No, I want to choose dates per item.</span>
+              </label>
+            </fieldset>
             <p class="rental-dates-note" data-rental-copy="sameDates">
               These dates apply to all equipment in your cart.
             </p>
@@ -161,7 +172,7 @@
               Select your dates to unlock rentals.
             </p>
 
-            <div class="rental-cart">
+            <div class="rental-cart is-hidden">
               <h3 data-rental-copy="cartTitle">Rental cart</h3>
               <ul class="rental-cart-list" data-rental-cart-list>
                 <li data-rental-copy="emptyCart">No equipment selected yet.</li>
@@ -203,7 +214,7 @@
           </div>
 
           <div class="equipment-grid">
-            <article class="equipment-card" data-rental-rate-cents="7500">
+            <article class="equipment-card" data-rental-rate-cents="7500" data-bh-id="1935439">
               <img
                 src="assets/cameras/sony-a7-v.jpg"
                 alt="Sony a7 V camera"
@@ -214,7 +225,7 @@
               <h3>Sony a7 V</h3>
               <p>Our newest full-frame body for fast hybrid photo and video production.</p>
             </article>
-            <article class="equipment-card" data-rental-rate-cents="7500">
+            <article class="equipment-card" data-rental-rate-cents="7500" data-bh-id="1577838">
               <img
                 src="assets/cameras/sony-a7s-iii.jpg"
                 alt="Sony a7S III camera"
@@ -225,7 +236,7 @@
               <h3>Sony a7S III</h3>
               <p>Built for cinematic shooting, low-light work, and hybrid photo/video workflows.</p>
             </article>
-            <article class="equipment-card" data-rental-rate-cents="7500">
+            <article class="equipment-card" data-rental-rate-cents="7500" data-bh-id="1667800">
               <img
                 src="assets/cameras/sony-a7-iv.jpg"
                 alt="Sony a7 IV camera"
@@ -236,7 +247,12 @@
               <h3>Sony a7 IV</h3>
               <p>A flexible all-rounder for clients who need one body that can do both.</p>
             </article>
-            <article class="equipment-card" data-rental-rate-cents="9500">
+            <article
+              class="equipment-card"
+              data-rental-rate-cents="9500"
+              data-bh-id="1619483"
+              data-gallery-images="assets/cameras/sony-alpha-1-hq.jpg"
+            >
               <img
                 src="assets/cameras/sony-alpha-1-hq.jpg"
                 alt="Sony Alpha 1 camera"
@@ -247,7 +263,7 @@
               <h3>Sony Alpha 1</h3>
               <p>A top-tier body for premium production and demanding commercial shoots.</p>
             </article>
-            <article class="equipment-card" data-rental-rate-cents="7500">
+            <article class="equipment-card" data-rental-rate-cents="7500" data-bh-id="1781065">
               <img
                 src="assets/cameras/gopro-hero12-black.jpg"
                 alt="GoPro HERO12 Black camera"
@@ -258,7 +274,7 @@
               <h3>GoPro HERO12 Black</h3>
               <p>Compact action capture for behind-the-scenes, travel, and dynamic cuts.</p>
             </article>
-            <article class="equipment-card" data-rental-rate-cents="7500">
+            <article class="equipment-card" data-rental-rate-cents="7500" data-bh-id="1846709">
               <img
                 src="assets/cameras/gopro-hero13-black.jpg"
                 alt="GoPro HERO13 Black camera"
@@ -269,7 +285,7 @@
               <h3>GoPro HERO13 Black</h3>
               <p>Built for sharp action footage, creator setups, and flexible mounting angles.</p>
             </article>
-            <article class="equipment-card" data-rental-rate-cents="7500">
+            <article class="equipment-card" data-rental-rate-cents="7500" data-bh-id="1450015">
               <img
                 src="assets/cameras/dji-osmo-pocket.jpg"
                 alt="DJI Osmo Pocket camera"
@@ -280,7 +296,7 @@
               <h3>DJI Osmo Pocket</h3>
               <p>A small, stabilized camera for mobile work, behind-the-scenes, and quick content.</p>
             </article>
-            <article class="equipment-card" data-rental-rate-cents="7500">
+            <article class="equipment-card" data-rental-rate-cents="7500" data-bh-id="1222976">
               <img
                 src="assets/cameras/sony-pxw-z150.jpg"
                 alt="Sony PXW-Z150 camcorder"
@@ -303,7 +319,10 @@
           </div>
 
           <div class="equipment-grid">
-            <article class="equipment-card">
+            <article
+              class="equipment-card"
+              data-gallery-images="https://cdn.shopify.com/s/files/1/1220/0336/files/edge-pro-water-housing-sony-a7r-iv-a1-a7s-iii-a9-ii-3053846.jpg?v=1769124374|https://cdn.shopify.com/s/files/1/1220/0336/files/edge-pro-water-housing-sony-a7r-iv-a1-a7s-iii-a9-ii-6721115.jpg?v=1769880607|https://cdn.shopify.com/s/files/1/1220/0336/files/edge-base-water-housing-sony-a7-iii-a7-iv-a7r-iii-a7r-iv-a7r-v-a1-a9-a9-ii-1839112.jpg?v=1770792006"
+            >
               <img
                 src="assets/accessories/aquatec-edge-waterhousing.jpg"
                 alt="Aquatech Edge waterhousing for Sony full-frame cameras"
@@ -317,7 +336,10 @@
                 and Sony Alpha 7 IV bodies for underwater production and marine hybrid capture.
               </p>
             </article>
-            <article class="equipment-card">
+            <article
+              class="equipment-card"
+              data-gallery-images="https://cdn.shopify.com/s/files/1/1220/0336/files/edge-pro-water-housing-sony-a7r-iv-a1-a7s-iii-a9-ii-9517243.jpg?v=1769794891|https://cdn.shopify.com/s/files/1/1220/0336/files/edge-pro-water-housing-sony-a7r-iv-a1-a7s-iii-a9-ii-7257730.jpg?v=1769794891|https://cdn.shopify.com/s/files/1/1220/0336/files/edge-pro-water-housing-sony-a7r-iv-a1-a7s-iii-a9-ii-2540143.jpg?v=1769794891"
+            >
               <img
                 src="assets/accessories/aquatec-alpha1-housing.jpg"
                 alt="Underwater housing for Sony Alpha 1"
@@ -345,7 +367,10 @@
                 spot during water activities.
               </p>
             </article>
-            <article class="equipment-card">
+            <article
+              class="equipment-card"
+              data-gallery-images="https://cdn.shopify.com/s/files/1/1220/0336/files/xf-55g-5-glass-lens-port-5183453.jpg?v=1769124132|https://cdn.shopify.com/s/files/1/1220/0336/files/xf-55g-5-glass-lens-port-3562895.jpg?v=1769124132|https://cdn.shopify.com/s/files/1/1220/0336/files/xlf-75-lens-port-excellent-8400082.jpg?v=1769124133"
+            >
               <img
                 src="assets/accessories/aquatec-flat-port.jpg"
                 alt="Aquatech flat port"
@@ -359,7 +384,10 @@
                 configurations and underwater shooting scenarios.
               </p>
             </article>
-            <article class="equipment-card">
+            <article
+              class="equipment-card"
+              data-gallery-images="https://cdn.shopify.com/s/files/1/1220/0336/files/xld-135g-8-glass-dome-port-5939707.jpg?v=1769124132|https://cdn.shopify.com/s/files/1/1220/0336/files/xld-135g-8-glass-dome-port-4198675.jpg?v=1769124132|https://cdn.shopify.com/s/files/1/1220/0336/files/xd-65-6-dome-port-3273473.jpg?v=1769124307|https://cdn.shopify.com/s/files/1/1220/0336/files/xd-65-6-dome-port-4318483.jpg?v=1769124307"
+            >
               <img
                 src="assets/accessories/aquatec-dome-port.jpg"
                 alt="Aquatech dome port"
@@ -373,7 +401,10 @@
                 underwater perspective control.
               </p>
             </article>
-            <article class="equipment-card">
+            <article
+              class="equipment-card"
+              data-gallery-images="assets/accessories/aquatec-pistol-grip-solo.jpg|https://cdn.shopify.com/s/files/1/1220/0336/products/m3-shutter-grip-2306052.jpg?v=1769124430|https://cdn.shopify.com/s/files/1/1220/0336/products/m3-shutter-grip-1740916.jpg?v=1769124430"
+            >
               <img
                 src="assets/accessories/aquatec-pistol-grip.jpg"
                 alt="Aquatech Pistol Grip"
@@ -400,7 +431,7 @@
           </div>
 
           <div class="equipment-grid">
-            <article class="equipment-card">
+            <article class="equipment-card" data-bh-id="1774976">
               <img
                 src="assets/accessories/smallrig-ad01.jpg"
                 alt="SmallRig AD-01 heavy-duty tripod with fluid head"
@@ -414,7 +445,7 @@
                 controlled tilt movement during professional productions.
               </p>
             </article>
-            <article class="equipment-card">
+            <article class="equipment-card" data-bh-id="1835400">
               <img
                 src="assets/accessories/dji-sdr-transmission-combo.jpg"
                 alt="DJI SDR Transmission Combo"
@@ -428,7 +459,7 @@
                 and flexible camera-to-monitor workflows.
               </p>
             </article>
-            <article class="equipment-card">
+            <article class="equipment-card" data-bh-id="656153">
               <img
                 src="assets/accessories/audio-technica-bphs1.jpg"
                 alt="Audio-Technica BPHS1 broadcast stereo headset"
@@ -442,7 +473,7 @@
                 productions, directing, and event coverage.
               </p>
             </article>
-            <article class="equipment-card">
+            <article class="equipment-card" data-bh-id="1858480">
               <img
                 src="assets/accessories/dji-mic-mini.jpg"
                 alt="DJI Mic Mini 2-person compact wireless microphone system"
@@ -456,7 +487,7 @@
                 ideal for interviews, vlogs, and mobile production setups.
               </p>
             </article>
-            <article class="equipment-card">
+            <article class="equipment-card" data-bh-id="1798091">
               <img
                 src="assets/accessories/smallrig-shoulder-rig.jpg"
                 alt="SmallRig Basic Shoulder Rig Kit"
@@ -498,7 +529,7 @@
                 remote control and multi-light setup management on set.
               </p>
             </article>
-            <article class="equipment-card">
+            <article class="equipment-card" data-bh-id="1687323">
               <img
                 src="assets/accessories/godox-diffusion-dome.jpg"
                 alt="Godox collapsible diffusion dome"
@@ -512,7 +543,7 @@
                 portraits, events, and indoor on-camera flash work.
               </p>
             </article>
-            <article class="equipment-card">
+            <article class="equipment-card" data-bh-id="1637663">
               <img
                 src="assets/accessories/atomos-shinobi-7.jpg"
                 alt="Atomos Shinobi 7-inch 4K HDMI SDI monitor"
@@ -526,7 +557,7 @@
                 focus tools, and reliable field monitoring.
               </p>
             </article>
-            <article class="equipment-card">
+            <article class="equipment-card" data-bh-id="1375457">
               <img
                 src="assets/accessories/blackmagic-hdmi-sdi-6g.jpg"
                 alt="Blackmagic Design HDMI to SDI 6G Mini Converter"
@@ -540,7 +571,7 @@
                 workflows, live production, and professional monitoring setups.
               </p>
             </article>
-            <article class="equipment-card">
+            <article class="equipment-card" data-bh-id="1661354">
               <img
                 src="assets/accessories/tilta-mirage-vnd.jpg"
                 alt="Tilta Mirage VND kit with matte box"
@@ -596,7 +627,7 @@
                 feed delivery, and efficient on-set collaboration.
               </p>
             </article>
-            <article class="equipment-card">
+            <article class="equipment-card" data-bh-id="1620282">
               <img
                 src="assets/accessories/tilta-ta-t18eb.jpg"
                 alt="Tilta TA-T18EB Pro Kit for Sony A7S III"
@@ -624,7 +655,7 @@
                 reflections, and professional cinema lens integration.
               </p>
             </article>
-            <article class="equipment-card">
+            <article class="equipment-card" data-bh-id="1676044">
               <img
                 src="assets/accessories/accsoon-cineeye-2s-pro.jpg"
                 alt="Accsoon CineEye 2S Pro wireless video transmitter and receiver"
@@ -638,7 +669,7 @@
                 efficient multi-device collaboration during production.
               </p>
             </article>
-            <article class="equipment-card">
+            <article class="equipment-card" data-bh-id="1773480">
               <img
                 src="assets/accessories/rode-wireless-go-ii.jpg"
                 alt="Rode Wireless GO II mic system with lavaliers"
@@ -666,7 +697,7 @@
                 stable support in production environments.
               </p>
             </article>
-            <article class="equipment-card">
+            <article class="equipment-card" data-bh-id="1779329">
               <img
                 src="assets/accessories/nanlite-pavotube-15x.jpg"
                 alt="Nanlite PavoTube II 15X RGB LED pixel tube lights"
@@ -680,7 +711,7 @@
                 scene accents for photo and video production.
               </p>
             </article>
-            <article class="equipment-card">
+            <article class="equipment-card" data-bh-id="1492980">
               <img
                 src="assets/accessories/dji-ronin-sc.jpg"
                 alt="DJI Ronin SC gimbal stabilizer"
@@ -707,7 +738,7 @@
             </div>
 
             <div class="equipment-grid lens-grid">
-              <article class="equipment-card lens-card">
+              <article class="equipment-card lens-card" data-bh-id="1573884">
                 <img
                   src="assets/lenses/sony-fe-12-24mm-f2-8-gm.jpg"
                   alt="Sony FE 12-24mm f/2.8 GM lens"
@@ -718,7 +749,7 @@
                 <h3>Sony FE 12-24mm f/2.8 GM</h3>
                 <p>Ultra-wide G Master glass for architecture, events, and cinematic establishing shots.</p>
               </article>
-              <article class="equipment-card lens-card">
+              <article class="equipment-card lens-card" data-bh-id="1338517">
                 <img
                   src="assets/lenses/sony-fe-12-24mm-f4-g.jpg"
                   alt="Sony FE 12-24mm f/4 G lens"
@@ -729,7 +760,7 @@
                 <h3>Sony FE 12-24mm f/4 G</h3>
                 <p>A lighter ultra-wide option for travel, interiors, and clean spatial storytelling.</p>
               </article>
-              <article class="equipment-card lens-card">
+              <article class="equipment-card lens-card" data-bh-id="1549627">
                 <img
                   src="assets/lenses/sony-fe-20mm-f1-8-g.jpg"
                   alt="Sony FE 20mm f/1.8 G lens"
@@ -740,7 +771,7 @@
                 <h3>Sony FE 20mm f/1.8 G</h3>
                 <p>Fast wide-angle prime that works well for content, vlog setups, and interiors.</p>
               </article>
-              <article class="equipment-card lens-card">
+              <article class="equipment-card lens-card" data-bh-id="1613424">
                 <img
                   src="assets/lenses/sony-fe-35mm-f1-4-gm.webp"
                   alt="Sony FE 35mm f/1.4 GM lens"
@@ -751,7 +782,7 @@
                 <h3>Sony FE 35mm f/1.4 GM</h3>
                 <p>Natural perspective and premium rendering for portraits, documentary, and brand work.</p>
               </article>
-              <article class="equipment-card lens-card">
+              <article class="equipment-card lens-card" data-bh-id="1630079">
                 <img
                   src="assets/lenses/sony-fe-50mm-f1-2-gm.jpg"
                   alt="Sony FE 50mm f/1.2 GM lens"
@@ -762,7 +793,11 @@
                 <h3>Sony FE 50mm f/1.2 GM</h3>
                 <p>Bright, cinematic full-frame standard prime with deep subject separation and speed.</p>
               </article>
-              <article class="equipment-card lens-card">
+              <article
+                class="equipment-card lens-card"
+                data-bh-id="1317562"
+                data-gallery-images="assets/lenses/sony-fe-85mm-f1-8.webp"
+              >
                 <img
                   src="assets/lenses/sony-fe-85mm-f1-8.jpg"
                   alt="Sony FE 85mm f/1.8 lens"
@@ -773,7 +808,7 @@
                 <h3>Sony FE 85mm f/1.8</h3>
                 <p>Classic portrait focal length with a compact footprint and clean subject isolation.</p>
               </article>
-              <article class="equipment-card lens-card">
+              <article class="equipment-card lens-card" data-bh-id="1462821">
                 <img
                   src="assets/lenses/sony-fe-135mm-f1-8-gm.jpg"
                   alt="Sony FE 135mm f/1.8 GM lens"
@@ -784,7 +819,7 @@
                 <h3>Sony FE 135mm f/1.8 GM</h3>
                 <p>A premium portrait prime for crisp details, flattering compression, and creamy bokeh.</p>
               </article>
-              <article class="equipment-card lens-card">
+              <article class="equipment-card lens-card" data-bh-id="1666363">
                 <img
                   src="assets/lenses/sony-fe-70-200mm-f2-8-gm-oss-ii.jpg"
                   alt="Sony FE 70-200mm f/2.8 GM OSS II lens"
@@ -795,7 +830,7 @@
                 <h3>Sony FE 70-200mm f/2.8 GM OSS II</h3>
                 <p>Fast telephoto zoom for events, production work, and compressed cinematic framing.</p>
               </article>
-              <article class="equipment-card lens-card">
+              <article class="equipment-card lens-card" data-bh-id="1008123">
                 <img
                   src="assets/lenses/sony-fe-35mm-f1-4-gm.webp"
                   alt="Sony Carl Zeiss Sonnar T* FE 35mm f/2.8 ZA lens"
@@ -806,7 +841,7 @@
                 <h3>Sony Carl Zeiss FE 35mm f/2.8 ZA</h3>
                 <p>Compact full-frame prime for travel kits, documentary shooting, and lightweight setups.</p>
               </article>
-              <article class="equipment-card lens-card">
+              <article class="equipment-card lens-card" data-bh-id="1126140">
                 <img
                   src="assets/lenses/sony-fe-85mm-f1-8.webp"
                   alt="Sony FE 90mm f/2.8 Macro lens"
@@ -817,7 +852,7 @@
                 <h3>Sony FE 90mm f/2.8 Macro G OSS</h3>
                 <p>Macro detail lens for product work, close-ups, and high-precision focus control.</p>
               </article>
-              <article class="equipment-card lens-card">
+              <article class="equipment-card lens-card" data-bh-id="1776284">
                 <img
                   src="assets/lenses/sony-fe-70-200mm-f2-8-gm-oss-ii.jpg"
                   alt="Sony FE 70-200mm f/4 G OSS lens"
@@ -828,7 +863,7 @@
                 <h3>Sony FE 70-200mm f/4 G OSS</h3>
                 <p>Lighter telephoto zoom for events, portraits, and long-range coverage on the move.</p>
               </article>
-              <article class="equipment-card lens-card">
+              <article class="equipment-card lens-card" data-bh-id="1485540">
                 <img
                   src="assets/lenses/sony-fe-70-200mm-f2-8-gm-oss-ii.jpg"
                   alt="Sony FE 200-600mm f/5.6-6.3 G OSS lens"
@@ -839,7 +874,7 @@
                 <h3>Sony FE 200-600mm f/5.6-6.3 G OSS</h3>
                 <p>Long-reach zoom ideal for sports, surf, wildlife, and distant action capture.</p>
               </article>
-              <article class="equipment-card lens-card">
+              <article class="equipment-card lens-card" data-bh-id="1222777">
                 <img
                   src="assets/lenses/sony-sel14tc.jpg"
                   alt="Sony 1.4x teleconverter"
@@ -850,7 +885,7 @@
                 <h3>Sony 1.4x Teleconverter</h3>
                 <p>Adds extra reach to compatible Sony telephoto lenses while keeping autofocus performance.</p>
               </article>
-              <article class="equipment-card lens-card">
+              <article class="equipment-card lens-card" data-bh-id="1568708">
                 <img
                   src="assets/lenses/tamron-28-200-a071.jpg"
                   alt="Tamron 28-200mm f/2.8-5.6 lens"
@@ -861,7 +896,7 @@
                 <h3>Tamron 28-200mm f/2.8-5.6</h3>
                 <p>Versatile one-lens solution for travel, fast run-and-gun shoots, and mixed coverage.</p>
               </article>
-              <article class="equipment-card lens-card">
+              <article class="equipment-card lens-card" data-bh-id="1862825">
                 <img
                   src="assets/lenses/sony-fe-50mm-f1-2-gm.jpg"
                   alt="Sony FE 28-70mm f/2 GM lens"
