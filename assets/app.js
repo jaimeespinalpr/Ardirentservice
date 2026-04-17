@@ -1532,7 +1532,8 @@ const rentalCopy = {
     statusConfirmed:
       "Cash reservation confirmed. Your selected dates are now blocked for those items.",
     statusRedirecting: "Redirecting to Stripe Checkout...",
-    statusStripeError: "Stripe checkout is not configured yet. Please set STRIPE_SECRET_KEY.",
+    statusStripeError:
+      "Stripe test mode is active. Configure STRIPE_SECRET_KEY with an sk_test key.",
     statusCancelled: "Checkout was cancelled. No reservation was created.",
     statusConflict: "Those dates were just booked by another order. Choose another range.",
     statusError: "We could not process that request. Please try again.",
@@ -1572,7 +1573,8 @@ const rentalCopy = {
     statusConfirmed:
       "Reserva en efectivo confirmada. Esas fechas ya quedaron bloqueadas para esos equipos.",
     statusRedirecting: "Redirigiendo a Stripe Checkout...",
-    statusStripeError: "Stripe aun no esta configurado. Define STRIPE_SECRET_KEY.",
+    statusStripeError:
+      "Stripe esta en modo de prueba. Configura STRIPE_SECRET_KEY con una clave sk_test.",
     statusCancelled: "El checkout fue cancelado. No se creo ninguna reserva.",
     statusConflict: "Esas fechas ya se reservaron en otra orden. Elige otro rango.",
     statusError: "No se pudo procesar la solicitud. Intenta otra vez.",

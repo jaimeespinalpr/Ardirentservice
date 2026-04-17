@@ -148,6 +148,18 @@ function stripe_request(string $method, string $path, array $form = []): array
         return ['ok' => false, 'error' => 'missing_secret_key'];
     }
 
+    $mode = strtolower(trim((string) (getenv('STRIPE_MODE') ?: 'test')));
+    $isTestMode = $mode !== 'live';
+    $isTestKey = str_starts_with($secret, 'sk_test_');
+    $isLiveKey = str_starts_with($secret, 'sk_live_');
+
+    if ($isTestMode && !$isTestKey) {
+        return ['ok' => false, 'error' => 'test_mode_requires_sk_test_key'];
+    }
+    if (!$isTestMode && !$isLiveKey) {
+        return ['ok' => false, 'error' => 'live_mode_requires_sk_live_key'];
+    }
+
     $url = 'https://api.stripe.com/v1/' . ltrim($path, '/');
     $ch = curl_init($url);
     if ($ch === false) {
