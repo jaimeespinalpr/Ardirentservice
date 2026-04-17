@@ -18,6 +18,12 @@ function clean_multiline(?string $value): string
     return trim($value);
 }
 
+function clean_header(?string $value): string
+{
+    $value = (string) $value;
+    return str_replace(["\r", "\n"], '', trim($value));
+}
+
 function redirect_to(string $path, int $status = 303): never
 {
     header("Location: {$path}", true, $status);
@@ -48,7 +54,21 @@ $shootDate = clean_text($_POST['shoot_date'] ?? '');
 $location = clean_text($_POST['location'] ?? '');
 $notes = clean_multiline($_POST['project_notes'] ?? '');
 
+$allowedProjectTypes = ['photo', 'video', 'podcast', 'livestream', 'event', 'other'];
+$allowedTimeOfDay = ['day', 'night', 'both'];
+$allowedNoiseLevel = ['quiet', 'moderate', 'loud', 'unsure'];
+$allowedEquipmentNeed = ['guidance', 'one-camera', 'camera-lenses', 'full-kit', 'unsure'];
+
 if ($name === '' || $email === '' || $projectType === '' || $timeOfDay === '' || $noiseLevel === '' || $equipmentNeed === '' || $notes === '') {
+    redirect_to('/?error=1#production');
+}
+
+if (
+    !in_array($projectType, $allowedProjectTypes, true) ||
+    !in_array($timeOfDay, $allowedTimeOfDay, true) ||
+    !in_array($noiseLevel, $allowedNoiseLevel, true) ||
+    !in_array($equipmentNeed, $allowedEquipmentNeed, true)
+) {
     redirect_to('/?error=1#production');
 }
 
@@ -136,6 +156,10 @@ $labels = [
 ];
 
 $copy = $labels[$lang];
+$safeReplyTo = clean_header($email);
+$subject = clean_header($copy['subject']);
+$fromAddress = 'no-reply@ardirentservice.com';
+$fromName = 'Ardi Rent & Service';
 
 $body = [
     $copy['heading'],
@@ -155,12 +179,14 @@ $body = [
 ];
 
 $headers = [
-    'From: Ardi Rent & Service <no-reply@ardirentservice.com>',
-    "Reply-To: {$email}",
+    "From: {$fromName} <{$fromAddress}>",
+    "Reply-To: {$safeReplyTo}",
     'Content-Type: text/plain; charset=UTF-8',
+    'MIME-Version: 1.0',
+    'X-Mailer: PHP/' . PHP_VERSION,
 ];
 
-$sent = mail('ardirentservice@gmail.com', $copy['subject'], implode("\n", $body), implode("\r\n", $headers));
+$sent = mail('ardirentservice@gmail.com', $subject, implode("\n", $body), implode("\r\n", $headers));
 
 if ($sent) {
     redirect_to('/?sent=1#production');

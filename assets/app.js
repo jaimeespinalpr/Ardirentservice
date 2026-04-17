@@ -725,6 +725,33 @@ const setFieldPlaceholders = (fields, values, root = document) => {
   });
 };
 
+const configureLeadFormRouting = (form, lang) => {
+  const phpEndpoint = form.dataset.phpEndpoint || "lead.php";
+  const staticEndpoint = form.dataset.staticEndpoint || "";
+  const hostname = window.location.hostname.toLowerCase();
+  const isStaticHost = window.location.protocol === "file:" || hostname.endsWith("github.io");
+  const useStaticEndpoint = isStaticHost && staticEndpoint !== "";
+
+  form.action = useStaticEndpoint ? staticEndpoint : phpEndpoint;
+
+  const nextField = form.querySelector("[data-form-next]");
+  if (nextField) {
+    const baseUrl =
+      window.location.protocol === "file:"
+        ? window.location.href.split("#")[0].split("?")[0]
+        : `${window.location.origin}${window.location.pathname}`;
+    nextField.value = `${baseUrl}?sent=1#production`;
+  }
+
+  const subjectField = form.querySelector("[data-form-subject]");
+  if (subjectField) {
+    subjectField.value =
+      lang === "es"
+        ? "Nuevo brief de proyecto - Ardi Rent & Service"
+        : "New project brief - Ardi Rent & Service";
+  }
+};
+
 const applyCards = (containerSelector, cards) => {
   const cardElements = document.querySelectorAll(`${containerSelector} .equipment-card`);
 
@@ -753,6 +780,14 @@ const applyCopy = (lang) => {
   const description = document.querySelector('meta[name="description"]');
   if (description) {
     description.content = copy.description;
+  }
+  const ogDescription = document.querySelector('meta[property="og:description"]');
+  if (ogDescription) {
+    ogDescription.content = copy.description;
+  }
+  const twitterDescription = document.querySelector('meta[name="twitter:description"]');
+  if (twitterDescription) {
+    twitterDescription.content = copy.description;
   }
 
   setTexts(
@@ -909,6 +944,8 @@ const applyCopy = (lang) => {
 
   const projectForm = document.querySelector("#project-brief");
   if (projectForm) {
+    configureLeadFormRouting(projectForm, lang);
+
     const langField = projectForm.querySelector('[name="lang"]');
     if (langField) {
       langField.value = lang;

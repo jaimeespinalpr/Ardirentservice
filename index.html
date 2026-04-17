@@ -7,8 +7,32 @@
       name="description"
       content="Ardi Rent & Service LLC provides camera rentals, photography, video production, live streaming, podcast support, and creative production services."
     />
+    <meta name="robots" content="index,follow" />
     <meta name="theme-color" content="#000000" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Ardi Rent & Service LLC" />
+    <meta property="og:title" content="Ardi Rent & Service LLC" />
+    <meta
+      property="og:description"
+      content="Camera rentals, photography, video production, live streaming, and creative production services."
+    />
+    <meta property="og:url" content="https://jaimeespinalpr.github.io/Ardirentservice/" />
+    <meta
+      property="og:image"
+      content="https://jaimeespinalpr.github.io/Ardirentservice/assets/logos/logo-black-square.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Ardi Rent & Service LLC" />
+    <meta
+      name="twitter:description"
+      content="Camera rentals, photography, video production, live streaming, and creative production services."
+    />
+    <meta
+      name="twitter:image"
+      content="https://jaimeespinalpr.github.io/Ardirentservice/assets/logos/logo-black-square.png"
+    />
     <title>Ardi Rent & Service LLC</title>
+    <link rel="canonical" href="https://jaimeespinalpr.github.io/Ardirentservice/" />
     <link rel="icon" href="assets/logos/logo-black-square.png" />
     <link rel="apple-touch-icon" href="assets/logos/logo-black-square.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -18,6 +42,23 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "Ardi Rent & Service LLC",
+        "url": "https://jaimeespinalpr.github.io/Ardirentservice/",
+        "image": "https://jaimeespinalpr.github.io/Ardirentservice/assets/logos/logo-black-square.png",
+        "email": "ardirentservice@gmail.com",
+        "telephone": "+1-939-366-1442",
+        "sameAs": ["https://wa.me/19393661442"],
+        "description": "Camera rentals, photography, video production, live streaming, podcast support, and creative production services.",
+        "areaServed": {
+          "@type": "AdministrativeArea",
+          "name": "Puerto Rico"
+        }
+      }
+    </script>
   </head>
   <body>
     <div class="ambient ambient-left"></div>
@@ -31,6 +72,9 @@
             class="brand-logo"
             src="assets/logos/logo-black-square.png"
             alt="Ardi Rent & Service logo"
+            width="512"
+            height="512"
+            fetchpriority="high"
           />
           <span class="brand-text">
             <strong>Ardi Rent & Service</strong>
@@ -105,6 +149,8 @@
                   class="hero-brand-logo"
                   src="assets/logos/logo-white-square.png"
                   alt="Ardi Rent & Service square logo in white"
+                  width="512"
+                  height="512"
                 />
                 <p class="card-label">Quick booking</p>
               </div>
@@ -1028,8 +1074,18 @@
               </ol>
             </div>
 
-            <form class="project-form" id="project-brief" action="lead.php" method="post">
+            <form
+              class="project-form"
+              id="project-brief"
+              action="lead.php"
+              method="post"
+              data-php-endpoint="lead.php"
+              data-static-endpoint="https://formsubmit.co/ardirentservice@gmail.com"
+            >
               <input type="hidden" name="lang" value="en" data-form-lang />
+              <input type="hidden" name="_next" value="" data-form-next />
+              <input type="hidden" name="_subject" value="New project brief - Ardi Rent & Service" data-form-subject />
+              <input type="hidden" name="_captcha" value="false" />
               <input type="text" name="company" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
               <div class="form-head">
                 <p class="eyebrow form-eyebrow">Tell us about your project</p>
@@ -1176,7 +1232,7 @@
 
           <div class="contact-card">
             <h3>Quick actions</h3>
-            <a href="https://wa.me/19393661442" target="_blank" rel="noreferrer">
+            <a href="https://wa.me/19393661442" target="_blank" rel="noopener noreferrer">
               WhatsApp 939-366-1442
             </a>
             <a href="mailto:ardirentservice@gmail.com">ardirentservice@gmail.com</a>
@@ -1195,6 +1251,10 @@
             class="brand-logo"
             src="assets/logos/logo-black-square.png"
             alt="Ardi Rent & Service logo"
+            width="512"
+            height="512"
+            loading="lazy"
+            decoding="async"
           />
           <span>Ardi Rent & Service LLC</span>
         </p>
@@ -1202,6 +1262,6 @@
       </div>
     </footer>
 
-    <script src="assets/app.js"></script>
+    <script src="assets/app.js" defer></script>
   </body>
 </html>
