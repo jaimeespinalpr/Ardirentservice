@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Prints gallery by Ardi Rent & Service LLC. Select from 184 photos available for print."
+    />
+    <meta name="robots" content="index,follow" />
+    <meta name="theme-color" content="#000000" />
+    <title>Prints | Ardi Rent & Service LLC</title>
+    <link rel="icon" href="assets/logos/logo-black-square.png" />
+    <link rel="apple-touch-icon" href="assets/logos/logo-black-square.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-left"></div>
+    <div class="ambient ambient-right"></div>
+    <div class="ambient ambient-center"></div>
+
+    <header class="site-header">
+      <div class="container nav">
+        <a class="brand" href="index.html">
+          <img
+            class="brand-logo"
+            src="assets/logos/logo-black-square.png"
+            alt="Ardi Rent & Service logo"
+            width="512"
+            height="512"
+            fetchpriority="high"
+          />
+          <span class="brand-text">
+            <strong>Ardi Rent & Service</strong>
+            <small>LLC</small>
+          </span>
+        </a>
+
+        <nav class="nav-links" id="primary-nav" aria-label="Primary">
+          <a data-nav-link="about" href="about.html">About</a>
+          <a data-nav-link="services" href="services.html">Services</a>
+          <a data-nav-link="equipment" href="equipment.html">Equipment</a>
+          <a href="prints.html" aria-current="page">Prints</a>
+          <a data-nav-link="production" href="production.html">Production</a>
+          <a data-nav-link="contact" href="contact.html">Contact</a>
+          <a href="production.html#project-brief" class="nav-mobile-cta">Request a quote</a>
+        </nav>
+
+        <div class="header-actions">
+          <button
+            class="menu-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="primary-nav"
+            aria-label="Open menu"
+          >
+            <span class="menu-toggle-bars" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+            <span class="menu-toggle-label">Menu</span>
+          </button>
+          <div class="language-switcher" aria-label="Language selector">
+            <button class="lang-button" type="button" data-lang="es" aria-pressed="false">
+              <img src="assets/flags/es.svg" alt="" aria-hidden="true" />
+              <span>ES</span>
+            </button>
+            <button class="lang-button" type="button" data-lang="en" aria-pressed="true">
+              <img src="assets/flags/us.svg" alt="" aria-hidden="true" />
+              <span>EN</span>
+            </button>
+          </div>
+
+          <a class="button button-ghost nav-cta" href="production.html#project-brief">Request a quote</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="section section-alt">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">Prints</p>
+            <h2>Print Gallery (184 photos)</h2>
+            <p>
+              Aquí tienes la galería completa de prints para seleccionar las fotos que quieres
+              imprimir.
+            </p>
+          </div>
+
+          <div class="equipment-grid" id="prints-gallery"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p class="footer-brand">
+          <img
+            class="brand-logo"
+            src="assets/logos/logo-black-square.png"
+            alt="Ardi Rent & Service logo"
+            width="512"
+            height="512"
+            loading="lazy"
+            decoding="async"
+          />
+          <span>Ardi Rent & Service LLC</span>
+        </p>
+        <p>Camera rentals, production services, and visual storytelling.</p>
+      </div>
+    </footer>
+
+    <script src="assets/app.js" defer></script>
+    <script>
+      window.addEventListener("DOMContentLoaded", async () => {
+        const gallery = document.getElementById("prints-gallery");
+        if (!gallery) return;
+        try {
+          const response = await fetch("data/prints.json", { cache: "no-store" });
+          const prints = await response.json();
+          const fragment = document.createDocumentFragment();
+          prints.forEach((item) => {
+            const label = item.id.replace("print-", "Print ");
+            const card = document.createElement("article");
+            card.className = "equipment-card";
+
+            const image = document.createElement("img");
+            image.src = item.src;
+            image.alt = label;
+            image.loading = "lazy";
+            image.decoding = "async";
+
+            const tag = document.createElement("span");
+            tag.className = "fleet-tag";
+            tag.textContent = label;
+
+            const title = document.createElement("h3");
+            title.textContent = item.title;
+
+            card.append(image, tag, title);
+            fragment.appendChild(card);
+          });
+          gallery.appendChild(fragment);
+        } catch (error) {
+          gallery.innerHTML =
+            '<p class="lead">No pudimos cargar las fotos en este momento. Recarga la página.</p>';
+          console.error(error);
+        }
+      });
+    </script>
+  </body>
+</html>
