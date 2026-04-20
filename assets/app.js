@@ -649,17 +649,11 @@ const translations = {
             alt: "Aquatec P35",
           },
           {
-            tag: "Domo",
-            title: "Aquatech Dome Ports (Large and Medium)",
-            text: "Puertos tipo domo Aquatech en tamaños mediano y grande para cobertura más amplia y mejor control de perspectiva subacuática.",
-            alt: "Puerto domo Aquatech",
+            tag: "Puertos",
+            title: "Aquatec P80",
+            text: "Puerto plano ideal para lentes medianos, con buen control de enfoque y nitidez bajo el agua.",
+            alt: "Aquatec P80",
           },
-	          {
-	            tag: "Accesorio",
-	            title: "Aquatech M3 Shutter Grip",
-	            text: "Empuñadura tipo gatillo diseñada para carcasas Aquatech: mejora el control con una mano y ofrece una postura más cómoda al grabar bajo el agua.",
-	            alt: "Empuñadura Aquatech M3 Shutter Grip",
-	          },
         ],
       },
       accessories: {
