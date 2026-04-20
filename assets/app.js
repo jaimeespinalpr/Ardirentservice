@@ -405,7 +405,7 @@ const translations = {
       instagram: {
         eyebrow: "Instagram",
         title: "Latest posts from @ardirentservice.",
-        lead: "Auto-synced with the latest posts (up to 10).",
+        lead: "Auto-synced with the latest 10 posts.",
         fallback: "Open Instagram",
         follow: "Follow on Instagram",
       },
@@ -985,7 +985,7 @@ const translations = {
       instagram: {
         eyebrow: "Instagram",
         title: "Últimos posts de @ardirentservice.",
-        lead: "Se sincroniza automáticamente con los últimos posts (hasta 10).",
+        lead: "Se sincroniza automáticamente con los últimos 10 posts.",
         fallback: "Abrir Instagram",
         follow: "Seguir en Instagram",
       },
