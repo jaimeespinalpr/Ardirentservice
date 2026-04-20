@@ -1242,6 +1242,17 @@ body.is-modal-open {
   margin-top: 2.25rem;
 }
 
+.contact-instagram-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ig-follow {
+  margin-top: 0.9rem;
+  width: fit-content;
+}
+
 .ig-carousel {
   position: relative;
   margin-top: 1rem;
@@ -1263,7 +1274,7 @@ body.is-modal-open {
 }
 
 .ig-slide {
-  flex: 0 0 min(78vw, 420px);
+  flex: 0 0 min(76vw, 380px);
   scroll-snap-align: start;
 }
 
@@ -1329,6 +1340,7 @@ body.is-modal-open {
   justify-content: center;
   gap: 0.35rem;
   margin-top: 0.25rem;
+  flex-wrap: wrap;
 }
 
 .ig-dot {

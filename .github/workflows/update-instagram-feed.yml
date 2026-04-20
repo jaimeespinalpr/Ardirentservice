@@ -23,7 +23,7 @@ jobs:
 
       - name: Update cache
         run: |
-          python3 scripts/update_instagram_cache.py
+          IG_LIMIT=10 python3 scripts/update_instagram_cache.py
 
       - name: Commit and push (if changed)
         run: |
@@ -36,4 +36,3 @@ jobs:
           git add data/instagram_latest.json assets/instagram scripts/update_instagram_cache.py
           git commit -m "chore: refresh Instagram cache"
           git push
-

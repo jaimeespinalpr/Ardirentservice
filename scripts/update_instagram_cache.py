@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 USERNAME = os.environ.get("IG_USERNAME", "ardirentservice").strip()
-LIMIT = int(os.environ.get("IG_LIMIT", "6"))
+LIMIT = int(os.environ.get("IG_LIMIT", "10"))
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT_JSON = ROOT / "data" / "instagram_latest.json"
@@ -134,4 +134,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

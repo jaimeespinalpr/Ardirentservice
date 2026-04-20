@@ -403,10 +403,11 @@ const translations = {
       quote: "Request a quote",
       quoteSubject: "Request a quote",
       instagram: {
-        eyebrow: "Latest on Instagram",
-        title: "Recent posts from @ardirentservice.",
-        lead: "Always synced with the most recent 6 posts.",
+        eyebrow: "Instagram",
+        title: "Latest posts from @ardirentservice.",
+        lead: "Auto-synced with the latest posts (up to 10).",
         fallback: "Open Instagram",
+        follow: "Follow on Instagram",
       },
     },
     footer: "Camera rentals, production services, and visual storytelling.",
@@ -982,10 +983,11 @@ const translations = {
       quote: "Solicitar cotización",
       quoteSubject: "Solicitar cotizacion",
       instagram: {
-        eyebrow: "Lo último en Instagram",
-        title: "Posts recientes de @ardirentservice.",
-        lead: "Siempre sincronizado con los últimos 6 posts.",
+        eyebrow: "Instagram",
+        title: "Últimos posts de @ardirentservice.",
+        lead: "Se sincroniza automáticamente con los últimos posts (hasta 10).",
         fallback: "Abrir Instagram",
+        follow: "Seguir en Instagram",
       },
     },
     footer: "Alquiler de cámaras, servicios de producción y narrativa visual.",
@@ -1468,6 +1470,8 @@ const applyCopy = (lang) => {
     setText('[data-ig-copy="lead"]', igCopy.lead);
     const fallbackLink = document.querySelector("[data-ig-fallback] a");
     if (fallbackLink) fallbackLink.textContent = igCopy.fallback || fallbackLink.textContent;
+    const followLink = document.querySelector("[data-ig-follow]");
+    if (followLink) followLink.textContent = igCopy.follow || followLink.textContent;
   }
 
   setText(".site-footer p:last-child", copy.footer);
@@ -2772,7 +2776,7 @@ const setupInstagramCarousel = () => {
       const resp = await fetch(feedUrl, { cache: "no-store" });
       if (!resp.ok) throw new Error(`http_${resp.status}`);
       const data = await resp.json();
-      const posts = Array.isArray(data.posts) ? data.posts.slice(0, 6) : [];
+      const posts = Array.isArray(data.posts) ? data.posts.slice(0, 10) : [];
       if (posts.length === 0) throw new Error("empty");
       render(posts);
       fallback?.classList.add("is-hidden");
