@@ -1718,14 +1718,14 @@ const setupEquipmentMedia = () => {
 const setupServiceQuoteSystem = () => {
   const dialog = document.querySelector("[data-quote-dialog]");
   const body = dialog?.querySelector("[data-quote-body]");
-  const closeButton = dialog?.querySelector("[data-quote-close]");
+  const closeButtons = Array.from(dialog?.querySelectorAll("[data-quote-close]") || []);
   const eyebrow = dialog?.querySelector("[data-quote-eyebrow]");
   const title = dialog?.querySelector("[data-quote-title]");
   const lead = dialog?.querySelector("[data-quote-lead]");
   const status = document.querySelector("[data-services-quote-status]");
 
   const openButtons = Array.from(document.querySelectorAll("[data-quote-open]"));
-  if (!dialog || !body || !closeButton || openButtons.length === 0) return;
+  if (!dialog || !body || closeButtons.length === 0 || openButtons.length === 0) return;
 
   const endpointConfig = {
     php: "lead.php",
@@ -2400,6 +2400,7 @@ const setupServiceQuoteSystem = () => {
   const t = () => copy[lang()];
 
   let activeServiceKey = "rentals";
+  let lastFocus = null;
 
   const buildField = (field) => {
     const label = document.createElement("label");
@@ -2572,26 +2573,27 @@ const setupServiceQuoteSystem = () => {
     if (eyebrow) eyebrow.textContent = t().eyebrow;
     if (title) title.textContent = `${t().eyebrow}: ${service.title}`;
     if (lead) lead.textContent = t().lead;
-    closeButton.setAttribute("aria-label", t().closeAria);
+    closeButtons.forEach((button) => button.setAttribute("aria-label", t().closeAria));
     body.replaceChildren(buildForm(activeServiceKey));
   };
 
   const open = (serviceKey) => {
     activeServiceKey = serviceKey;
     render();
-    if (typeof dialog.showModal === "function") {
-      dialog.showModal();
-    } else {
-      dialog.setAttribute("open", "");
-    }
+    lastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    dialog.classList.remove("is-hidden");
+    dialog.setAttribute("aria-hidden", "false");
+    document.body.classList.add("is-modal-open");
+    window.setTimeout(() => {
+      dialog.querySelector("input[autofocus]")?.focus();
+    }, 0);
   };
 
   const close = () => {
-    if (dialog.open) {
-      dialog.close();
-    } else {
-      dialog.removeAttribute("open");
-    }
+    dialog.classList.add("is-hidden");
+    dialog.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("is-modal-open");
+    if (lastFocus) lastFocus.focus();
   };
 
   openButtons.forEach((button) => {
@@ -2599,8 +2601,10 @@ const setupServiceQuoteSystem = () => {
     button.addEventListener("click", () => open(button.dataset.quoteOpen || "rentals"));
   });
 
-  closeButton.addEventListener("click", close);
-  dialog.addEventListener("cancel", (event) => {
+  closeButtons.forEach((button) => button.addEventListener("click", close));
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (dialog.classList.contains("is-hidden")) return;
     event.preventDefault();
     close();
   });
@@ -2609,7 +2613,7 @@ const setupServiceQuoteSystem = () => {
   document.addEventListener("ardi:lang", () => {
     openButtons.forEach((button) => (button.textContent = t().cta));
     syncStatus();
-    if (dialog.open) render();
+    if (!dialog.classList.contains("is-hidden")) render();
   });
 };
 

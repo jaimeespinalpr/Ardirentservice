@@ -181,8 +181,9 @@
         </div>
       </section>
 
-      <dialog class="quote-dialog" data-quote-dialog>
-        <div class="quote-dialog-inner">
+      <div class="quote-dialog is-hidden" data-quote-dialog role="dialog" aria-modal="true" aria-hidden="true">
+        <button class="quote-dialog-backdrop" type="button" data-quote-close aria-label="Close"></button>
+        <div class="quote-dialog-inner" role="document">
           <div class="quote-dialog-head">
             <div>
               <p class="eyebrow" data-quote-eyebrow>Request a quote</p>
@@ -198,7 +199,7 @@
 
           <div class="quote-dialog-body" data-quote-body></div>
         </div>
-      </dialog>
+      </div>
 
     </main>
 
