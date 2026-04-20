@@ -1050,7 +1050,11 @@ const configureLeadFormRouting = (form, lang) => {
   const phpEndpoint = form.dataset.phpEndpoint || "lead.php";
   const staticEndpoint = form.dataset.staticEndpoint || "";
   const hostname = window.location.hostname.toLowerCase();
-  const isStaticHost = window.location.protocol === "file:" || hostname.endsWith("github.io");
+  const isStaticHost =
+    window.location.protocol === "file:" ||
+    hostname.endsWith("github.io") ||
+    hostname === "localhost" ||
+    hostname === "127.0.0.1";
   const useStaticEndpoint = isStaticHost && staticEndpoint !== "";
 
   form.action = useStaticEndpoint ? staticEndpoint : phpEndpoint;
@@ -1061,15 +1065,15 @@ const configureLeadFormRouting = (form, lang) => {
       window.location.protocol === "file:"
         ? window.location.href.split("#")[0].split("?")[0]
         : `${window.location.origin}${window.location.pathname}`;
-    nextField.value = `${baseUrl}?sent=1#production`;
+    const nextHash = (form.dataset.nextHash || "production").replace(/^#/, "");
+    nextField.value = `${baseUrl}?sent=1#${nextHash}`;
   }
 
   const subjectField = form.querySelector("[data-form-subject]");
   if (subjectField) {
-    subjectField.value =
-      lang === "es"
-        ? "Nuevo brief de proyecto - Ardi Rent & Service"
-        : "New project brief - Ardi Rent & Service";
+    const subjectEs = form.dataset.subjectEs || "Nuevo brief de proyecto - Ardi Rent & Service";
+    const subjectEn = form.dataset.subjectEn || "New project brief - Ardi Rent & Service";
+    subjectField.value = lang === "es" ? subjectEs : subjectEn;
   }
 };
 
@@ -1468,6 +1472,7 @@ const applyCopy = (lang) => {
   }
 
   localStorage.setItem("ardi-language", lang);
+  document.dispatchEvent(new CustomEvent("ardi:lang", { detail: { lang } }));
 };
 
 const getInitialLanguage = () => {
@@ -1710,6 +1715,880 @@ const setupEquipmentMedia = () => {
   });
 };
 
+const setupServiceQuoteSystem = () => {
+  const dialog = document.querySelector("[data-quote-dialog]");
+  const body = dialog?.querySelector("[data-quote-body]");
+  const closeButton = dialog?.querySelector("[data-quote-close]");
+  const eyebrow = dialog?.querySelector("[data-quote-eyebrow]");
+  const title = dialog?.querySelector("[data-quote-title]");
+  const lead = dialog?.querySelector("[data-quote-lead]");
+  const status = document.querySelector("[data-services-quote-status]");
+
+  const openButtons = Array.from(document.querySelectorAll("[data-quote-open]"));
+  if (!dialog || !body || !closeButton || openButtons.length === 0) return;
+
+  const endpointConfig = {
+    php: "lead.php",
+    static: "https://formsubmit.co/ardirentservice@gmail.com",
+    email: "ardirentservice@gmail.com",
+  };
+
+  const copy = {
+    en: {
+      cta: "Create quote",
+      eyebrow: "Request a quote",
+      lead: "Answer a few questions and we will reply by email with next steps and pricing.",
+      note: `Sent to ${endpointConfig.email}`,
+      closeAria: "Close quote window",
+      submit: "Send quote request",
+      selectPlaceholder: "Select one",
+      sent: "Quote request sent. We'll reply by email shortly.",
+      error: `Something went wrong. Email us at ${endpointConfig.email}.`,
+      fields: {
+        name: "Full name",
+        email: "Email",
+        phone: "WhatsApp / phone",
+      },
+      services: {
+        rentals: {
+          title: "Camera rentals",
+          subject: "Quote request: Camera rentals",
+          questions: [
+            { name: "rental_start", type: "date", required: true, label: "Start date" },
+            { name: "rental_end", type: "date", required: true, label: "End date" },
+            {
+              name: "pickup_delivery",
+              type: "select",
+              required: true,
+              label: "Pickup or delivery?",
+              options: ["Pickup", "Delivery", "Not sure"],
+            },
+            {
+              name: "location",
+              type: "text",
+              required: true,
+              label: "Location",
+              placeholder: "City / venue",
+            },
+            {
+              name: "gear_list",
+              type: "textarea",
+              required: true,
+              full: true,
+              label: "What gear do you need?",
+              placeholder: "Example: Sony a7 IV, 70-200mm, Aquatech housing, tripod...",
+            },
+            {
+              name: "project_type",
+              type: "select",
+              required: true,
+              label: "What type of project is it?",
+              options: ["Photo shoot", "Video shoot", "Event", "Other"],
+            },
+            {
+              name: "budget_range",
+              type: "select",
+              required: false,
+              label: "Budget range (optional)",
+              options: [
+                "Not sure",
+                "Under $500",
+                "$500 - $1,000",
+                "$1,000 - $2,500",
+                "$2,500 - $5,000",
+                "$5,000+",
+              ],
+            },
+            {
+              name: "notes",
+              type: "textarea",
+              required: false,
+              full: true,
+              label: "Notes (optional)",
+              placeholder: "Pickup time, delivery needs, special requests...",
+            },
+          ],
+        },
+        photography: {
+          title: "Photography",
+          subject: "Quote request: Photography",
+          questions: [
+            {
+              name: "event_type",
+              type: "select",
+              required: true,
+              label: "What type of shoot is it?",
+              options: [
+                "Wedding",
+                "Birthday",
+                "Corporate",
+                "Portraits",
+                "Surf / sports",
+                "Product",
+                "Real estate",
+                "Other",
+              ],
+            },
+            { name: "shoot_date", type: "date", required: true, label: "Date" },
+            {
+              name: "location",
+              type: "text",
+              required: true,
+              label: "Location",
+              placeholder: "City / venue",
+            },
+            {
+              name: "coverage_hours",
+              type: "number",
+              required: true,
+              label: "Coverage hours",
+              min: "1",
+            },
+            {
+              name: "attendees",
+              type: "number",
+              required: false,
+              label: "How many people will attend? (optional)",
+              min: "1",
+            },
+            {
+              name: "deliverables",
+              type: "select",
+              required: true,
+              label: "Deliverables",
+              options: ["Digital gallery", "Digital + prints", "Not sure"],
+            },
+            {
+              name: "reference_links",
+              type: "url",
+              required: false,
+              label: "Reference links (optional)",
+              placeholder: "Instagram, Pinterest, Google Drive, etc.",
+            },
+            {
+              name: "budget_range",
+              type: "select",
+              required: false,
+              label: "Budget range (optional)",
+              options: [
+                "Not sure",
+                "Under $500",
+                "$500 - $1,000",
+                "$1,000 - $2,500",
+                "$2,500 - $5,000",
+                "$5,000+",
+              ],
+            },
+            {
+              name: "notes",
+              type: "textarea",
+              required: false,
+              full: true,
+              label: "Notes (optional)",
+              placeholder: "Schedule, key moments, special requests...",
+            },
+          ],
+        },
+        video: {
+          title: "Video production",
+          subject: "Quote request: Video production",
+          questions: [
+            {
+              name: "video_type",
+              type: "select",
+              required: true,
+              label: "What are you producing?",
+              options: [
+                "Commercial",
+                "Music video",
+                "Interview",
+                "Event recap",
+                "Social content",
+                "Documentary",
+                "Other",
+              ],
+            },
+            { name: "shoot_date", type: "date", required: true, label: "Shoot date" },
+            {
+              name: "location",
+              type: "text",
+              required: true,
+              label: "Location",
+              placeholder: "City / venue",
+            },
+            {
+              name: "final_length",
+              type: "select",
+              required: true,
+              label: "Final video length",
+              options: ["15s", "30s", "60-90s", "2-3 min", "5+ min", "Not sure"],
+            },
+            {
+              name: "orientation",
+              type: "select",
+              required: true,
+              label: "Format / orientation",
+              options: ["Horizontal (16:9)", "Vertical (9:16)", "Both"],
+            },
+            {
+              name: "shoot_days",
+              type: "number",
+              required: true,
+              label: "How many shoot days?",
+              min: "1",
+            },
+            {
+              name: "script_ready",
+              type: "select",
+              required: true,
+              label: "Do you have a script or plan?",
+              options: ["Yes", "No", "Not sure"],
+            },
+            { name: "deadline", type: "date", required: false, label: "Deadline (optional)" },
+            {
+              name: "reference_links",
+              type: "url",
+              required: false,
+              label: "Reference links (optional)",
+              placeholder: "YouTube / Vimeo / Drive",
+            },
+            {
+              name: "budget_range",
+              type: "select",
+              required: false,
+              label: "Budget range (optional)",
+              options: [
+                "Not sure",
+                "Under $500",
+                "$500 - $1,000",
+                "$1,000 - $2,500",
+                "$2,500 - $5,000",
+                "$5,000+",
+              ],
+            },
+            {
+              name: "notes",
+              type: "textarea",
+              required: false,
+              full: true,
+              label: "Notes (optional)",
+              placeholder: "Audio needs, talent, deliverables, deadlines...",
+            },
+          ],
+        },
+        podcast: {
+          title: "Podcast and live streaming",
+          subject: "Quote request: Podcast / livestream",
+          questions: [
+            {
+              name: "format",
+              type: "select",
+              required: true,
+              label: "Format",
+              options: ["Podcast (audio)", "Podcast (video)", "Livestream", "Hybrid", "Other"],
+            },
+            { name: "shoot_date", type: "date", required: true, label: "Date" },
+            {
+              name: "location",
+              type: "text",
+              required: true,
+              label: "Location",
+              placeholder: "Studio / venue / address",
+            },
+            {
+              name: "platform",
+              type: "select",
+              required: true,
+              label: "Platform",
+              options: ["YouTube", "Instagram", "Facebook", "Twitch", "Zoom", "Other"],
+            },
+            { name: "cameras", type: "number", required: true, label: "Cameras", min: "1" },
+            { name: "mics", type: "number", required: true, label: "Microphones", min: "1" },
+            {
+              name: "duration_hours",
+              type: "number",
+              required: true,
+              label: "Duration (hours)",
+              min: "1",
+            },
+            {
+              name: "internet",
+              type: "select",
+              required: true,
+              label: "Reliable internet available?",
+              options: ["Yes", "No", "Not sure"],
+            },
+            {
+              name: "graphics",
+              type: "select",
+              required: false,
+              label: "Graphics / lower thirds? (optional)",
+              options: ["Yes", "No", "Not sure"],
+            },
+            {
+              name: "budget_range",
+              type: "select",
+              required: false,
+              label: "Budget range (optional)",
+              options: [
+                "Not sure",
+                "Under $500",
+                "$500 - $1,000",
+                "$1,000 - $2,500",
+                "$2,500 - $5,000",
+                "$5,000+",
+              ],
+            },
+            {
+              name: "notes",
+              type: "textarea",
+              required: false,
+              full: true,
+              label: "Notes (optional)",
+              placeholder: "Guests, remote participants, lighting, audio, deliverables...",
+            },
+          ],
+        },
+      },
+    },
+    es: {
+      cta: "Crear cotización",
+      eyebrow: "Cotización",
+      lead: "Responde unas preguntas y te contestamos por email con próximos pasos y precio.",
+      note: `Se envía a ${endpointConfig.email}`,
+      closeAria: "Cerrar ventana de cotización",
+      submit: "Enviar cotización",
+      selectPlaceholder: "Selecciona una opción",
+      sent: "Cotización enviada. Te respondemos por email pronto.",
+      error: `Hubo un error. Escribe a ${endpointConfig.email}.`,
+      fields: {
+        name: "Nombre completo",
+        email: "Correo",
+        phone: "WhatsApp / teléfono",
+      },
+      services: {
+        rentals: {
+          title: "Renta de equipo",
+          subject: "Solicitud de cotización: Renta de equipo",
+          questions: [
+            { name: "rental_start", type: "date", required: true, label: "Fecha de inicio" },
+            { name: "rental_end", type: "date", required: true, label: "Fecha de fin" },
+            {
+              name: "pickup_delivery",
+              type: "select",
+              required: true,
+              label: "¿Recogido o entrega?",
+              options: ["Recogido", "Entrega", "No estoy seguro/a"],
+            },
+            {
+              name: "location",
+              type: "text",
+              required: true,
+              label: "Lugar",
+              placeholder: "Ciudad / venue",
+            },
+            {
+              name: "gear_list",
+              type: "textarea",
+              required: true,
+              full: true,
+              label: "¿Qué equipo necesitas?",
+              placeholder: "Ejemplo: Sony a7 IV, 70-200mm, Aquatech housing, trípode...",
+            },
+            {
+              name: "project_type",
+              type: "select",
+              required: true,
+              label: "¿Qué tipo de proyecto es?",
+              options: ["Foto", "Video", "Evento", "Otro"],
+            },
+            {
+              name: "budget_range",
+              type: "select",
+              required: false,
+              label: "Presupuesto (opcional)",
+              options: [
+                "No estoy seguro/a",
+                "Menos de $500",
+                "$500 - $1,000",
+                "$1,000 - $2,500",
+                "$2,500 - $5,000",
+                "$5,000+",
+              ],
+            },
+            {
+              name: "notes",
+              type: "textarea",
+              required: false,
+              full: true,
+              label: "Notas (opcional)",
+              placeholder: "Hora de recogido, entrega, requisitos especiales...",
+            },
+          ],
+        },
+        photography: {
+          title: "Fotografía",
+          subject: "Solicitud de cotización: Fotografía",
+          questions: [
+            {
+              name: "event_type",
+              type: "select",
+              required: true,
+              label: "¿Qué tipo de sesión es?",
+              options: [
+                "Boda",
+                "Cumpleaños",
+                "Corporativo",
+                "Retratos",
+                "Surf / deportes",
+                "Producto",
+                "Bienes raíces",
+                "Otro",
+              ],
+            },
+            { name: "shoot_date", type: "date", required: true, label: "Fecha" },
+            {
+              name: "location",
+              type: "text",
+              required: true,
+              label: "Lugar",
+              placeholder: "Ciudad / venue",
+            },
+            {
+              name: "coverage_hours",
+              type: "number",
+              required: true,
+              label: "Horas de cobertura",
+              min: "1",
+            },
+            {
+              name: "attendees",
+              type: "number",
+              required: false,
+              label: "¿Cuántas personas asistirán? (opcional)",
+              min: "1",
+            },
+            {
+              name: "deliverables",
+              type: "select",
+              required: true,
+              label: "Entregables",
+              options: ["Galería digital", "Digital + impresiones", "No estoy seguro/a"],
+            },
+            {
+              name: "reference_links",
+              type: "url",
+              required: false,
+              label: "Links de referencia (opcional)",
+              placeholder: "Instagram, Pinterest, Google Drive, etc.",
+            },
+            {
+              name: "budget_range",
+              type: "select",
+              required: false,
+              label: "Presupuesto (opcional)",
+              options: [
+                "No estoy seguro/a",
+                "Menos de $500",
+                "$500 - $1,000",
+                "$1,000 - $2,500",
+                "$2,500 - $5,000",
+                "$5,000+",
+              ],
+            },
+            {
+              name: "notes",
+              type: "textarea",
+              required: false,
+              full: true,
+              label: "Notas (opcional)",
+              placeholder: "Horario, momentos clave, solicitudes especiales...",
+            },
+          ],
+        },
+        video: {
+          title: "Producción de video",
+          subject: "Solicitud de cotización: Producción de video",
+          questions: [
+            {
+              name: "video_type",
+              type: "select",
+              required: true,
+              label: "¿Qué vas a producir?",
+              options: [
+                "Comercial",
+                "Video musical",
+                "Entrevista",
+                "Resumen de evento",
+                "Contenido para redes",
+                "Documental",
+                "Otro",
+              ],
+            },
+            { name: "shoot_date", type: "date", required: true, label: "Fecha de grabación" },
+            {
+              name: "location",
+              type: "text",
+              required: true,
+              label: "Lugar",
+              placeholder: "Ciudad / venue",
+            },
+            {
+              name: "final_length",
+              type: "select",
+              required: true,
+              label: "Duración final del video",
+              options: ["15s", "30s", "60-90s", "2-3 min", "5+ min", "No estoy seguro/a"],
+            },
+            {
+              name: "orientation",
+              type: "select",
+              required: true,
+              label: "Formato / orientación",
+              options: ["Horizontal (16:9)", "Vertical (9:16)", "Ambos"],
+            },
+            {
+              name: "shoot_days",
+              type: "number",
+              required: true,
+              label: "¿Cuántos días de grabación?",
+              min: "1",
+            },
+            {
+              name: "script_ready",
+              type: "select",
+              required: true,
+              label: "¿Tienes guión o plan?",
+              options: ["Sí", "No", "No estoy seguro/a"],
+            },
+            { name: "deadline", type: "date", required: false, label: "Fecha límite (opcional)" },
+            {
+              name: "reference_links",
+              type: "url",
+              required: false,
+              label: "Links de referencia (opcional)",
+              placeholder: "YouTube / Vimeo / Drive",
+            },
+            {
+              name: "budget_range",
+              type: "select",
+              required: false,
+              label: "Presupuesto (opcional)",
+              options: [
+                "No estoy seguro/a",
+                "Menos de $500",
+                "$500 - $1,000",
+                "$1,000 - $2,500",
+                "$2,500 - $5,000",
+                "$5,000+",
+              ],
+            },
+            {
+              name: "notes",
+              type: "textarea",
+              required: false,
+              full: true,
+              label: "Notas (opcional)",
+              placeholder: "Audio, talento, entregables, deadlines...",
+            },
+          ],
+        },
+        podcast: {
+          title: "Podcast y live streaming",
+          subject: "Solicitud de cotización: Podcast / live",
+          questions: [
+            {
+              name: "format",
+              type: "select",
+              required: true,
+              label: "Formato",
+              options: ["Podcast (audio)", "Podcast (video)", "Live stream", "Híbrido", "Otro"],
+            },
+            { name: "shoot_date", type: "date", required: true, label: "Fecha" },
+            {
+              name: "location",
+              type: "text",
+              required: true,
+              label: "Lugar",
+              placeholder: "Estudio / venue / dirección",
+            },
+            {
+              name: "platform",
+              type: "select",
+              required: true,
+              label: "Plataforma",
+              options: ["YouTube", "Instagram", "Facebook", "Twitch", "Zoom", "Otro"],
+            },
+            { name: "cameras", type: "number", required: true, label: "Cámaras", min: "1" },
+            { name: "mics", type: "number", required: true, label: "Micrófonos", min: "1" },
+            {
+              name: "duration_hours",
+              type: "number",
+              required: true,
+              label: "Duración (horas)",
+              min: "1",
+            },
+            {
+              name: "internet",
+              type: "select",
+              required: true,
+              label: "¿Hay internet confiable?",
+              options: ["Sí", "No", "No estoy seguro/a"],
+            },
+            {
+              name: "graphics",
+              type: "select",
+              required: false,
+              label: "¿Gráficas / lower thirds? (opcional)",
+              options: ["Sí", "No", "No estoy seguro/a"],
+            },
+            {
+              name: "budget_range",
+              type: "select",
+              required: false,
+              label: "Presupuesto (opcional)",
+              options: [
+                "No estoy seguro/a",
+                "Menos de $500",
+                "$500 - $1,000",
+                "$1,000 - $2,500",
+                "$2,500 - $5,000",
+                "$5,000+",
+              ],
+            },
+            {
+              name: "notes",
+              type: "textarea",
+              required: false,
+              full: true,
+              label: "Notas (opcional)",
+              placeholder: "Invitados, participantes remotos, luces, audio, entregables...",
+            },
+          ],
+        },
+      },
+    },
+  };
+
+  const lang = () => (document.documentElement.lang === "es" ? "es" : "en");
+  const t = () => copy[lang()];
+
+  let activeServiceKey = "rentals";
+
+  const buildField = (field) => {
+    const label = document.createElement("label");
+    label.className = `field${field.full ? " field-full" : ""}`;
+
+    const nameNode = document.createElement("span");
+    nameNode.textContent = field.label;
+    label.appendChild(nameNode);
+
+    let input;
+    if (field.type === "select") {
+      const select = document.createElement("select");
+      const empty = document.createElement("option");
+      empty.value = "";
+      empty.textContent = t().selectPlaceholder;
+      select.appendChild(empty);
+      (field.options || []).forEach((option) => {
+        const node = document.createElement("option");
+        node.value = option;
+        node.textContent = option;
+        select.appendChild(node);
+      });
+      input = select;
+    } else if (field.type === "textarea") {
+      const textarea = document.createElement("textarea");
+      textarea.rows = 6;
+      input = textarea;
+    } else {
+      const control = document.createElement("input");
+      control.type = field.type;
+      input = control;
+    }
+
+    input.name = field.name;
+    if (field.required) input.required = true;
+    if (field.placeholder) input.setAttribute("placeholder", field.placeholder);
+    if (field.min) input.setAttribute("min", field.min);
+    label.appendChild(input);
+
+    return label;
+  };
+
+  const buildForm = (serviceKey) => {
+    const service = t().services[serviceKey];
+    if (!service) return document.createElement("div");
+
+    const form = document.createElement("form");
+    form.className = "quote-form";
+    form.method = "post";
+    form.dataset.phpEndpoint = endpointConfig.php;
+    form.dataset.staticEndpoint = endpointConfig.static;
+    form.dataset.nextHash = "services";
+    form.dataset.subjectEn = copy.en.services[serviceKey]?.subject || "Quote request - Ardi Rent & Service";
+    form.dataset.subjectEs = copy.es.services[serviceKey]?.subject || "Solicitud de cotización - Ardi Rent & Service";
+
+    const hiddenLang = document.createElement("input");
+    hiddenLang.type = "hidden";
+    hiddenLang.name = "lang";
+    hiddenLang.value = lang();
+    hiddenLang.setAttribute("data-form-lang", "");
+
+    const hiddenNext = document.createElement("input");
+    hiddenNext.type = "hidden";
+    hiddenNext.name = "_next";
+    hiddenNext.value = "";
+    hiddenNext.setAttribute("data-form-next", "");
+
+    const hiddenSubject = document.createElement("input");
+    hiddenSubject.type = "hidden";
+    hiddenSubject.name = "_subject";
+    hiddenSubject.value = "";
+    hiddenSubject.setAttribute("data-form-subject", "");
+
+    const hiddenCaptcha = document.createElement("input");
+    hiddenCaptcha.type = "hidden";
+    hiddenCaptcha.name = "_captcha";
+    hiddenCaptcha.value = "false";
+
+    const honey = document.createElement("input");
+    honey.type = "text";
+    honey.name = "company";
+    honey.className = "honeypot";
+    honey.tabIndex = -1;
+    honey.autocomplete = "off";
+    honey.setAttribute("aria-hidden", "true");
+
+    const hiddenService = document.createElement("input");
+    hiddenService.type = "hidden";
+    hiddenService.name = "service";
+    hiddenService.value = serviceKey;
+
+    const hiddenServiceTitle = document.createElement("input");
+    hiddenServiceTitle.type = "hidden";
+    hiddenServiceTitle.name = "service_title";
+    hiddenServiceTitle.value = service.title;
+
+    form.appendChild(hiddenLang);
+    form.appendChild(hiddenNext);
+    form.appendChild(hiddenSubject);
+    form.appendChild(hiddenCaptcha);
+    form.appendChild(honey);
+    form.appendChild(hiddenService);
+    form.appendChild(hiddenServiceTitle);
+
+    const contactGrid = document.createElement("div");
+    contactGrid.className = "field-grid field-grid-three";
+    contactGrid.appendChild(
+      buildField({ name: "name", type: "text", required: true, label: t().fields.name, placeholder: "" })
+    );
+    contactGrid.appendChild(
+      buildField({
+        name: "email",
+        type: "email",
+        required: true,
+        label: t().fields.email,
+        placeholder: lang() === "es" ? "tu@email.com" : "you@email.com",
+      })
+    );
+    contactGrid.appendChild(
+      buildField({ name: "phone", type: "tel", required: false, label: t().fields.phone, placeholder: "" })
+    );
+    form.appendChild(contactGrid);
+
+    const questionGrid = document.createElement("div");
+    questionGrid.className = "field-grid";
+    service.questions.forEach((field) => questionGrid.appendChild(buildField(field)));
+    form.appendChild(questionGrid);
+
+    const actions = document.createElement("div");
+    actions.className = "quote-form-actions";
+    const note = document.createElement("p");
+    note.className = "quote-form-note";
+    note.textContent = t().note;
+    const submit = document.createElement("button");
+    submit.type = "submit";
+    submit.className = "button button-primary";
+    submit.textContent = t().submit;
+    actions.appendChild(note);
+    actions.appendChild(submit);
+    form.appendChild(actions);
+
+    configureLeadFormRouting(form, lang());
+
+    return form;
+  };
+
+  const syncStatus = () => {
+    if (!status) return;
+    const params = new URLSearchParams(window.location.search);
+    const state = params.get("sent") === "1" ? "success" : params.get("error") === "1" ? "error" : "";
+    if (state === "success") {
+      status.classList.remove("is-hidden");
+      status.dataset.state = "success";
+      status.textContent = t().sent;
+    } else if (state === "error") {
+      status.classList.remove("is-hidden");
+      status.dataset.state = "error";
+      status.textContent = t().error;
+    } else {
+      status.classList.add("is-hidden");
+      status.dataset.state = "";
+      status.textContent = "";
+    }
+  };
+
+  const render = () => {
+    const service = t().services[activeServiceKey];
+    if (!service) return;
+    if (eyebrow) eyebrow.textContent = t().eyebrow;
+    if (title) title.textContent = `${t().eyebrow}: ${service.title}`;
+    if (lead) lead.textContent = t().lead;
+    closeButton.setAttribute("aria-label", t().closeAria);
+    body.replaceChildren(buildForm(activeServiceKey));
+  };
+
+  const open = (serviceKey) => {
+    activeServiceKey = serviceKey;
+    render();
+    if (typeof dialog.showModal === "function") {
+      dialog.showModal();
+    } else {
+      dialog.setAttribute("open", "");
+    }
+  };
+
+  const close = () => {
+    if (dialog.open) {
+      dialog.close();
+    } else {
+      dialog.removeAttribute("open");
+    }
+  };
+
+  openButtons.forEach((button) => {
+    button.textContent = t().cta;
+    button.addEventListener("click", () => open(button.dataset.quoteOpen || "rentals"));
+  });
+
+  closeButton.addEventListener("click", close);
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) close();
+  });
+  dialog.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    close();
+  });
+
+  syncStatus();
+  document.addEventListener("ardi:lang", () => {
+    openButtons.forEach((button) => (button.textContent = t().cta));
+    syncStatus();
+    if (dialog.open) render();
+  });
+};
+
 const revealTargets = document.querySelectorAll(
   [
     ".hero-copy",
@@ -1746,6 +2625,7 @@ const initialLanguage = getInitialLanguage();
 applyCopy(initialLanguage);
 markCurrentPageInNav();
 setupEquipmentMedia();
+setupServiceQuoteSystem();
 
 const rentalCopy = {
   en: {

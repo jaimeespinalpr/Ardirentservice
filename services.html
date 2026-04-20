@@ -134,6 +134,8 @@
             </p>
           </div>
 
+          <p class="form-status is-hidden" data-services-quote-status aria-live="polite"></p>
+
           <div class="feature-grid">
             <article class="feature-card">
               <h3>Camera rentals</h3>
@@ -141,6 +143,9 @@
                 Sony mirrorless bodies, a professional 4K XDCAM camcorder, action camera options,
                 and stabilization gear for shoots of different sizes.
               </p>
+              <button class="button button-ghost service-quote-cta" type="button" data-quote-open="rentals">
+                Create quote
+              </button>
             </article>
             <article class="feature-card">
               <h3>Photography</h3>
@@ -148,6 +153,9 @@
                 Flexible support for portraits, branding, events, and content capture with the
                 right lenses and camera combinations for each project.
               </p>
+              <button class="button button-ghost service-quote-cta" type="button" data-quote-open="photography">
+                Create quote
+              </button>
             </article>
             <article class="feature-card">
               <h3>Video production</h3>
@@ -155,6 +163,9 @@
                 High-quality video coverage, production support, and project coordination for
                 interviews, branded content, and social campaigns.
               </p>
+              <button class="button button-ghost service-quote-cta" type="button" data-quote-open="video">
+                Create quote
+              </button>
             </article>
             <article class="feature-card">
               <h3>Podcast and live streaming</h3>
@@ -162,10 +173,32 @@
                 A setup designed for studio sessions, livestreams, and multi-format audio-visual
                 content, including streaming-ready gear.
               </p>
+              <button class="button button-ghost service-quote-cta" type="button" data-quote-open="podcast">
+                Create quote
+              </button>
             </article>
           </div>
         </div>
       </section>
+
+      <dialog class="quote-dialog" data-quote-dialog>
+        <div class="quote-dialog-inner">
+          <div class="quote-dialog-head">
+            <div>
+              <p class="eyebrow" data-quote-eyebrow>Request a quote</p>
+              <h3 class="quote-dialog-title" data-quote-title>Request a quote</h3>
+              <p class="quote-dialog-lead" data-quote-lead>
+                Answer a few questions and we will reply by email with next steps.
+              </p>
+            </div>
+            <button class="quote-dialog-close" type="button" data-quote-close aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+
+          <div class="quote-dialog-body" data-quote-body></div>
+        </div>
+      </dialog>
 
     </main>
 

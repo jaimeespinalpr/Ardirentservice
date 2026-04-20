@@ -1046,6 +1046,10 @@ h1 {
   grid-column: 1 / -1;
 }
 
+.is-hidden {
+  display: none !important;
+}
+
 .form-status {
   margin: 0;
   padding: 0.9rem 1rem;
@@ -1083,6 +1087,101 @@ h1 {
   height: 1px;
   opacity: 0;
   pointer-events: none;
+}
+
+#services .feature-card {
+  display: flex;
+  flex-direction: column;
+}
+
+#services .service-quote-cta {
+  margin-top: 1rem;
+  width: fit-content;
+}
+
+.quote-dialog {
+  width: min(92vw, 760px);
+  border: 0;
+  padding: 0;
+  border-radius: 22px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.25);
+  background: transparent;
+}
+
+.quote-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+.quote-dialog-inner {
+  padding: 1.25rem;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #ffffff, #f1f1f1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.quote-dialog-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.quote-dialog-title {
+  margin: 0.35rem 0 0.4rem;
+}
+
+.quote-dialog-lead {
+  margin: 0;
+  color: var(--muted);
+  max-width: 60ch;
+}
+
+.quote-dialog-close {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.quote-dialog-close:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.12);
+}
+
+.quote-dialog-body {
+  padding-top: 1rem;
+}
+
+.quote-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.quote-form .field-grid {
+  margin-top: 0;
+}
+
+.quote-form-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.quote-form-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
 }
 
 .steps {
