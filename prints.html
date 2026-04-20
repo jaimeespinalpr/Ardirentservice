@@ -19,6 +19,20 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/styles.css" />
+    <style>
+      .prints-category {
+        margin-top: 2rem;
+      }
+
+      .prints-category h3 {
+        margin: 0 0 0.35rem;
+      }
+
+      .prints-category p {
+        margin: 0 0 1rem;
+        color: var(--muted);
+      }
+    </style>
   </head>
   <body>
     <div class="ambient ambient-left"></div>
@@ -88,14 +102,14 @@
         <div class="container">
           <div class="section-heading">
             <p class="eyebrow">Prints</p>
-            <h2>Print Gallery (184 photos)</h2>
+            <h2>Colección de Prints (184 fotos)</h2>
             <p>
-              Aquí tienes la galería completa de prints para seleccionar las fotos que quieres
-              imprimir.
+              Reorganicé las fotos por tipos y cambié los nombres técnicos por nombres de
+              colección.
             </p>
           </div>
 
-          <div class="equipment-grid" id="prints-gallery"></div>
+          <div id="prints-gallery"></div>
         </div>
       </section>
     </main>
@@ -124,31 +138,63 @@
         const gallery = document.getElementById("prints-gallery");
         if (!gallery) return;
         try {
-          const response = await fetch("data/prints.json", { cache: "no-store" });
-          const prints = await response.json();
-          const fragment = document.createDocumentFragment();
+          const response = await fetch("data/prints_metadata.json", { cache: "no-store" });
+          const payload = await response.json();
+          const categories = payload.categories || [];
+          const prints = payload.prints || [];
+          const byCategory = new Map(categories.map((cat) => [cat.id, []]));
+
           prints.forEach((item) => {
-            const label = item.id.replace("print-", "Print ");
-            const card = document.createElement("article");
-            card.className = "equipment-card";
-
-            const image = document.createElement("img");
-            image.src = item.src;
-            image.alt = label;
-            image.loading = "lazy";
-            image.decoding = "async";
-
-            const tag = document.createElement("span");
-            tag.className = "fleet-tag";
-            tag.textContent = label;
-
-            const title = document.createElement("h3");
-            title.textContent = item.title;
-
-            card.append(image, tag, title);
-            fragment.appendChild(card);
+            if (!byCategory.has(item.category)) byCategory.set(item.category, []);
+            byCategory.get(item.category).push(item);
           });
-          gallery.appendChild(fragment);
+
+          const pageFragment = document.createDocumentFragment();
+          categories.forEach((category) => {
+            const items = byCategory.get(category.id) || [];
+            if (items.length === 0) return;
+
+            const section = document.createElement("section");
+            section.className = "prints-category";
+
+            const heading = document.createElement("h3");
+            heading.textContent = `${category.title} (${items.length})`;
+            section.appendChild(heading);
+
+            const desc = document.createElement("p");
+            desc.textContent = category.description || "";
+            section.appendChild(desc);
+
+            const grid = document.createElement("div");
+            grid.className = "equipment-grid";
+
+            items.forEach((item) => {
+              const label = item.id.replace("print-", "Print ");
+              const card = document.createElement("article");
+              card.className = "equipment-card";
+
+              const image = document.createElement("img");
+              image.src = item.src;
+              image.alt = item.displayTitle || label;
+              image.loading = "lazy";
+              image.decoding = "async";
+
+              const tag = document.createElement("span");
+              tag.className = "fleet-tag";
+              tag.textContent = label;
+
+              const title = document.createElement("h3");
+              title.textContent = item.displayTitle || label;
+
+              card.append(image, tag, title);
+              grid.appendChild(card);
+            });
+
+            section.appendChild(grid);
+            pageFragment.appendChild(section);
+          });
+
+          gallery.appendChild(pageFragment);
         } catch (error) {
           gallery.innerHTML =
             '<p class="lead">No pudimos cargar las fotos en este momento. Recarga la página.</p>';
