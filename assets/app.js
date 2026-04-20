@@ -104,7 +104,7 @@ const translations = {
       planTitle: "Choose your rental dates",
       planText:
         "Then browse the cameras, waterhousings, and accessories below to build the right setup for your shoot.",
-      planLinks: ["Cameras", "Waterhousings", "Accessories"],
+      planLinks: ["Cameras", "Waterhousings", "Accessories", "Lenses"],
       cards: [
         {
           tag: "Hybrid",
@@ -448,7 +448,7 @@ const translations = {
       planTitle: "Escoge tu fecha",
       planText:
         "Luego mira las cámaras, waterhousings y accesorios abajo para armar el equipo correcto para tu sesión.",
-      planLinks: ["Cámaras", "Waterhousings", "Accesorios"],
+      planLinks: ["Cámaras", "Waterhousings", "Accesorios", "Lentes"],
       cards: [
         {
           tag: "Híbrida",
@@ -876,14 +876,15 @@ const applyCopy = (lang) => {
   setText('#equipment .section-heading h2', copy.equipment.title);
   setSectionDescription('#equipment .section-heading', copy.equipment.desc);
   applyCards("#equipment", copy.equipment.cards);
-  setText("#equipment .equipment-callout .eyebrow", copy.equipment.planEyebrow);
-  setText("#equipment .equipment-callout h3", copy.equipment.planTitle);
-  setText("#equipment .equipment-callout p:not(.eyebrow)", copy.equipment.planText);
+  setText(".equipment-callout .eyebrow", copy.equipment.planEyebrow);
+  setText(".equipment-callout h3", copy.equipment.planTitle);
+  setText(".equipment-callout p:not(.eyebrow)", copy.equipment.planText);
   setTexts(
     [
-      '#equipment .equipment-callout a[href="#equipment-cameras"]',
-      '#equipment .equipment-callout a[href="#equipment-waterhousings"]',
-      '#equipment .equipment-callout a[href="#equipment-accessories"]',
+      '.equipment-callout a[href="#equipment-cameras"]',
+      '.equipment-callout a[href="#equipment-waterhousings"]',
+      '.equipment-callout a[href="#equipment-accessories"]',
+      '.equipment-callout a[href="#lenses"]',
     ],
     copy.equipment.planLinks
   );
