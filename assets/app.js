@@ -98,7 +98,12 @@ const translations = {
     equipment: {
       eyebrow: "Equipment",
       title: "Featured cameras from the inventory list.",
-      desc: "These are the camera bodies and camera systems that should be featured first on the website.",
+      desc: "These are the camera bodies and camera systems featured on the website.",
+      planEyebrow: "Rental planning",
+      planTitle: "Choose your rental dates",
+      planText:
+        "Then browse the cameras, waterhousings, and accessories below to build the right setup for your shoot.",
+      planLinks: ["Cameras", "Waterhousings", "Accessories"],
       cards: [
         {
           tag: "Hybrid",
@@ -436,8 +441,12 @@ const translations = {
     equipment: {
       eyebrow: "Equipo",
       title: "Cámaras destacadas del inventario.",
-      desc:
-        "Estos son los cuerpos y sistemas de cámara que deben destacarse primero en el sitio.",
+      desc: "Estos son los cuerpos y sistemas de cámara destacados en el sitio.",
+      planEyebrow: "Planificación de renta",
+      planTitle: "Escoge tu fecha",
+      planText:
+        "Luego mira las cámaras, waterhousings y accesorios abajo para armar el equipo correcto para tu sesión.",
+      planLinks: ["Cámaras", "Waterhousings", "Accesorios"],
       cards: [
         {
           tag: "Híbrida",
@@ -862,6 +871,17 @@ const applyCopy = (lang) => {
   setText('#equipment .section-heading h2', copy.equipment.title);
   setSectionDescription('#equipment .section-heading', copy.equipment.desc);
   applyCards("#equipment", copy.equipment.cards);
+  setText("#equipment .equipment-callout .eyebrow", copy.equipment.planEyebrow);
+  setText("#equipment .equipment-callout h3", copy.equipment.planTitle);
+  setText("#equipment .equipment-callout p:not(.eyebrow)", copy.equipment.planText);
+  setTexts(
+    [
+      '#equipment .equipment-callout a[href="#equipment-cameras"]',
+      '#equipment .equipment-callout a[href="#equipment-waterhousings"]',
+      '#equipment .equipment-callout a[href="#equipment-accessories"]',
+    ],
+    copy.equipment.planLinks
+  );
 
   const equipmentStrip = document.querySelectorAll("#equipment .inventory-strip > div");
   equipmentStrip.forEach((item, index) => {
