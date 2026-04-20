@@ -1062,8 +1062,10 @@ h1 {
   width: 100%;
 }
 
+.cart-stripe:disabled,
 .cart-stripe.is-disabled {
   opacity: 0.55;
+  cursor: not-allowed;
   pointer-events: none;
 }
 

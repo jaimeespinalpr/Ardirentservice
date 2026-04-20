@@ -353,12 +353,12 @@ const translations = {
       countLabel: "items",
       summaryTitle: "Checkout options",
       summaryCopy:
-        "Use the cart to gather your rental list. When your Stripe payment link is ready, we can connect it here for a deposit or full checkout.",
+        "Use the cart to gather your rental list. Stripe Checkout will charge the deposit configured in the backend and keep your cart notes attached to the order.",
       email: "Email cart",
       whatsapp: "WhatsApp cart",
       stripe: "Stripe checkout",
       clear: "Clear cart",
-      note: "No payment is processed until Stripe is connected to your new account.",
+      note: "No payment is processed until Stripe Checkout is connected to your new account.",
       addButton: "Add to cart",
       addedButton: "Added",
       removeButton: "Remove",
@@ -720,12 +720,12 @@ const translations = {
       countLabel: "artículos",
       summaryTitle: "Opciones de pago",
       summaryCopy:
-        "Usa el carrito para reunir tu lista de renta. Cuando tu enlace de Stripe esté listo, lo conectamos aquí para depósito o pago completo.",
+        "Usa el carrito para reunir tu lista de renta. Stripe Checkout cobrará el depósito configurado en el backend y mantendrá las notas del carrito en la orden.",
       email: "Enviar por correo",
       whatsapp: "Enviar por WhatsApp",
       stripe: "Pagar con Stripe",
       clear: "Vaciar carrito",
-      note: "No se procesa ningún pago hasta conectar Stripe a tu nueva cuenta.",
+      note: "No se procesa ningún pago hasta conectar Stripe Checkout a tu nueva cuenta.",
       addButton: "Agregar al carrito",
       addedButton: "Agregado",
       removeButton: "Quitar",
@@ -752,7 +752,7 @@ const selectors = {
 
 const CART_STORAGE_KEY = "ardi-rent-service-cart";
 const WHATSAPP_NUMBER = "19393661442";
-const STRIPE_PAYMENT_LINK = "";
+const STRIPE_CHECKOUT_ENDPOINT = "stripe-checkout.php";
 
 const setText = (selector, value, root = document) => {
   const element = root.querySelector(selector);
@@ -837,24 +837,50 @@ const buildWhatsAppHref = (cart, copy) => {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
 };
 
+const buildCheckoutPayload = (cart) =>
+  cart.map(({ id, section, title, tag, image, quantity }) => ({
+    id,
+    section,
+    title,
+    tag,
+    image,
+    quantity,
+  }));
+
+const submitStripeCheckout = (cart) => {
+  if (!cart.length) return;
+
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = STRIPE_CHECKOUT_ENDPOINT;
+  form.style.display = "none";
+
+  const cartInput = document.createElement("input");
+  cartInput.type = "hidden";
+  cartInput.name = "cart";
+  cartInput.value = JSON.stringify(buildCheckoutPayload(cart));
+
+  const langInput = document.createElement("input");
+  langInput.type = "hidden";
+  langInput.name = "lang";
+  langInput.value = document.documentElement.lang || "en";
+
+  form.append(cartInput, langInput);
+  document.body.appendChild(form);
+  form.submit();
+};
+
 const updateCartActions = (cart, copy) => {
   const emailLink = document.querySelector("#cart .cart-email");
   const whatsappLink = document.querySelector("#cart .cart-whatsapp");
-  const stripeLink = document.querySelector("#cart .cart-stripe");
+  const stripeButton = document.querySelector("#cart .cart-stripe");
   const clearButton = document.querySelector("#cart .cart-clear");
 
   if (emailLink) emailLink.href = buildMailtoHref(cart, copy);
   if (whatsappLink) whatsappLink.href = buildWhatsAppHref(cart, copy);
-  if (stripeLink) {
-    if (STRIPE_PAYMENT_LINK) {
-      stripeLink.href = STRIPE_PAYMENT_LINK;
-      stripeLink.removeAttribute("aria-disabled");
-      stripeLink.classList.remove("is-disabled");
-    } else {
-      stripeLink.href = "#contact";
-      stripeLink.setAttribute("aria-disabled", "true");
-      stripeLink.classList.add("is-disabled");
-    }
+  if (stripeButton) {
+    stripeButton.disabled = cart.length === 0;
+    stripeButton.classList.toggle("is-disabled", cart.length === 0);
   }
   if (clearButton) {
     clearButton.disabled = cart.length === 0;
@@ -1445,6 +1471,13 @@ document.addEventListener("click", (event) => {
   if (addButton) {
     const card = addButton.closest(".equipment-card");
     if (card) addItemToCart(card);
+    return;
+  }
+
+  const stripeButton = event.target.closest(".cart-stripe");
+  if (stripeButton) {
+    event.preventDefault();
+    submitStripeCheckout(getCart());
     return;
   }
 
