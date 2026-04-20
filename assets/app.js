@@ -402,6 +402,12 @@ const translations = {
       email: "ardirentservice@gmail.com",
       quote: "Request a quote",
       quoteSubject: "Request a quote",
+      instagram: {
+        eyebrow: "Latest on Instagram",
+        title: "Recent posts from @ardirentservice.",
+        lead: "Always synced with the most recent 6 posts.",
+        fallback: "Open Instagram",
+      },
     },
     footer: "Camera rentals, production services, and visual storytelling.",
   },
@@ -975,6 +981,12 @@ const translations = {
       email: "ardirentservice@gmail.com",
       quote: "Solicitar cotización",
       quoteSubject: "Solicitar cotizacion",
+      instagram: {
+        eyebrow: "Lo último en Instagram",
+        title: "Posts recientes de @ardirentservice.",
+        lead: "Siempre sincronizado con los últimos 6 posts.",
+        fallback: "Abrir Instagram",
+      },
     },
     footer: "Alquiler de cámaras, servicios de producción y narrativa visual.",
   },
@@ -1447,6 +1459,15 @@ const applyCopy = (lang) => {
       "href",
       `mailto:ardirentservice@gmail.com?subject=${encodeURIComponent(copy.contact.quoteSubject || copy.contact.quote)}`
     );
+  }
+
+  const igCopy = copy.contact.instagram;
+  if (igCopy) {
+    setText('[data-ig-copy="eyebrow"]', igCopy.eyebrow);
+    setText('[data-ig-copy="title"]', igCopy.title);
+    setText('[data-ig-copy="lead"]', igCopy.lead);
+    const fallbackLink = document.querySelector("[data-ig-fallback] a");
+    if (fallbackLink) fallbackLink.textContent = igCopy.fallback || fallbackLink.textContent;
   }
 
   setText(".site-footer p:last-child", copy.footer);
@@ -2617,6 +2638,156 @@ const setupServiceQuoteSystem = () => {
   });
 };
 
+const setupInstagramCarousel = () => {
+  const root = document.querySelector("[data-ig-carousel]");
+  if (!root) return;
+
+  const track = root.querySelector("[data-ig-track]");
+  const prev = root.querySelector("[data-ig-prev]");
+  const next = root.querySelector("[data-ig-next]");
+  const dotsWrap = root.querySelector("[data-ig-dots]");
+  const fallback = root.querySelector("[data-ig-fallback]");
+
+  if (!track || !prev || !next || !dotsWrap) return;
+
+  const feedUrl = "data/instagram_latest.json";
+  let slides = [];
+  let dots = [];
+  let activeIndex = 0;
+  let timer = 0;
+
+  const stop = () => {
+    if (timer) window.clearInterval(timer);
+    timer = 0;
+  };
+
+  const start = () => {
+    stop();
+    timer = window.setInterval(() => {
+      go(activeIndex + 1);
+    }, 5200);
+  };
+
+  const setActive = (index) => {
+    activeIndex = Math.max(0, Math.min(index, Math.max(slides.length - 1, 0)));
+    dots.forEach((dot, i) => dot.classList.toggle("is-active", i === activeIndex));
+  };
+
+  const go = (index) => {
+    if (slides.length === 0) return;
+    const nextIndex = (index + slides.length) % slides.length;
+    slides[nextIndex]?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+    setActive(nextIndex);
+  };
+
+  const buildDots = (count) => {
+    dotsWrap.innerHTML = "";
+    dots = [];
+    for (let i = 0; i < count; i += 1) {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "ig-dot";
+      dot.addEventListener("click", () => {
+        go(i);
+        start();
+      });
+      dotsWrap.appendChild(dot);
+      dots.push(dot);
+    }
+    setActive(0);
+  };
+
+  const onScroll = () => {
+    if (slides.length === 0) return;
+    const left = track.scrollLeft;
+    let best = 0;
+    let bestDist = Infinity;
+    slides.forEach((slide, idx) => {
+      const dist = Math.abs(slide.offsetLeft - left);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = idx;
+      }
+    });
+    setActive(best);
+  };
+
+  const render = (posts) => {
+    track.innerHTML = "";
+    slides = [];
+    posts.forEach((post) => {
+      const slide = document.createElement("div");
+      slide.className = "ig-slide";
+
+      const link = document.createElement("a");
+      link.className = "ig-card";
+      link.href = post.url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.alt = "Instagram post";
+      img.src = post.image;
+
+      const caption = document.createElement("p");
+      caption.className = "ig-caption";
+      const text = (post.caption || "").trim();
+      caption.textContent = text.length > 140 ? `${text.slice(0, 140)}…` : text;
+
+      link.appendChild(img);
+      link.appendChild(caption);
+      slide.appendChild(link);
+      track.appendChild(slide);
+      slides.push(slide);
+    });
+
+    buildDots(slides.length);
+    if (slides.length > 1) start();
+  };
+
+  prev.addEventListener("click", () => {
+    go(activeIndex - 1);
+    start();
+  });
+  next.addEventListener("click", () => {
+    go(activeIndex + 1);
+    start();
+  });
+
+  track.addEventListener("scroll", () => {
+    window.requestAnimationFrame(onScroll);
+  });
+
+  root.addEventListener("mouseenter", stop);
+  root.addEventListener("mouseleave", start);
+  root.addEventListener("focusin", stop);
+  root.addEventListener("focusout", start);
+
+  const load = async () => {
+    try {
+      // GitHub Pages allows this same-origin fetch. file:// generally doesn't.
+      if (window.location.protocol === "file:") throw new Error("file");
+      const resp = await fetch(feedUrl, { cache: "no-store" });
+      if (!resp.ok) throw new Error(`http_${resp.status}`);
+      const data = await resp.json();
+      const posts = Array.isArray(data.posts) ? data.posts.slice(0, 6) : [];
+      if (posts.length === 0) throw new Error("empty");
+      render(posts);
+      fallback?.classList.add("is-hidden");
+    } catch (_err) {
+      fallback?.classList.remove("is-hidden");
+    }
+  };
+
+  void load();
+
+  document.addEventListener("ardi:lang", () => {
+    // Copy update handled by applyCopy; keep carousel stable.
+  });
+};
+
 const revealTargets = document.querySelectorAll(
   [
     ".hero-copy",
@@ -2654,6 +2825,7 @@ applyCopy(initialLanguage);
 markCurrentPageInNav();
 setupEquipmentMedia();
 setupServiceQuoteSystem();
+setupInstagramCarousel();
 
 const rentalCopy = {
   en: {

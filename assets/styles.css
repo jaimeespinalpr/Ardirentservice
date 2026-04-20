@@ -1238,6 +1238,116 @@ body.is-modal-open {
   padding-bottom: 4rem;
 }
 
+.contact-instagram {
+  margin-top: 2.25rem;
+}
+
+.ig-carousel {
+  position: relative;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #ffffff, #f2f2f2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
+}
+
+.ig-track {
+  display: flex;
+  gap: 0.9rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0.9rem;
+  padding: 0.5rem 0.25rem 0.75rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ig-slide {
+  flex: 0 0 min(78vw, 420px);
+  scroll-snap-align: start;
+}
+
+.ig-card {
+  display: grid;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: inherit;
+  padding: 0.9rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.ig-card:hover,
+.ig-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.18);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+  outline: none;
+}
+
+.ig-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.ig-caption {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.ig-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.ig-prev {
+  left: 0.65rem;
+}
+
+.ig-next {
+  right: 0.65rem;
+}
+
+.ig-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+}
+
+.ig-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.ig-dot.is-active {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.ig-fallback {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+}
+
 .contact-card {
   display: grid;
   gap: 0.8rem;
