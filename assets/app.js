@@ -6,6 +6,7 @@ const translations = {
     nav: {
       about: "About",
       services: "Services",
+      prints: "Prints",
       equipment: "Equipment",
       lenses: "Lenses",
       production: "Production",
@@ -349,6 +350,7 @@ const translations = {
     nav: {
       about: "Acerca de",
       services: "Servicios",
+      prints: "Prints",
       equipment: "Equipo",
       lenses: "Lentes",
       production: "Producción",
@@ -691,6 +693,7 @@ const selectors = {
   nav: {
     about: '.nav-links a[href="#about"]',
     services: '.nav-links a[href="#services"]',
+    prints: '.nav-links a[href="#prints"]',
     equipment: '.nav-links a[href="#equipment"]',
     lenses: '.nav-links a[href="#lenses"]',
     production: '.nav-links a[href="#production"]',
@@ -768,6 +771,7 @@ const applyCopy = (lang) => {
     [
       selectors.nav.about,
       selectors.nav.services,
+      selectors.nav.prints,
       selectors.nav.equipment,
       selectors.nav.lenses,
       selectors.nav.production,
@@ -776,6 +780,7 @@ const applyCopy = (lang) => {
     [
       copy.nav.about,
       copy.nav.services,
+      copy.nav.prints,
       copy.nav.equipment,
       copy.nav.lenses,
       copy.nav.production,
@@ -1028,6 +1033,80 @@ const getInitialLanguage = () => {
   return "en";
 };
 
+const getPrintSelectLabel = (lang) => (lang === "es" ? "Seleccionar" : "Select");
+
+const getPrintDisplayName = (id) => id.replace("print-", "Print ");
+
+const escapeHtml = (value) =>
+  String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+
+const updatePrintCardLanguage = (lang) => {
+  const selectLabel = getPrintSelectLabel(lang);
+  document.querySelectorAll(".print-checkbox span").forEach((label) => {
+    label.textContent = selectLabel;
+  });
+};
+
+const renderPrintGallery = (prints, lang) => {
+  const gallery = document.querySelector("#prints-gallery");
+  const status = document.querySelector("#prints-gallery-status");
+  if (!gallery) return;
+
+  const selectLabel = getPrintSelectLabel(lang);
+  const html = prints
+    .map((item) => {
+      const displayName = getPrintDisplayName(item.id);
+      const alt = `${displayName} - ${item.title}`;
+      const value = `${displayName} (${item.title})`;
+      return `
+        <article class="equipment-card print-card">
+          <img src="${escapeHtml(item.src)}" alt="${escapeHtml(alt)}" loading="lazy" decoding="async" />
+          <span class="fleet-tag">${escapeHtml(displayName)}</span>
+          <label class="print-checkbox">
+            <input type="checkbox" name="prints[]" value="${escapeHtml(value)}" />
+            <span>${selectLabel}</span>
+          </label>
+        </article>
+      `;
+    })
+    .join("");
+
+  gallery.innerHTML = html;
+  if (status) {
+    status.textContent =
+      lang === "es"
+        ? `${prints.length} fotos disponibles para seleccionar.`
+        : `${prints.length} photos available to select.`;
+  }
+};
+
+const loadPrintGallery = async () => {
+  const gallery = document.querySelector("#prints-gallery");
+  const status = document.querySelector("#prints-gallery-status");
+  if (!gallery) return;
+
+  try {
+    const response = await fetch("data/prints.json", { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Failed to load prints.json (${response.status})`);
+    }
+    const prints = await response.json();
+    const lang = document.documentElement.lang || "en";
+    renderPrintGallery(prints, lang);
+  } catch (error) {
+    if (status) {
+      status.textContent = "No pudimos cargar la galería. Recarga la página e intenta de nuevo.";
+    }
+    // eslint-disable-next-line no-console
+    console.error(error);
+  }
+};
+
 const revealTargets = document.querySelectorAll(
   [
     ".hero-copy",
@@ -1062,9 +1141,12 @@ revealTargets.forEach((element) => observer.observe(element));
 
 const initialLanguage = getInitialLanguage();
 applyCopy(initialLanguage);
+loadPrintGallery();
 
 document.querySelectorAll(".lang-button").forEach((button) => {
   button.addEventListener("click", () => {
-    applyCopy(button.dataset.lang || "en");
+    const lang = button.dataset.lang || "en";
+    applyCopy(lang);
+    updatePrintCardLanguage(lang);
   });
 });

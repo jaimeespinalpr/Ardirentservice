@@ -41,6 +41,7 @@
         <nav class="nav-links" aria-label="Primary">
           <a href="#about">About</a>
           <a href="#services">Services</a>
+          <a href="#prints">Prints</a>
           <a href="#equipment">Equipment</a>
           <a href="#lenses">Lenses</a>
           <a href="#production">Production</a>
@@ -255,6 +256,75 @@
               </p>
             </article>
           </div>
+        </div>
+      </section>
+
+      <section class="section section-alt" id="prints">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">Prints</p>
+            <h2>Selecciona tus fotos favoritas para imprimir y recibir en casa.</h2>
+            <p>
+              Escoge las imágenes, completa tus datos de envío y te contactamos para confirmar
+              tamaño, acabado y entrega.
+            </p>
+          </div>
+
+          <form class="print-order-form" action="print-order.php" method="post">
+            <input type="hidden" name="lang" value="es" />
+            <input type="text" name="company" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+            <div class="prints-grid" id="prints-gallery" aria-live="polite"></div>
+            <p class="print-form-helper" id="prints-gallery-status">Cargando galería completa...</p>
+
+            <div class="print-form-grid">
+              <label>
+                <span>Nombre</span>
+                <input type="text" name="name" required placeholder="Tu nombre" />
+              </label>
+              <label>
+                <span>Email</span>
+                <input type="email" name="email" required placeholder="tu@email.com" />
+              </label>
+              <label>
+                <span>WhatsApp / Teléfono</span>
+                <input type="tel" name="phone" placeholder="Opcional" />
+              </label>
+              <label>
+                <span>Tamaño deseado</span>
+                <select name="print_size" required>
+                  <option value="">Selecciona tamaño</option>
+                  <option value="12x18">12x18</option>
+                  <option value="16x24">16x24</option>
+                  <option value="20x30">20x30</option>
+                  <option value="24x36">24x36</option>
+                  <option value="Custom">Custom / Especial</option>
+                </select>
+              </label>
+              <label>
+                <span>Acabado</span>
+                <select name="print_finish" required>
+                  <option value="">Selecciona acabado</option>
+                  <option value="Glossy">Glossy</option>
+                  <option value="Matte">Matte</option>
+                  <option value="Fine Art Giclee">Fine Art Giclee</option>
+                  <option value="Aluminum">Aluminum</option>
+                </select>
+              </label>
+              <label class="print-address">
+                <span>Dirección de envío</span>
+                <textarea name="shipping_address" rows="3" required placeholder="Dirección completa para envío"></textarea>
+              </label>
+            </div>
+
+            <label class="print-notes">
+              <span>Notas del pedido</span>
+              <textarea name="notes" rows="3" placeholder="Cantidad por foto, instrucciones especiales, etc."></textarea>
+            </label>
+
+            <p class="print-form-helper">Al enviar, te contactamos para confirmar disponibilidad, total y entrega.</p>
+            <button class="button button-primary" type="submit">Enviar selección de Prints</button>
+          </form>
         </div>
       </section>
 

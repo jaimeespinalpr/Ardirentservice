@@ -860,6 +860,83 @@ h1 {
   line-height: 1.55;
 }
 
+.print-order-form {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.prints-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.print-card {
+  padding: 0.7rem;
+}
+
+.print-card img {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.print-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.print-checkbox input {
+  width: 1rem;
+  height: 1rem;
+}
+
+.print-form-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.print-form-grid label,
+.print-notes {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.print-form-grid span,
+.print-notes span {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.print-form-grid input,
+.print-form-grid select,
+.print-form-grid textarea,
+.print-notes textarea {
+  width: 100%;
+  padding: 0.92rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text);
+  font: inherit;
+}
+
+.print-address {
+  grid-column: 1 / -1;
+}
+
+.print-form-helper {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
 .honeypot {
   position: absolute;
   left: -9999px;
@@ -959,6 +1036,7 @@ h1 {
   .split-grid,
   .feature-grid,
   .equipment-grid,
+  .prints-grid,
   .lens-grid,
   .vision-grid,
   .inventory-strip,
@@ -1014,6 +1092,10 @@ h1 {
 
   .field-grid,
   .field-grid-three {
+    grid-template-columns: 1fr;
+  }
+
+  .print-form-grid {
     grid-template-columns: 1fr;
   }
 
