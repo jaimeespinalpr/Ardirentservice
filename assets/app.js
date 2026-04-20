@@ -11,6 +11,7 @@ const translations = {
       lenses: "Lenses",
       production: "Production",
       contact: "Contact",
+      cart: "Cart",
       cta: "Request a quote",
       aria: "Primary",
     },
@@ -341,6 +342,28 @@ const translations = {
       email: "ardirentservice@gmail.com",
       quote: "Request a quote",
     },
+    cart: {
+      eyebrow: "Cart & payments",
+      title: "Build your rental cart.",
+      lead:
+        "Add gear from the equipment and lenses sections above. Your selections will appear here so you can request a quote, send the list by WhatsApp, or connect payment.",
+      panelTitle: "Selected items",
+      empty:
+        "Your cart is empty. Tap any rental card above to start building a quote.",
+      countLabel: "items",
+      summaryTitle: "Checkout options",
+      summaryCopy:
+        "Use the cart to gather your rental list. When your Stripe payment link is ready, we can connect it here for a deposit or full checkout.",
+      email: "Email cart",
+      whatsapp: "WhatsApp cart",
+      stripe: "Stripe checkout",
+      clear: "Clear cart",
+      note: "No payment is processed until Stripe is connected to your new account.",
+      addButton: "Add to cart",
+      addedButton: "Added",
+      removeButton: "Remove",
+      emptyAction: "Start adding gear",
+    },
     footer: "Camera rentals, production services, and visual storytelling.",
   },
   es: {
@@ -355,6 +378,7 @@ const translations = {
       lenses: "Lentes",
       production: "Producción",
       contact: "Contacto",
+      cart: "Carrito",
       cta: "Solicitar cotización",
       aria: "Principal",
     },
@@ -685,6 +709,28 @@ const translations = {
       email: "ardirentservice@gmail.com",
       quote: "Solicitar cotización",
     },
+    cart: {
+      eyebrow: "Carrito y pagos",
+      title: "Arma tu carrito de renta.",
+      lead:
+        "Agrega equipo de las secciones de cámaras y lentes arriba. Tus selecciones aparecerán aquí para pedir una cotización, enviar la lista por WhatsApp o conectar el pago.",
+      panelTitle: "Artículos seleccionados",
+      empty:
+        "Tu carrito está vacío. Toca cualquier tarjeta de renta arriba para empezar tu cotización.",
+      countLabel: "artículos",
+      summaryTitle: "Opciones de pago",
+      summaryCopy:
+        "Usa el carrito para reunir tu lista de renta. Cuando tu enlace de Stripe esté listo, lo conectamos aquí para depósito o pago completo.",
+      email: "Enviar por correo",
+      whatsapp: "Enviar por WhatsApp",
+      stripe: "Pagar con Stripe",
+      clear: "Vaciar carrito",
+      note: "No se procesa ningún pago hasta conectar Stripe a tu nueva cuenta.",
+      addButton: "Agregar al carrito",
+      addedButton: "Agregado",
+      removeButton: "Quitar",
+      emptyAction: "Empieza a agregar equipo",
+    },
     footer: "Alquiler de cámaras, servicios de producción y narrativa visual.",
   },
 };
@@ -698,10 +744,15 @@ const selectors = {
     lenses: '.nav-links a[href="#lenses"]',
     production: '.nav-links a[href="#production"]',
     contact: '.nav-links a[href="#contact"]',
+    cart: '.nav-links a[href="#cart"]',
     cta: ".nav-cta",
     aria: ".nav-links",
   },
 };
+
+const CART_STORAGE_KEY = "ardi-rent-service-cart";
+const WHATSAPP_NUMBER = "19393661442";
+const STRIPE_PAYMENT_LINK = "";
 
 const setText = (selector, value, root = document) => {
   const element = root.querySelector(selector);
@@ -735,6 +786,224 @@ const setFieldPlaceholders = (fields, values, root = document) => {
     if (!field || values[name] === undefined) return;
     field.setAttribute("placeholder", values[name]);
   });
+};
+
+const getActiveCopy = () => translations[document.documentElement.lang] || translations.en;
+
+const getCart = () => {
+  try {
+    return JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || "[]");
+  } catch {
+    return [];
+  }
+};
+
+const saveCart = (items) => {
+  localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+};
+
+const getCartId = (item) => item.id || `${item.section}:${item.title}`;
+
+const formatCartCount = (count, copy) => `${count} ${copy.cart.countLabel}`;
+
+const buildCartSummary = (cart, copy) =>
+  cart
+    .map((item, index) => {
+      const quantity = item.quantity > 1 ? ` x${item.quantity}` : "";
+      const tag = item.tag ? ` - ${item.tag}` : "";
+      return `${index + 1}. ${item.title}${tag}${quantity}`;
+    })
+    .join("\n");
+
+const buildShareBody = (cart, copy) => {
+  const summary = buildCartSummary(cart, copy);
+  return [
+    copy.cart.title,
+    "",
+    summary || copy.cart.empty,
+    "",
+    "Ardi Rent & Service LLC",
+  ].join("\n");
+};
+
+const buildMailtoHref = (cart, copy) => {
+  const subject = encodeURIComponent("Rental cart");
+  const body = encodeURIComponent(buildShareBody(cart, copy));
+  return `mailto:ardirentservice@gmail.com?subject=${subject}&body=${body}`;
+};
+
+const buildWhatsAppHref = (cart, copy) => {
+  const text = encodeURIComponent(buildShareBody(cart, copy));
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
+};
+
+const updateCartActions = (cart, copy) => {
+  const emailLink = document.querySelector("#cart .cart-email");
+  const whatsappLink = document.querySelector("#cart .cart-whatsapp");
+  const stripeLink = document.querySelector("#cart .cart-stripe");
+  const clearButton = document.querySelector("#cart .cart-clear");
+
+  if (emailLink) emailLink.href = buildMailtoHref(cart, copy);
+  if (whatsappLink) whatsappLink.href = buildWhatsAppHref(cart, copy);
+  if (stripeLink) {
+    if (STRIPE_PAYMENT_LINK) {
+      stripeLink.href = STRIPE_PAYMENT_LINK;
+      stripeLink.removeAttribute("aria-disabled");
+      stripeLink.classList.remove("is-disabled");
+    } else {
+      stripeLink.href = "#contact";
+      stripeLink.setAttribute("aria-disabled", "true");
+      stripeLink.classList.add("is-disabled");
+    }
+  }
+  if (clearButton) {
+    clearButton.disabled = cart.length === 0;
+  }
+};
+
+const updateCartNavLabel = (count, copy) => {
+  const navCart = document.querySelector(selectors.nav.cart);
+  if (navCart) {
+    navCart.textContent = count > 0 ? `${copy.nav.cart} (${count})` : copy.nav.cart;
+  }
+};
+
+const renderCartSection = () => {
+  const copy = getActiveCopy();
+  const cart = getCart();
+  const count = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+  const countLabel = document.querySelector("#cart [data-cart-count]");
+  const emptyState = document.querySelector("#cart [data-cart-empty]");
+  const itemsContainer = document.querySelector("#cart [data-cart-items]");
+
+  if (countLabel) {
+    countLabel.textContent = formatCartCount(count, copy);
+  }
+
+  updateCartNavLabel(count, copy);
+
+  if (emptyState) {
+    emptyState.hidden = cart.length > 0;
+  }
+
+  if (itemsContainer) {
+    itemsContainer.innerHTML = "";
+    cart.forEach((item) => {
+      const article = document.createElement("article");
+      article.className = "cart-item";
+      article.dataset.cartId = getCartId(item);
+
+      const image = document.createElement("img");
+      image.src = item.image;
+      image.alt = item.title;
+
+      const content = document.createElement("div");
+      content.className = "cart-item-content";
+
+      const title = document.createElement("strong");
+      title.textContent = item.title;
+
+      const meta = document.createElement("p");
+      meta.textContent = [item.tag, item.quantity > 1 ? `x${item.quantity}` : null]
+        .filter(Boolean)
+        .join(" • ");
+
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "cart-item-remove";
+      remove.dataset.cartRemove = getCartId(item);
+      remove.textContent = copy.cart.removeButton;
+
+      content.append(title, meta);
+      article.append(image, content, remove);
+      itemsContainer.appendChild(article);
+    });
+  }
+
+  updateCartActions(cart, copy);
+};
+
+const addCartButtonState = (button, copy, added = false) => {
+  button.textContent = added ? copy.cart.addedButton : copy.cart.addButton;
+};
+
+const ensureCartButtons = () => {
+  const copy = getActiveCopy();
+  document.querySelectorAll("#equipment .equipment-card, #lenses .equipment-card").forEach((card) => {
+    let actions = card.querySelector(".card-actions");
+    let button = card.querySelector(".cart-add-button");
+
+    if (!actions) {
+      actions = document.createElement("div");
+      actions.className = "card-actions";
+      card.appendChild(actions);
+    }
+
+    if (!button) {
+      button = document.createElement("button");
+      button.type = "button";
+      button.className = "button button-secondary cart-add-button";
+      button.dataset.cartAdd = "true";
+      actions.appendChild(button);
+    }
+
+    addCartButtonState(button, copy, false);
+  });
+};
+
+const addItemToCart = (card) => {
+  const copy = getActiveCopy();
+  const title = card.querySelector("h3")?.textContent?.trim();
+  const image = card.querySelector("img")?.getAttribute("src") || "";
+  const tag = card.querySelector(".fleet-tag")?.textContent?.trim() || "";
+  const section = card.closest("section")?.id || "equipment";
+
+  if (!title) return;
+
+  const id = `${section}:${title}`;
+  const cart = getCart();
+  const existing = cart.find((item) => getCartId(item) === id);
+
+  if (existing) {
+    existing.quantity = (existing.quantity || 1) + 1;
+  } else {
+    cart.push({
+      id,
+      title,
+      image,
+      tag,
+      section,
+      quantity: 1,
+    });
+  }
+
+  saveCart(cart);
+  renderCartSection();
+  const button = card.querySelector(".cart-add-button");
+  if (button) {
+    addCartButtonState(button, copy, true);
+    window.setTimeout(() => addCartButtonState(button, copy, false), 1200);
+  }
+};
+
+const removeItemFromCart = (id) => {
+  const cart = getCart();
+  const index = cart.findIndex((item) => getCartId(item) === id);
+  if (index === -1) return;
+
+  const item = cart[index];
+  item.quantity = (item.quantity || 1) - 1;
+  if (item.quantity <= 0) {
+    cart.splice(index, 1);
+  }
+
+  saveCart(cart);
+  renderCartSection();
+};
+
+const clearCart = () => {
+  saveCart([]);
+  renderCartSection();
 };
 
 const applyCards = (containerSelector, cards) => {
@@ -776,6 +1045,7 @@ const applyCopy = (lang) => {
       selectors.nav.lenses,
       selectors.nav.production,
       selectors.nav.contact,
+      selectors.nav.cart,
     ],
     [
       copy.nav.about,
@@ -785,6 +1055,7 @@ const applyCopy = (lang) => {
       copy.nav.lenses,
       copy.nav.production,
       copy.nav.contact,
+      copy.nav.cart,
     ]
   );
 
@@ -1013,6 +1284,21 @@ const applyCopy = (lang) => {
   if (contactLinks[1]) contactLinks[1].textContent = copy.contact.email;
   if (contactLinks[2]) contactLinks[2].textContent = copy.contact.quote;
 
+  setText("#cart .cart-eyebrow", copy.cart.eyebrow);
+  setText("#cart .cart-title", copy.cart.title);
+  setText("#cart .cart-lead", copy.cart.lead);
+  setText("#cart .cart-panel-title", copy.cart.panelTitle);
+  setText("#cart .cart-summary-panel .cart-panel-title", copy.cart.summaryTitle);
+  setText("#cart .cart-summary-copy", copy.cart.summaryCopy);
+  setText("#cart .cart-empty", copy.cart.empty);
+  setText("#cart .cart-clear", copy.cart.clear);
+  setText("#cart .cart-note", copy.cart.note);
+  setText("#cart .cart-email", copy.cart.email);
+  setText("#cart .cart-whatsapp", copy.cart.whatsapp);
+  setText("#cart .cart-stripe", copy.cart.stripe);
+  ensureCartButtons();
+  renderCartSection();
+
   setText(".site-footer p:last-child", copy.footer);
 
   document.querySelectorAll(".lang-button").forEach((button) => {
@@ -1117,6 +1403,8 @@ const revealTargets = document.querySelectorAll(
     ".inventory-strip",
     ".process-panel",
     ".project-form",
+    ".equipment-callout",
+    ".cart-panel",
     ".vision-card",
     ".contact-card",
   ].join(", ")
@@ -1150,4 +1438,24 @@ document.querySelectorAll(".lang-button").forEach((button) => {
     applyCopy(lang);
     updatePrintCardLanguage(lang);
   });
+});
+
+document.addEventListener("click", (event) => {
+  const addButton = event.target.closest("[data-cart-add]");
+  if (addButton) {
+    const card = addButton.closest(".equipment-card");
+    if (card) addItemToCart(card);
+    return;
+  }
+
+  const removeButton = event.target.closest("[data-cart-remove]");
+  if (removeButton) {
+    removeItemFromCart(removeButton.dataset.cartRemove || "");
+    return;
+  }
+
+  const clearButton = event.target.closest("[data-cart-clear]");
+  if (clearButton) {
+    clearCart();
+  }
 });

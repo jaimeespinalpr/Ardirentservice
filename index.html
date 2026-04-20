@@ -46,6 +46,7 @@
           <a href="#lenses">Lenses</a>
           <a href="#production">Production</a>
           <a href="#contact">Contact</a>
+          <a href="#cart">Cart</a>
         </nav>
 
         <div class="header-actions">
@@ -1154,6 +1155,59 @@
             <a href="mailto:ardirentservice@gmail.com?subject=Request%20a%20quote">
               Request a quote
             </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-alt cart-section" id="cart">
+        <div class="container cart-grid">
+          <div class="section-heading cart-heading">
+            <p class="eyebrow cart-eyebrow">Cart & payments</p>
+            <h2 class="cart-title">Build your rental cart.</h2>
+            <p class="cart-lead">
+              Add gear from the equipment and lenses sections above. Your selections will appear
+              here so you can request a quote, send the list by WhatsApp, or connect payment.
+            </p>
+          </div>
+
+          <div class="cart-layout">
+            <div class="cart-panel cart-items-panel">
+              <div class="cart-panel-head">
+                <h3 class="cart-panel-title">Selected items</h3>
+                <span class="cart-count" data-cart-count>0 items</span>
+              </div>
+              <p class="cart-empty" data-cart-empty>
+                Your cart is empty. Tap any rental card above to start building a quote.
+              </p>
+              <div class="cart-items" data-cart-items></div>
+            </div>
+
+            <aside class="cart-panel cart-summary-panel">
+              <h3 class="cart-panel-title">Checkout options</h3>
+              <p class="cart-summary-copy">
+                Use the cart to gather your rental list. When your Stripe payment link is ready, we
+                can connect it here for a deposit or full checkout.
+              </p>
+
+              <div class="cart-actions">
+                <a class="button button-primary cart-email" href="mailto:ardirentservice@gmail.com?subject=Rental%20cart">
+                  Email cart
+                </a>
+                <a class="button button-secondary cart-whatsapp" href="https://wa.me/19393661442" target="_blank" rel="noreferrer">
+                  WhatsApp cart
+                </a>
+                <a class="button button-ghost cart-stripe" href="#contact">
+                  Stripe checkout
+                </a>
+              </div>
+
+              <button class="button button-ghost cart-clear" type="button" data-cart-clear>
+                Clear cart
+              </button>
+              <p class="cart-note">
+                No payment is processed until Stripe is connected to your new account.
+              </p>
+            </aside>
           </div>
         </div>
       </section>
