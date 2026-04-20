@@ -1106,6 +1106,10 @@ h1 {
   border-radius: 22px;
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.25);
   background: transparent;
+  z-index: 9999;
+  max-height: 86vh;
+  overflow: auto;
+  pointer-events: auto;
 }
 
 .quote-dialog::backdrop {
@@ -1113,11 +1117,20 @@ h1 {
   backdrop-filter: blur(6px);
 }
 
+.quote-dialog[open] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+}
+
 .quote-dialog-inner {
   padding: 1.25rem;
   border-radius: 22px;
   background: linear-gradient(180deg, #ffffff, #f1f1f1);
   border: 1px solid rgba(0, 0, 0, 0.1);
+  pointer-events: auto;
 }
 
 .quote-dialog-head {
