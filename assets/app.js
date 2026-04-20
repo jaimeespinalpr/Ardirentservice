@@ -647,12 +647,12 @@ const translations = {
             text: "Puertos tipo domo Aquatech en tamaños mediano y grande para cobertura más amplia y mejor control de perspectiva subacuática.",
             alt: "Puerto domo Aquatech",
           },
-          {
-            tag: "Accesorio",
-            title: "Aquatech Pistol Grip",
-            text: "Empuñadura ergonómica Aquatech para mejorar el control con una mano y el manejo del equipo al grabar bajo el agua.",
-            alt: "Empuñadura Aquatech",
-          },
+	          {
+	            tag: "Accesorio",
+	            title: "Aquatech M3 Shutter Grip",
+	            text: "Empuñadura tipo gatillo diseñada para carcasas Aquatech: mejora el control con una mano y ofrece una postura más cómoda al grabar bajo el agua.",
+	            alt: "Empuñadura Aquatech M3 Shutter Grip",
+	          },
         ],
       },
       accessories: {
