@@ -644,9 +644,9 @@ const translations = {
           },
           {
             tag: "Puertos",
-            title: "Set de puerto Aquatec P35",
-            text: "Set de puerto Aquatec P35.",
-            alt: "Set de puerto Aquatec P35",
+            title: "Aquatec P35",
+            text: "Puerto plano para usar lentes compactos en carcasas acuáticas y mantener una imagen nítida bajo el agua.",
+            alt: "Aquatec P35",
           },
           {
             tag: "Domo",
