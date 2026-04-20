@@ -644,9 +644,9 @@ const translations = {
           },
           {
             tag: "Puertos",
-            title: "Aquatech Flat Ports (P35, P100, P130)",
-            text: "Set de puertos planos Aquatech P35, P100 y P130 para distintas configuraciones de lente y escenarios de filmación bajo el agua.",
-            alt: "Puerto plano Aquatech",
+            title: "Set de puerto Aquatec P35",
+            text: "Set de puerto Aquatec P35.",
+            alt: "Set de puerto Aquatec P35",
           },
           {
             tag: "Domo",
