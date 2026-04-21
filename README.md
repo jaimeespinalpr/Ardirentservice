@@ -19,7 +19,7 @@ Static landing page for camera rentals, audiovisual production, photography, vid
    - `STRIPE_DEPOSIT_LABEL` (optional)
    - `STRIPE_SUCCESS_URL` (optional)
    - `STRIPE_CANCEL_URL` (optional)
-4. For Hostinger auto-deploy, add these GitHub Secrets and keep pushing to `codex/ardi-site`:
+4. For Hostinger auto-deploy, add these GitHub Secrets and push to `main` or `codex/ardi-site`:
    - `HOSTINGER_SSH_HOST`
    - `HOSTINGER_SSH_PORT` (usually `22`)
    - `HOSTINGER_SSH_USER`

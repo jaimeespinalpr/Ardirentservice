@@ -1,18 +1,18 @@
-name: Deploy codex to Hostinger via scp (v2)
+name: Deploy to Hostinger (auto)
 
 on:
   push:
     branches:
+      - main
       - codex/ardi-site
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout codex branch
-        uses: actions/checkout@v3
-        with:
-          ref: codex/ardi-site
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Copy files via SCP
         uses: appleboy/scp-action@v0.1.4
