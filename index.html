@@ -1237,6 +1237,64 @@
               </p>
             </aside>
           </div>
+
+          <article class="cart-panel cart-discount-panel">
+            <div class="cart-discount-head">
+              <p class="eyebrow cart-discount-eyebrow">Discount policy</p>
+              <h3 class="cart-discount-title">Rental day discounts</h3>
+              <p class="cart-discount-lead">
+                Discounts start at day 3. Rates do not stack. The highest eligible tier applies.
+              </p>
+            </div>
+
+            <div class="cart-discount-grid">
+              <label class="cart-input">
+                <span data-cart-discount-label="days">Rental days</span>
+                <input type="number" min="1" step="1" value="1" inputmode="numeric" data-discount-days />
+              </label>
+
+              <label class="cart-input">
+                <span data-cart-discount-label="client">Client type</span>
+                <select data-discount-client>
+                  <option value="regular">Regular client</option>
+                  <option value="loyal">Loyal / family / production</option>
+                  <option value="special">Special approval</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="cart-toggle">
+              <input type="checkbox" data-discount-approval />
+              <span data-cart-discount-label="approval">Approved long-rental boost (14+ days)</span>
+            </label>
+
+            <div class="cart-discount-result">
+              <p class="eyebrow cart-discount-result-label">Estimated discount</p>
+              <p class="cart-discount-result-value" data-discount-value>0% off</p>
+              <p class="cart-discount-result-note" data-discount-note>
+                Base by days and client cap will be calculated automatically.
+              </p>
+            </div>
+
+            <div class="cart-discount-rules">
+              <h4 class="cart-discount-rules-title">Policy applied</h4>
+              <ul class="cart-discount-rules-list">
+                <li data-cart-discount-rule="0">1-2 days: 0%</li>
+                <li data-cart-discount-rule="1">3 days: 5%</li>
+                <li data-cart-discount-rule="2">4 days: 10%</li>
+                <li data-cart-discount-rule="3">5-6 days: 15%</li>
+                <li data-cart-discount-rule="4">7+ days: 20% automatic max</li>
+                <li data-cart-discount-rule="5">14+ days: up to 25% with approval</li>
+                <li data-cart-discount-rule="6">
+                  Client caps: regular 20%, loyal/family/production 25%, special approval up to
+                  30%
+                </li>
+                <li data-cart-discount-rule="7">
+                  No discount stacking: only the highest eligible tier applies
+                </li>
+              </ul>
+            </div>
+          </article>
         </div>
       </section>
 

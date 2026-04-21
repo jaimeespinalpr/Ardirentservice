@@ -1069,6 +1069,125 @@ h1 {
   pointer-events: none;
 }
 
+.cart-discount-panel {
+  margin-top: 0.15rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.cart-discount-head {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.cart-discount-head .eyebrow {
+  margin-bottom: 0;
+}
+
+.cart-discount-title {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.cart-discount-lead {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.cart-discount-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cart-input {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.cart-input span,
+.cart-toggle span {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.cart-input input,
+.cart-input select {
+  width: 100%;
+  padding: 0.92rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text);
+  font: inherit;
+}
+
+.cart-input input:focus,
+.cart-input select:focus {
+  outline: none;
+  border-color: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.08);
+}
+
+.cart-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.cart-toggle input {
+  width: 1rem;
+  height: 1rem;
+}
+
+.cart-discount-result {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.cart-discount-result-label {
+  margin-bottom: 0;
+}
+
+.cart-discount-result-value {
+  margin: 0;
+  font-size: 1.7rem;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.cart-discount-result-note {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.cart-discount-rules {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.cart-discount-rules-title {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: 0.03em;
+}
+
+.cart-discount-rules-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 .honeypot {
   position: absolute;
   left: -9999px;
@@ -1189,6 +1308,10 @@ h1 {
 
   .equipment-card .card-actions {
     flex-direction: column;
+  }
+
+  .cart-discount-grid {
+    grid-template-columns: 1fr;
   }
 }
 

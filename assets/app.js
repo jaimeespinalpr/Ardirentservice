@@ -383,6 +383,39 @@ const translations = {
       addedButton: "Added",
       removeButton: "Remove",
       emptyAction: "Start adding gear",
+      discount: {
+        eyebrow: "Discount policy",
+        title: "Rental day discounts",
+        lead: "Discounts start at day 3. Rates do not stack. The highest eligible tier applies.",
+        labels: {
+          days: "Rental days",
+          client: "Client type",
+          approval: "Approved long-rental boost (14+ days)",
+        },
+        clientOptions: ["Regular client", "Loyal / family / production", "Special approval"],
+        resultLabel: "Estimated discount",
+        resultValue: "{percent}% off",
+        daySingular: "day",
+        dayPlural: "days",
+        summaryTemplate: "{label}: {percent}% ({days} {dayWord}, {client})",
+        rulesTitle: "Policy applied",
+        rules: [
+          "1-2 days: 0%",
+          "3 days: 5%",
+          "4 days: 10%",
+          "5-6 days: 15%",
+          "7+ days: 20% automatic max",
+          "14+ days: up to 25% with approval",
+          "Client caps: regular 20%, loyal/family/production 25%, special approval up to 30%",
+          "No discount stacking: only the highest eligible tier applies",
+        ],
+        messages: {
+          base: "Base by days: {base}%. Cap by client: {cap}%.",
+          approvalNeeded: "For 14+ days, approval is required to exceed 20%.",
+          approvalApplied: "Approval boost applied.",
+          capped: "Final rate is capped by client type policy.",
+        },
+      },
     },
     footer: "Camera rentals, production services, and visual storytelling.",
   },
@@ -770,6 +803,39 @@ const translations = {
       addedButton: "Agregado",
       removeButton: "Quitar",
       emptyAction: "Empieza a agregar equipo",
+      discount: {
+        eyebrow: "Política de descuentos",
+        title: "Descuentos por días de renta",
+        lead: "Los descuentos comienzan en el día 3. No se acumulan; aplica el nivel más alto que corresponda.",
+        labels: {
+          days: "Días de renta",
+          client: "Tipo de cliente",
+          approval: "Aprobación para aumento en renta larga (14+ días)",
+        },
+        clientOptions: ["Cliente regular", "Leal / familia / producción", "Aprobación especial"],
+        resultLabel: "Descuento estimado",
+        resultValue: "{percent}% de descuento",
+        daySingular: "día",
+        dayPlural: "días",
+        summaryTemplate: "{label}: {percent}% ({days} {dayWord}, {client})",
+        rulesTitle: "Política aplicada",
+        rules: [
+          "1-2 días: 0%",
+          "3 días: 5%",
+          "4 días: 10%",
+          "5-6 días: 15%",
+          "7+ días: máximo automático de 20%",
+          "14+ días: hasta 25% con aprobación",
+          "Topes por cliente: regular 20%, leal/familia/producción 25%, aprobación especial hasta 30%",
+          "No se acumulan descuentos: solo aplica el nivel más alto elegible",
+        ],
+        messages: {
+          base: "Base por días: {base}%. Tope por cliente: {cap}%.",
+          approvalNeeded: "Para 14+ días, se requiere aprobación para pasar de 20%.",
+          approvalApplied: "Aumento por aprobación aplicado.",
+          capped: "La tasa final está limitada por la política del tipo de cliente.",
+        },
+      },
     },
     footer: "Alquiler de cámaras, servicios de producción y narrativa visual.",
   },
@@ -793,6 +859,12 @@ const selectors = {
 const CART_STORAGE_KEY = "ardi-rent-service-cart";
 const WHATSAPP_NUMBER = "19393661442";
 const STRIPE_CHECKOUT_ENDPOINT = "stripe-checkout.php";
+const DISCOUNT_CLIENT_CAPS = {
+  regular: 20,
+  loyal: 25,
+  special: 30,
+};
+const DISCOUNT_CLIENT_ORDER = ["regular", "loyal", "special"];
 
 const setText = (selector, value, root = document) => {
   const element = root.querySelector(selector);
@@ -828,6 +900,12 @@ const setFieldPlaceholders = (fields, values, root = document) => {
   });
 };
 
+const interpolate = (template, values) =>
+  Object.entries(values).reduce(
+    (result, [key, value]) => result.replaceAll(`{${key}}`, String(value)),
+    template
+  );
+
 const getActiveCopy = () => translations[document.documentElement.lang] || translations.en;
 
 const getCart = () => {
@@ -855,15 +933,104 @@ const buildCartSummary = (cart, copy) =>
     })
     .join("\n");
 
+const getDiscountBaseByDays = (days) => {
+  if (days >= 7) return 20;
+  if (days >= 5) return 15;
+  if (days >= 4) return 10;
+  if (days >= 3) return 5;
+  return 0;
+};
+
+const getDiscountState = () => {
+  const daysInput = document.querySelector("[data-discount-days]");
+  const clientSelect = document.querySelector("[data-discount-client]");
+  const approvalToggle = document.querySelector("[data-discount-approval]");
+
+  if (!daysInput || !clientSelect || !approvalToggle) return null;
+
+  const parsedDays = Number.parseInt(daysInput.value, 10);
+  const days = Number.isFinite(parsedDays) && parsedDays > 0 ? parsedDays : 1;
+  const clientType = DISCOUNT_CLIENT_CAPS[clientSelect.value] ? clientSelect.value : "regular";
+  const clientCap = DISCOUNT_CLIENT_CAPS[clientType];
+  const base = getDiscountBaseByDays(days);
+  const approvalBoost = days >= 14 && approvalToggle.checked ? 5 : 0;
+  const rawRate = base + approvalBoost;
+  const finalRate = Math.min(rawRate, clientCap);
+
+  if (daysInput.value !== String(days)) {
+    daysInput.value = String(days);
+  }
+
+  return {
+    days,
+    clientType,
+    clientCap,
+    base,
+    approvalBoost,
+    finalRate,
+    needsApproval: days >= 14 && approvalBoost === 0,
+    capped: rawRate > clientCap,
+  };
+};
+
+const getClientTypeLabel = (copy, clientType) => {
+  const index = DISCOUNT_CLIENT_ORDER.indexOf(clientType);
+  return copy.cart.discount.clientOptions[index] || copy.cart.discount.clientOptions[0];
+};
+
+const buildDiscountShareLine = (copy) => {
+  const state = getDiscountState();
+  if (!state) return "";
+
+  const dayWord = state.days === 1 ? copy.cart.discount.daySingular : copy.cart.discount.dayPlural;
+  return interpolate(copy.cart.discount.summaryTemplate, {
+    label: copy.cart.discount.resultLabel,
+    percent: state.finalRate,
+    days: state.days,
+    dayWord,
+    client: getClientTypeLabel(copy, state.clientType),
+  });
+};
+
+const updateDiscountEstimator = () => {
+  const copy = getActiveCopy();
+  const state = getDiscountState();
+  if (!state) return;
+
+  const resultValue = document.querySelector("[data-discount-value]");
+  const resultNote = document.querySelector("[data-discount-note]");
+
+  if (resultValue) {
+    resultValue.textContent = interpolate(copy.cart.discount.resultValue, {
+      percent: state.finalRate,
+    });
+  }
+
+  if (resultNote) {
+    const notes = [
+      interpolate(copy.cart.discount.messages.base, {
+        base: state.base,
+        cap: state.clientCap,
+      }),
+    ];
+    if (state.needsApproval) notes.push(copy.cart.discount.messages.approvalNeeded);
+    if (state.approvalBoost > 0) notes.push(copy.cart.discount.messages.approvalApplied);
+    if (state.capped) notes.push(copy.cart.discount.messages.capped);
+    resultNote.textContent = notes.join(" ");
+  }
+
+  updateCartActions(getCart(), copy);
+};
+
 const buildShareBody = (cart, copy) => {
   const summary = buildCartSummary(cart, copy);
-  return [
-    copy.cart.title,
-    "",
-    summary || copy.cart.empty,
-    "",
-    "Ardi Rent & Service LLC",
-  ].join("\n");
+  const discountLine = buildDiscountShareLine(copy);
+  const lines = [copy.cart.title, "", summary || copy.cart.empty];
+  if (discountLine) {
+    lines.push("", discountLine);
+  }
+  lines.push("", "Ardi Rent & Service LLC");
+  return lines.join("\n");
 };
 
 const buildMailtoHref = (cart, copy) => {
@@ -1380,8 +1547,23 @@ const applyCopy = (lang) => {
   setText("#cart .cart-email", copy.cart.email);
   setText("#cart .cart-whatsapp", copy.cart.whatsapp);
   setText("#cart .cart-stripe", copy.cart.stripe);
+  setText("#cart .cart-discount-eyebrow", copy.cart.discount.eyebrow);
+  setText("#cart .cart-discount-title", copy.cart.discount.title);
+  setText("#cart .cart-discount-lead", copy.cart.discount.lead);
+  setText('[data-cart-discount-label="days"]', copy.cart.discount.labels.days);
+  setText('[data-cart-discount-label="client"]', copy.cart.discount.labels.client);
+  setText('[data-cart-discount-label="approval"]', copy.cart.discount.labels.approval);
+  setText("#cart .cart-discount-result-label", copy.cart.discount.resultLabel);
+  setText("#cart .cart-discount-rules-title", copy.cart.discount.rulesTitle);
+  setSelectOptions("[data-discount-client]", copy.cart.discount.clientOptions);
+  document.querySelectorAll("[data-cart-discount-rule]").forEach((item, index) => {
+    if (copy.cart.discount.rules[index]) {
+      item.textContent = copy.cart.discount.rules[index];
+    }
+  });
   ensureCartButtons();
   renderCartSection();
+  updateDiscountEstimator();
 
   setText(".site-footer p:last-child", copy.footer);
 
@@ -1522,6 +1704,18 @@ document.querySelectorAll(".lang-button").forEach((button) => {
     applyCopy(lang);
     updatePrintCardLanguage(lang);
   });
+});
+
+document.addEventListener("input", (event) => {
+  if (event.target.matches("[data-discount-days]")) {
+    updateDiscountEstimator();
+  }
+});
+
+document.addEventListener("change", (event) => {
+  if (event.target.matches("[data-discount-client], [data-discount-approval]")) {
+    updateDiscountEstimator();
+  }
 });
 
 document.addEventListener("click", (event) => {
