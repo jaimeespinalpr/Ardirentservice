@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import json
 import os
+import random
 import re
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -13,6 +15,36 @@ LIMIT = int(os.environ.get("IG_LIMIT", "10"))
 ROOT = Path(__file__).resolve().parents[1]
 OUT_JSON = ROOT / "data" / "instagram_latest.json"
 OUT_DIR = ROOT / "assets" / "instagram"
+MAX_RETRIES = int(os.environ.get("IG_MAX_RETRIES", "5"))
+BASE_BACKOFF_SECONDS = float(os.environ.get("IG_RETRY_BASE_SECONDS", "1.5"))
+
+
+def _should_retry(exc: Exception) -> bool:
+    if isinstance(exc, urllib.error.HTTPError):
+        return exc.code == 429 or 500 <= exc.code < 600
+    if isinstance(exc, urllib.error.URLError):
+        return True
+    if isinstance(exc, TimeoutError):
+        return True
+    return False
+
+
+def _urlopen_with_retries(req: urllib.request.Request, timeout: int = 30):
+    last_exc = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            return urllib.request.urlopen(req, timeout=timeout)
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            if not _should_retry(exc) or attempt == MAX_RETRIES:
+                break
+            sleep_s = BASE_BACKOFF_SECONDS * (2 ** (attempt - 1)) + random.uniform(0, 0.75)
+            print(
+                f"[instagram-cache] transient error ({type(exc).__name__}) on attempt "
+                f"{attempt}/{MAX_RETRIES}; retrying in {sleep_s:.1f}s"
+            )
+            time.sleep(sleep_s)
+    raise last_exc  # type: ignore[misc]
 
 
 def fetch_profile_json(username: str) -> dict:
@@ -25,7 +57,7 @@ def fetch_profile_json(username: str) -> dict:
             "x-ig-app-id": "936619743392459",
         },
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
+    with _urlopen_with_retries(req, timeout=30) as resp:
         return json.load(resp)
 
 
@@ -49,7 +81,7 @@ def download_image(url: str, dest_base: Path) -> str:
         url,
         headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"},
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
+    with _urlopen_with_retries(req, timeout=30) as resp:
         content_type = resp.headers.get("Content-Type", "")
         data = resp.read()
     ext = guess_ext(content_type)
@@ -62,7 +94,16 @@ def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     (ROOT / "data").mkdir(parents=True, exist_ok=True)
 
-    payload = fetch_profile_json(USERNAME)
+    try:
+        payload = fetch_profile_json(USERNAME)
+    except Exception as exc:  # noqa: BLE001
+        if OUT_JSON.exists():
+            print(
+                "[instagram-cache] could not refresh feed; keeping existing cache "
+                f"({type(exc).__name__}: {exc})"
+            )
+            return 0
+        raise
     user = payload.get("data", {}).get("user", {})
     edges = (
         user.get("edge_owner_to_timeline_media", {})
@@ -94,6 +135,9 @@ def main() -> int:
             break
 
     if not posts:
+        if OUT_JSON.exists():
+            print("[instagram-cache] no posts in response; keeping existing cache")
+            return 0
         raise SystemExit("No posts found. Instagram response may have changed.")
 
     # Download images (keep them stable and fast for GitHub Pages).
