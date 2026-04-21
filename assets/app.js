@@ -656,6 +656,24 @@ const translations = {
           },
           {
             tag: "Puertos",
+            title: "Aquatech P-65 Lens Port",
+            text: "Puerto corto para configuraciones submarinas compactas, ideal para lentes prime medianos y manejo limpio.",
+            alt: "Aquatech P-65 lens port",
+          },
+          {
+            tag: "Puertos",
+            title: "Aquatech P-100 Lens Port",
+            text: "Puerto para lentes prime medianos y zooms cortos, pensado para trabajo en agua somera, retratos y cobertura general.",
+            alt: "Aquatech P-100 lens port",
+          },
+          {
+            tag: "Puertos",
+            title: "Aquatech P-130 Lens Port",
+            text: "Puerto mas amplio para primes cortos a medianos y zooms selectos, ideal cuando se necesita un poco mas de espacio.",
+            alt: "Aquatech P-130 lens port",
+          },
+          {
+            tag: "Puertos",
             title: "P-30 EX - Excellent",
             text: "Puerto de extension para configuraciones de lente compatibles, con perfil compacto y rosca Aquatech confiable.",
             alt: "P-30 EX - Excellent",
