@@ -161,6 +161,26 @@ const translations = {
         ["Streaming-ready", "Ideal for live production and hybrid events."],
         ["Rental + service", "Hardware and creative help under one brand."],
       ],
+      ports: [
+        {
+          tag: "Ports",
+          title: "Aquatech P-65 Lens Port",
+          text: "Short prime port for compact underwater setups, built for clean handling and medium prime lenses.",
+          alt: "Aquatech P-65 lens port",
+        },
+        {
+          tag: "Ports",
+          title: "Aquatech P-100 Lens Port",
+          text: "Medium prime and short zoom port for shallow-water work, portraits, and general underwater coverage.",
+          alt: "Aquatech P-100 lens port",
+        },
+        {
+          tag: "Ports",
+          title: "Aquatech P-130 Lens Port",
+          text: "Wider port for short to medium primes and select zooms, ideal when the setup needs a little more room.",
+          alt: "Aquatech P-130 lens port",
+        },
+      ],
     },
     lenses: {
       eyebrow: "Lenses",
@@ -527,6 +547,26 @@ const translations = {
         ["Inventario completo", "Lista de equipo disponible para cotizaciones y planificación de producción."],
         ["Lista para streaming", "Ideal para producción en vivo y eventos híbridos."],
         ["Alquiler + servicio", "Equipo y ayuda creativa bajo una sola marca."],
+      ],
+      ports: [
+        {
+          tag: "Puertos",
+          title: "Aquatech P-65 Lens Port",
+          text: "Puerto corto para configuraciones submarinas compactas, ideal para lentes prime medianos y manejo limpio.",
+          alt: "Aquatech P-65 lens port",
+        },
+        {
+          tag: "Puertos",
+          title: "Aquatech P-100 Lens Port",
+          text: "Puerto para lentes prime medianos y zooms cortos, pensado para trabajo en agua somera, retratos y cobertura general.",
+          alt: "Aquatech P-100 lens port",
+        },
+        {
+          tag: "Puertos",
+          title: "Aquatech P-130 Lens Port",
+          text: "Puerto más amplio para primes cortos a medianos y zooms selectos, ideal cuando se necesita un poco más de espacio.",
+          alt: "Aquatech P-130 lens port",
+        },
       ],
     },
     lenses: {
@@ -1195,6 +1235,24 @@ const applyCopy = (lang) => {
     const span = item.querySelector("span");
     if (strong) strong.textContent = title;
     if (span) span.textContent = text;
+  });
+
+  const portCards = document.querySelectorAll("#equipment .equipment-card");
+  const portIndexes = [8, 9, 10];
+  portIndexes.forEach((cardIndex, portIndex) => {
+    const card = portCards[cardIndex];
+    const content = copy.equipment.ports[portIndex];
+    if (!card || !content) return;
+
+    const image = card.querySelector("img");
+    const tag = card.querySelector(".fleet-tag");
+    const title = card.querySelector("h3");
+    const text = card.querySelector("p");
+
+    if (image && content.alt) image.alt = content.alt;
+    if (tag && content.tag) tag.textContent = content.tag;
+    if (title && content.title) title.textContent = content.title;
+    if (text && content.text) text.textContent = content.text;
   });
 
   setText('#lenses .section-heading .eyebrow', copy.lenses.eyebrow);
