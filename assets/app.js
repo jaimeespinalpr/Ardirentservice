@@ -106,6 +106,9 @@ const translations = {
       planText:
         "Then browse the cameras, waterhousings, and accessories below to build the right setup for your shoot.",
       planLinks: ["Cameras", "Waterhousings", "Accessories", "Lenses"],
+      discountTeaser:
+        "Rental discounts start at day 3 (5%) and reach 20% from day 7. For 14+ days, approved cases can go higher.",
+      discountLink: "Open discount calculator",
       cards: [
         {
           tag: "Hybrid",
@@ -526,6 +529,9 @@ const translations = {
       planText:
         "Luego mira las cámaras, waterhousings y accesorios abajo para armar el equipo correcto para tu sesión.",
       planLinks: ["Cámaras", "Waterhousings", "Accesorios", "Lentes"],
+      discountTeaser:
+        "Los descuentos de renta empiezan en el día 3 (5%) y llegan a 20% desde el día 7. Para 14+ días, casos aprobados pueden subir más.",
+      discountLink: "Abrir calculadora de descuentos",
       cards: [
         {
           tag: "Híbrida",
@@ -1392,6 +1398,8 @@ const applyCopy = (lang) => {
     ],
     copy.equipment.planLinks
   );
+  setText("[data-equipment-discount-teaser]", copy.equipment.discountTeaser);
+  setText("[data-equipment-discount-link]", copy.equipment.discountLink);
 
   const equipmentStrip = document.querySelectorAll("#equipment .inventory-strip > div");
   equipmentStrip.forEach((item, index) => {

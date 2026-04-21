@@ -678,6 +678,15 @@ h1 {
   margin-top: 0.75rem;
 }
 
+.equipment-callout .equipment-discount-teaser {
+  margin-top: 0.85rem;
+  line-height: 1.6;
+}
+
+.equipment-callout .equipment-discount-link {
+  margin-top: 0.75rem;
+}
+
 .lens-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
