@@ -3,8 +3,6 @@ name: Deploy to Hostinger (auto)
 on:
   push:
     branches:
-      - main
-      - codex/ardi-site
       - gh-pages
   workflow_dispatch:
 
