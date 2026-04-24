@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - codex/ardi-site
+      - gh-pages
   workflow_dispatch:
 
 jobs:
