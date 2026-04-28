@@ -1085,10 +1085,10 @@
 
           <div class="equipment-callout">
             <p class="eyebrow">Rental planning</p>
-            <h3>Choose your rental dates</h3>
+            <h3>Pick gear and dates your way</h3>
             <p>
-              Then browse the cameras, waterhousings, accessories, and lenses above to build the
-              right setup for your shoot.
+              Add products first, then set one date for all rentals or different dates per item
+              directly from each product card.
             </p>
             <p class="equipment-jump-links">
               <a href="#equipment-cameras">Cameras</a> ·
@@ -1223,6 +1223,35 @@
                 Use the cart to gather your rental list. Stripe Checkout will charge the deposit
                 configured in the backend and keep your cart notes attached to the order.
               </p>
+
+              <div class="cart-date-panel">
+                <h4 class="cart-date-title" data-cart-date-title>Rental date setup</h4>
+                <p class="cart-date-status" data-cart-date-status>
+                  Add your first product and choose if all rentals use the same date or different dates.
+                </p>
+                <div class="cart-date-mode-actions">
+                  <button class="button button-secondary" type="button" data-cart-mode-same>
+                    Same date for all
+                  </button>
+                  <button class="button button-ghost" type="button" data-cart-mode-different>
+                    Different dates
+                  </button>
+                </div>
+                <div class="cart-shared-date" data-cart-shared-date>
+                  <label class="cart-input">
+                    <span data-cart-shared-date-label>Shared rental date</span>
+                    <input type="date" data-shared-rental-date />
+                  </label>
+                  <div class="cart-shared-date-actions">
+                    <button class="button button-secondary" type="button" data-cart-shared-confirm>
+                      Confirm date
+                    </button>
+                    <button class="button button-ghost" type="button" data-cart-shared-edit>
+                      Edit date
+                    </button>
+                  </div>
+                </div>
+              </div>
 
               <div class="cart-actions">
                 <a class="button button-primary cart-email" href="mailto:ardirentservice@gmail.com?subject=Rental%20cart">

@@ -700,10 +700,40 @@ h1 {
   display: flex;
   gap: 0.6rem;
   margin-top: 1rem;
+  flex-direction: column;
 }
 
 .equipment-card .cart-add-button {
   width: 100%;
+}
+
+.card-date-controls {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.card-date-label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.card-date-input {
+  width: 100%;
+  padding: 0.72rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text);
+  font: inherit;
+}
+
+.card-date-status {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 .equipment-card img {
@@ -1053,6 +1083,48 @@ h1 {
 .cart-summary-panel {
   display: grid;
   gap: 0.9rem;
+}
+
+.cart-date-panel {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.95rem;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.cart-date-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.cart-date-status {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.cart-date-mode-actions,
+.cart-shared-date-actions {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.cart-shared-date {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.cart-date-mode-actions .button,
+.cart-shared-date-actions .button {
+  width: 100%;
+}
+
+.cart-date-mode-actions .button.is-active {
+  border-color: #000;
+  background: #000;
+  color: #fff;
 }
 
 .cart-summary-copy,

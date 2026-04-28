@@ -102,9 +102,9 @@ const translations = {
       title: "Featured cameras from the inventory list.",
       desc: "These are the camera bodies and camera systems featured on the website.",
       planEyebrow: "Rental planning",
-      planTitle: "Choose your rental dates",
+      planTitle: "Pick gear and dates your way",
       planText:
-        "Then browse the cameras, waterhousings, and accessories below to build the right setup for your shoot.",
+        "Add products first, then set one date for all rentals or different dates per item directly from each product card.",
       planLinks: ["Cameras", "Waterhousings", "Accessories", "Lenses"],
       discountTeaser:
         "Rental discounts start at day 3 (5%) and reach 20% from day 7. For 14+ days, approved cases can go higher.",
@@ -386,6 +386,28 @@ const translations = {
       addedButton: "Added",
       removeButton: "Remove",
       emptyAction: "Start adding gear",
+      dateSetup: {
+        title: "Rental date setup",
+        unset:
+          "Add your first product and choose if all rentals use the same date or different dates.",
+        same:
+          "Same date mode is active. Confirm one shared date or edit it any time.",
+        different:
+          "Different dates mode is active. Keep choosing a rental date in each product card.",
+        sameButton: "Same date for all",
+        differentButton: "Different dates",
+        sharedDateLabel: "Shared rental date",
+        confirmDate: "Confirm date",
+        editDate: "Edit date",
+        dateConfirmed: "Date confirmed for all products: {date}.",
+        datePending: "Choose and confirm a shared date before checkout.",
+        cardDateLabel: "Rental date",
+        cardDateShared: "Using shared date: {date}",
+        cardDateNeedsShared: "Set shared date in cart",
+        firstAddPrompt:
+          "Will all rentals use the same date?\nOK = same date for all\nCancel = different dates per product",
+        pickDateFirst: "Choose a rental date for this product before adding it to cart.",
+      },
       discount: {
         eyebrow: "Discount policy",
         title: "Rental day discounts",
@@ -525,9 +547,9 @@ const translations = {
       title: "Cámaras destacadas del inventario.",
       desc: "Estos son los cuerpos y sistemas de cámara destacados en el sitio.",
       planEyebrow: "Planificación de renta",
-      planTitle: "Escoge tu fecha",
+      planTitle: "Escoge equipo y fechas a tu manera",
       planText:
-        "Luego mira las cámaras, waterhousings y accesorios abajo para armar el equipo correcto para tu sesión.",
+        "Primero agrega productos y luego define una sola fecha para todo o fechas diferentes por producto desde cada tarjeta.",
       planLinks: ["Cámaras", "Waterhousings", "Accesorios", "Lentes"],
       discountTeaser:
         "Los descuentos de renta empiezan en el día 3 (5%) y llegan a 20% desde el día 7. Para 14+ días, casos aprobados pueden subir más.",
@@ -809,6 +831,28 @@ const translations = {
       addedButton: "Agregado",
       removeButton: "Quitar",
       emptyAction: "Empieza a agregar equipo",
+      dateSetup: {
+        title: "Configuración de fechas de renta",
+        unset:
+          "Agrega tu primer producto y elige si todo irá para la misma fecha o para fechas diferentes.",
+        same:
+          "Modo misma fecha activo. Confirma una fecha compartida o edítala cuando quieras.",
+        different:
+          "Modo fechas diferentes activo. Sigue escogiendo la fecha en cada tarjeta de producto.",
+        sameButton: "Misma fecha para todo",
+        differentButton: "Fechas diferentes",
+        sharedDateLabel: "Fecha de renta compartida",
+        confirmDate: "Confirmar fecha",
+        editDate: "Editar fecha",
+        dateConfirmed: "Fecha confirmada para todos los productos: {date}.",
+        datePending: "Escoge y confirma una fecha compartida antes del checkout.",
+        cardDateLabel: "Fecha de renta",
+        cardDateShared: "Usando fecha compartida: {date}",
+        cardDateNeedsShared: "Configura la fecha compartida en carrito",
+        firstAddPrompt:
+          "¿Todo el alquiler va para la misma fecha?\nOK = misma fecha para todo\nCancelar = fechas diferentes por producto",
+        pickDateFirst: "Escoge la fecha de renta para este producto antes de agregarlo al carrito.",
+      },
       discount: {
         eyebrow: "Política de descuentos",
         title: "Descuentos por días de renta",
@@ -863,6 +907,7 @@ const selectors = {
 };
 
 const CART_STORAGE_KEY = "ardi-rent-service-cart";
+const CART_DATE_CONFIG_KEY = "ardi-rent-service-date-config";
 const WHATSAPP_NUMBER = "19393661442";
 const STRIPE_CHECKOUT_ENDPOINT = "stripe-checkout.php";
 const DISCOUNT_CLIENT_CAPS = {
@@ -871,6 +916,11 @@ const DISCOUNT_CLIENT_CAPS = {
   special: 30,
 };
 const DISCOUNT_CLIENT_ORDER = ["regular", "loyal", "special"];
+const DEFAULT_DATE_CONFIG = {
+  mode: "",
+  sharedDate: "",
+  sharedConfirmed: false,
+};
 
 const setText = (selector, value, root = document) => {
   const element = root.querySelector(selector);
@@ -926,16 +976,54 @@ const saveCart = (items) => {
   localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
 };
 
+const getDateConfig = () => {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(CART_DATE_CONFIG_KEY) || "{}");
+    return {
+      mode: parsed.mode === "same" || parsed.mode === "different" ? parsed.mode : "",
+      sharedDate: typeof parsed.sharedDate === "string" ? parsed.sharedDate : "",
+      sharedConfirmed: Boolean(parsed.sharedConfirmed),
+    };
+  } catch {
+    return { ...DEFAULT_DATE_CONFIG };
+  }
+};
+
+const saveDateConfig = (config) => {
+  localStorage.setItem(CART_DATE_CONFIG_KEY, JSON.stringify(config));
+};
+
+const resetDateConfig = () => {
+  saveDateConfig({ ...DEFAULT_DATE_CONFIG });
+};
+
 const getCartId = (item) => item.id || `${item.section}:${item.title}`;
 
 const formatCartCount = (count, copy) => `${count} ${copy.cart.countLabel}`;
+
+const formatDateHuman = (value, lang = "en") => {
+  if (!value) return "";
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat(lang === "es" ? "es-PR" : "en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(date);
+};
 
 const buildCartSummary = (cart, copy) =>
   cart
     .map((item, index) => {
       const quantity = item.quantity > 1 ? ` x${item.quantity}` : "";
       const tag = item.tag ? ` - ${item.tag}` : "";
-      return `${index + 1}. ${item.title}${tag}${quantity}`;
+      const date = item.rentalDate
+        ? ` | ${copy.cart.dateSetup.cardDateLabel}: ${formatDateHuman(
+            item.rentalDate,
+            document.documentElement.lang || "en"
+          )}`
+        : "";
+      return `${index + 1}. ${item.title}${tag}${quantity}${date}`;
     })
     .join("\n");
 
@@ -1051,13 +1139,14 @@ const buildWhatsAppHref = (cart, copy) => {
 };
 
 const buildCheckoutPayload = (cart) =>
-  cart.map(({ id, section, title, tag, image, quantity }) => ({
+  cart.map(({ id, section, title, tag, image, quantity, rentalDate }) => ({
     id,
     section,
     title,
     tag,
     image,
     quantity,
+    rentalDate,
   }));
 
 const submitStripeCheckout = (cart) => {
@@ -1088,12 +1177,17 @@ const updateCartActions = (cart, copy) => {
   const whatsappLink = document.querySelector("#cart .cart-whatsapp");
   const stripeButton = document.querySelector("#cart .cart-stripe");
   const clearButton = document.querySelector("#cart .cart-clear");
+  const config = getDateConfig();
+  const missingDateInItems = cart.some((item) => !item.rentalDate);
+  const missingSharedDate =
+    config.mode === "same" && (!config.sharedDate || !config.sharedConfirmed);
+  const mustBlockCheckout = cart.length === 0 || missingDateInItems || missingSharedDate;
 
   if (emailLink) emailLink.href = buildMailtoHref(cart, copy);
   if (whatsappLink) whatsappLink.href = buildWhatsAppHref(cart, copy);
   if (stripeButton) {
-    stripeButton.disabled = cart.length === 0;
-    stripeButton.classList.toggle("is-disabled", cart.length === 0);
+    stripeButton.disabled = mustBlockCheckout;
+    stripeButton.classList.toggle("is-disabled", mustBlockCheckout);
   }
   if (clearButton) {
     clearButton.disabled = cart.length === 0;
@@ -1105,6 +1199,182 @@ const updateCartNavLabel = (count, copy) => {
   if (navCart) {
     navCart.textContent = count > 0 ? `${copy.nav.cart} (${count})` : copy.nav.cart;
   }
+};
+
+const getCardRentalDateInput = (card) => card.querySelector("[data-card-rental-date]");
+
+const getCardRentalStatus = (card) => card.querySelector("[data-card-rental-status]");
+
+const setCartItemRentalDate = (id, rentalDate) => {
+  const cart = getCart();
+  const item = cart.find((entry) => getCartId(entry) === id);
+  if (!item) return;
+  item.rentalDate = rentalDate;
+  saveCart(cart);
+};
+
+const applySharedDateToCart = (sharedDate) => {
+  const cart = getCart();
+  const next = cart.map((item) => ({ ...item, rentalDate: sharedDate || "" }));
+  saveCart(next);
+};
+
+const updateCardDateControls = () => {
+  const copy = getActiveCopy();
+  const config = getDateConfig();
+  const cart = getCart();
+
+  document.querySelectorAll("#equipment .equipment-card, #lenses .equipment-card").forEach((card) => {
+    const title = card.querySelector("h3")?.textContent?.trim();
+    const section = card.closest("section")?.id || "equipment";
+    const id = `${section}:${title}`;
+    const input = getCardRentalDateInput(card);
+    const status = getCardRentalStatus(card);
+    const cartItem = cart.find((item) => getCartId(item) === id);
+
+    if (!input || !status) return;
+
+    if (config.mode === "same") {
+      input.hidden = true;
+      input.disabled = true;
+      status.hidden = false;
+      status.textContent = config.sharedDate
+        ? interpolate(copy.cart.dateSetup.cardDateShared, {
+            date: formatDateHuman(config.sharedDate, document.documentElement.lang || "en"),
+          })
+        : copy.cart.dateSetup.cardDateNeedsShared;
+      if (cartItem && config.sharedDate) {
+        cartItem.rentalDate = config.sharedDate;
+      }
+      return;
+    }
+
+    input.hidden = false;
+    input.disabled = false;
+    status.hidden = true;
+
+    if (cartItem?.rentalDate && input.value !== cartItem.rentalDate) {
+      input.value = cartItem.rentalDate;
+    }
+  });
+
+  if (config.mode === "same") {
+    applySharedDateToCart(config.sharedDate);
+  }
+};
+
+const renderDateModePanel = () => {
+  const copy = getActiveCopy();
+  const config = getDateConfig();
+  const status = document.querySelector("[data-cart-date-status]");
+  const sameButton = document.querySelector("[data-cart-mode-same]");
+  const differentButton = document.querySelector("[data-cart-mode-different]");
+  const sharedWrap = document.querySelector("[data-cart-shared-date]");
+  const sharedInput = document.querySelector("[data-shared-rental-date]");
+  const confirmButton = document.querySelector("[data-cart-shared-confirm]");
+  const editButton = document.querySelector("[data-cart-shared-edit]");
+
+  if (status) {
+    if (config.mode === "same") {
+      status.textContent = config.sharedConfirmed && config.sharedDate
+        ? interpolate(copy.cart.dateSetup.dateConfirmed, {
+            date: formatDateHuman(config.sharedDate, document.documentElement.lang || "en"),
+          })
+        : copy.cart.dateSetup.same;
+    } else if (config.mode === "different") {
+      status.textContent = copy.cart.dateSetup.different;
+    } else {
+      status.textContent = copy.cart.dateSetup.unset;
+    }
+  }
+
+  if (sameButton) sameButton.classList.toggle("is-active", config.mode === "same");
+  if (differentButton) differentButton.classList.toggle("is-active", config.mode === "different");
+
+  if (sharedWrap) {
+    sharedWrap.hidden = config.mode !== "same";
+  }
+  if (sharedInput) {
+    sharedInput.value = config.sharedDate || "";
+    sharedInput.disabled = config.sharedConfirmed;
+  }
+  if (confirmButton) {
+    confirmButton.disabled = config.mode !== "same" || config.sharedConfirmed;
+  }
+  if (editButton) {
+    editButton.disabled = config.mode !== "same";
+  }
+};
+
+const ensureDateModeOnFirstAdd = () => {
+  const config = getDateConfig();
+  if (config.mode) return config;
+
+  const copy = getActiveCopy();
+  const chooseSame = window.confirm(copy.cart.dateSetup.firstAddPrompt);
+  const next = {
+    mode: chooseSame ? "same" : "different",
+    sharedDate: "",
+    sharedConfirmed: false,
+  };
+  saveDateConfig(next);
+  renderDateModePanel();
+  updateCardDateControls();
+  return next;
+};
+
+const setDateMode = (mode) => {
+  const current = getDateConfig();
+  const cart = getCart();
+  const firstCartDate = cart.find((item) => item.rentalDate)?.rentalDate || "";
+  const next =
+    mode === "same"
+      ? {
+          mode: "same",
+          sharedDate: current.sharedDate || firstCartDate,
+          sharedConfirmed: current.sharedConfirmed && Boolean(current.sharedDate || firstCartDate),
+        }
+      : { mode: "different", sharedDate: "", sharedConfirmed: false };
+  saveDateConfig(next);
+  if (mode === "same") {
+    applySharedDateToCart(next.sharedDate);
+  }
+  renderDateModePanel();
+  updateCardDateControls();
+  renderCartSection();
+};
+
+const confirmSharedDate = () => {
+  const copy = getActiveCopy();
+  const input = document.querySelector("[data-shared-rental-date]");
+  const sharedDate = input?.value?.trim() || "";
+  if (!sharedDate) {
+    window.alert(copy.cart.dateSetup.datePending);
+    input?.focus();
+    return;
+  }
+  const next = {
+    mode: "same",
+    sharedDate,
+    sharedConfirmed: true,
+  };
+  saveDateConfig(next);
+  applySharedDateToCart(sharedDate);
+  renderDateModePanel();
+  updateCardDateControls();
+  renderCartSection();
+};
+
+const editSharedDate = () => {
+  const config = getDateConfig();
+  if (config.mode !== "same") return;
+  saveDateConfig({
+    ...config,
+    sharedConfirmed: false,
+  });
+  renderDateModePanel();
+  updateCardDateControls();
+  renderCartSection();
 };
 
 const renderCartSection = () => {
@@ -1143,7 +1413,13 @@ const renderCartSection = () => {
       title.textContent = item.title;
 
       const meta = document.createElement("p");
-      meta.textContent = [item.tag, item.quantity > 1 ? `x${item.quantity}` : null]
+      const rentalDateText = item.rentalDate
+        ? `${copy.cart.dateSetup.cardDateLabel}: ${formatDateHuman(
+            item.rentalDate,
+            document.documentElement.lang || "en"
+          )}`
+        : null;
+      meta.textContent = [item.tag, item.quantity > 1 ? `x${item.quantity}` : null, rentalDateText]
         .filter(Boolean)
         .join(" • ");
 
@@ -1171,6 +1447,10 @@ const ensureCartButtons = () => {
   document.querySelectorAll("#equipment .equipment-card, #lenses .equipment-card").forEach((card) => {
     let actions = card.querySelector(".card-actions");
     let button = card.querySelector(".cart-add-button");
+    let dateWrap = card.querySelector(".card-date-controls");
+    let dateLabel = card.querySelector("[data-card-rental-date-label]");
+    let dateInput = card.querySelector("[data-card-rental-date]");
+    let dateStatus = card.querySelector("[data-card-rental-status]");
 
     if (!actions) {
       actions = document.createElement("div");
@@ -1186,8 +1466,47 @@ const ensureCartButtons = () => {
       actions.appendChild(button);
     }
 
+    if (!dateWrap) {
+      dateWrap = document.createElement("div");
+      dateWrap.className = "card-date-controls";
+      actions.insertBefore(dateWrap, button);
+    }
+
+    if (!dateLabel) {
+      dateLabel = document.createElement("label");
+      dateLabel.className = "card-date-label";
+      dateLabel.dataset.cardRentalDateLabel = "true";
+      dateWrap.appendChild(dateLabel);
+    }
+
+    let dateLabelText = dateLabel.querySelector(".card-date-label-text");
+    if (!dateLabelText) {
+      dateLabelText = document.createElement("span");
+      dateLabelText.className = "card-date-label-text";
+      dateLabel.appendChild(dateLabelText);
+    }
+
+    if (!dateInput) {
+      dateInput = document.createElement("input");
+      dateInput.type = "date";
+      dateInput.className = "card-date-input";
+      dateInput.dataset.cardRentalDate = "true";
+      dateLabel.appendChild(dateInput);
+    }
+
+    if (!dateStatus) {
+      dateStatus = document.createElement("p");
+      dateStatus.className = "card-date-status";
+      dateStatus.dataset.cardRentalStatus = "true";
+      dateStatus.hidden = true;
+      dateWrap.appendChild(dateStatus);
+    }
+
     addCartButtonState(button, copy, false);
+    dateLabelText.textContent = copy.cart.dateSetup.cardDateLabel;
   });
+
+  updateCardDateControls();
 };
 
 const addItemToCart = (card) => {
@@ -1196,15 +1515,40 @@ const addItemToCart = (card) => {
   const image = card.querySelector("img")?.getAttribute("src") || "";
   const tag = card.querySelector(".fleet-tag")?.textContent?.trim() || "";
   const section = card.closest("section")?.id || "equipment";
+  const dateInput = getCardRentalDateInput(card);
+  const selectedDate = dateInput?.value?.trim() || "";
 
   if (!title) return;
 
   const id = `${section}:${title}`;
   const cart = getCart();
+  let config = getDateConfig();
+  if (!config.mode) {
+    config = ensureDateModeOnFirstAdd();
+  }
+
+  let rentalDate = selectedDate;
+  if (config.mode === "different") {
+    if (!selectedDate) {
+      window.alert(copy.cart.dateSetup.pickDateFirst);
+      dateInput?.focus();
+      return;
+    }
+  } else if (config.mode === "same") {
+    if (!config.sharedDate && selectedDate) {
+      config = { ...config, sharedDate: selectedDate, sharedConfirmed: false };
+      saveDateConfig(config);
+    }
+    rentalDate = config.sharedDate || selectedDate || "";
+  }
+
   const existing = cart.find((item) => getCartId(item) === id);
 
   if (existing) {
     existing.quantity = (existing.quantity || 1) + 1;
+    if (rentalDate) {
+      existing.rentalDate = rentalDate;
+    }
   } else {
     cart.push({
       id,
@@ -1213,10 +1557,16 @@ const addItemToCart = (card) => {
       tag,
       section,
       quantity: 1,
+      rentalDate,
     });
   }
 
   saveCart(cart);
+  if (config.mode === "same" && config.sharedDate) {
+    applySharedDateToCart(config.sharedDate);
+  }
+  renderDateModePanel();
+  updateCardDateControls();
   renderCartSection();
   const button = card.querySelector(".cart-add-button");
   if (button) {
@@ -1237,11 +1587,19 @@ const removeItemFromCart = (id) => {
   }
 
   saveCart(cart);
+  if (cart.length === 0) {
+    resetDateConfig();
+  }
+  renderDateModePanel();
+  updateCardDateControls();
   renderCartSection();
 };
 
 const clearCart = () => {
   saveCart([]);
+  resetDateConfig();
+  renderDateModePanel();
+  updateCardDateControls();
   renderCartSection();
 };
 
@@ -1555,6 +1913,12 @@ const applyCopy = (lang) => {
   setText("#cart .cart-email", copy.cart.email);
   setText("#cart .cart-whatsapp", copy.cart.whatsapp);
   setText("#cart .cart-stripe", copy.cart.stripe);
+  setText("[data-cart-date-title]", copy.cart.dateSetup.title);
+  setText("[data-cart-mode-same]", copy.cart.dateSetup.sameButton);
+  setText("[data-cart-mode-different]", copy.cart.dateSetup.differentButton);
+  setText("[data-cart-shared-date-label]", copy.cart.dateSetup.sharedDateLabel);
+  setText("[data-cart-shared-confirm]", copy.cart.dateSetup.confirmDate);
+  setText("[data-cart-shared-edit]", copy.cart.dateSetup.editDate);
   setText("#cart .cart-discount-eyebrow", copy.cart.discount.eyebrow);
   setText("#cart .cart-discount-title", copy.cart.discount.title);
   setText("#cart .cart-discount-lead", copy.cart.discount.lead);
@@ -1570,6 +1934,8 @@ const applyCopy = (lang) => {
     }
   });
   ensureCartButtons();
+  renderDateModePanel();
+  updateCardDateControls();
   renderCartSection();
   updateDiscountEstimator();
 
@@ -1717,12 +2083,38 @@ document.querySelectorAll(".lang-button").forEach((button) => {
 document.addEventListener("input", (event) => {
   if (event.target.matches("[data-discount-days]")) {
     updateDiscountEstimator();
+    return;
+  }
+
+  if (event.target.matches("[data-shared-rental-date]")) {
+    const config = getDateConfig();
+    if (config.mode === "same") {
+      saveDateConfig({
+        ...config,
+        sharedDate: event.target.value.trim(),
+        sharedConfirmed: false,
+      });
+      renderDateModePanel();
+      updateCardDateControls();
+      renderCartSection();
+    }
   }
 });
 
 document.addEventListener("change", (event) => {
   if (event.target.matches("[data-discount-client], [data-discount-approval]")) {
     updateDiscountEstimator();
+    return;
+  }
+
+  if (event.target.matches("[data-card-rental-date]")) {
+    const card = event.target.closest(".equipment-card");
+    const title = card?.querySelector("h3")?.textContent?.trim();
+    const section = card?.closest("section")?.id || "equipment";
+    if (!title) return;
+    const id = `${section}:${title}`;
+    setCartItemRentalDate(id, event.target.value.trim());
+    renderCartSection();
   }
 });
 
@@ -1738,6 +2130,30 @@ document.addEventListener("click", (event) => {
   if (stripeButton) {
     event.preventDefault();
     submitStripeCheckout(getCart());
+    return;
+  }
+
+  const sameModeButton = event.target.closest("[data-cart-mode-same]");
+  if (sameModeButton) {
+    setDateMode("same");
+    return;
+  }
+
+  const differentModeButton = event.target.closest("[data-cart-mode-different]");
+  if (differentModeButton) {
+    setDateMode("different");
+    return;
+  }
+
+  const confirmSharedDateButton = event.target.closest("[data-cart-shared-confirm]");
+  if (confirmSharedDateButton) {
+    confirmSharedDate();
+    return;
+  }
+
+  const editSharedDateButton = event.target.closest("[data-cart-shared-edit]");
+  if (editSharedDateButton) {
+    editSharedDate();
     return;
   }
 
