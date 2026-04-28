@@ -13,13 +13,52 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Copy files via SCP
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.HOSTINGER_SSH_HOST }}
-          username: ${{ secrets.HOSTINGER_SSH_USER }}
-          key: ${{ secrets.HOSTINGER_SSH_KEY }}
-          port: ${{ secrets.HOSTINGER_SSH_PORT }}
-          source: "./*"
-          target: ${{ secrets.HOSTINGER_REMOTE_PATH }}
-          rm: true
+      - name: Validate deployment secrets
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          HOSTINGER_REMOTE_PATH: ${{ secrets.HOSTINGER_REMOTE_PATH }}
+        run: |
+          set -euo pipefail
+          missing=()
+          [[ -n "$HOSTINGER_SSH_HOST" ]] || missing+=("HOSTINGER_SSH_HOST")
+          [[ -n "$HOSTINGER_SSH_PORT" ]] || missing+=("HOSTINGER_SSH_PORT")
+          [[ -n "$HOSTINGER_SSH_USER" ]] || missing+=("HOSTINGER_SSH_USER")
+          [[ -n "$HOSTINGER_SSH_KEY" ]] || missing+=("HOSTINGER_SSH_KEY")
+          [[ -n "$HOSTINGER_REMOTE_PATH" ]] || missing+=("HOSTINGER_REMOTE_PATH")
+          if (( ${#missing[@]} > 0 )); then
+            echo "Missing GitHub secrets: ${missing[*]}"
+            exit 1
+          fi
+
+      - name: Prepare SSH
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$HOSTINGER_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${HOSTINGER_SSH_PORT:-22}" -H "$HOSTINGER_SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Sync site to Hostinger
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          HOSTINGER_REMOTE_PATH: ${{ secrets.HOSTINGER_REMOTE_PATH }}
+        run: |
+          set -euo pipefail
+          REMOTE_PATH="${HOSTINGER_REMOTE_PATH:-/home/u467534899/domains/ardirentservice.com/public_html/}"
+          rsync -az --delete \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude 'README.md' \
+            --exclude '.DS_Store' \
+            -e "ssh -i ~/.ssh/id_ed25519 -p ${HOSTINGER_SSH_PORT:-22}" \
+            ./ "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${REMOTE_PATH}"
