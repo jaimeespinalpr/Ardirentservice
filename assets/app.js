@@ -153,7 +153,7 @@ const translations = {
       eyebrow: "Equipment",
       title: "Featured cameras from the inventory list.",
       desc: "These are the camera bodies and camera systems that should be featured first on the website.",
-      jumpLinks: ["Cameras", "Waterhousings", "Accessories", "Lenses"],
+      jumpLinks: ["Cameras", "Lenses", "Waterhousings", "Accessories"],
       cards: [
         {
           tag: "Hybrid",
@@ -567,7 +567,7 @@ const translations = {
       title: "Cámaras destacadas del inventario.",
       desc:
         "Estos son los cuerpos y sistemas de cámara que deben destacarse primero en el sitio.",
-      jumpLinks: ["Cámaras", "Carcasas acuáticas", "Accesorios", "Lentes"],
+      jumpLinks: ["Cámaras", "Lentes", "Carcasas acuáticas", "Accesorios"],
       cards: [
         {
           tag: "Híbrida",
@@ -1192,16 +1192,16 @@ const runtimeDefaults = (() => {
     equipment: {
       jumpLinks,
       water: {
-        eyebrow: subheadings[0]?.querySelector(".eyebrow")?.textContent?.trim() || "",
-        title: subheadings[0]?.querySelector("h2")?.textContent?.trim() || "",
-        desc: subheadings[0]?.querySelector("p:not(.eyebrow)")?.textContent?.trim() || "",
-        cards: extractCardsFromGrid(grids[1]),
-      },
-      accessories: {
         eyebrow: subheadings[1]?.querySelector(".eyebrow")?.textContent?.trim() || "",
         title: subheadings[1]?.querySelector("h2")?.textContent?.trim() || "",
         desc: subheadings[1]?.querySelector("p:not(.eyebrow)")?.textContent?.trim() || "",
         cards: extractCardsFromGrid(grids[2]),
+      },
+      accessories: {
+        eyebrow: subheadings[2]?.querySelector(".eyebrow")?.textContent?.trim() || "",
+        title: subheadings[2]?.querySelector("h2")?.textContent?.trim() || "",
+        desc: subheadings[2]?.querySelector("p:not(.eyebrow)")?.textContent?.trim() || "",
+        cards: extractCardsFromGrid(grids[3]),
       },
     },
   };
@@ -1374,24 +1374,24 @@ const applyCopy = (lang) => {
   const waterCopy = copy.equipment.water || runtimeDefaults.equipment.water;
   const accessoriesCopy = copy.equipment.accessories || runtimeDefaults.equipment.accessories;
   const equipmentSubheadings = document.querySelectorAll("#equipment .equipment-subheading");
-  if (equipmentSubheadings[0] && waterCopy) {
-    setText(".eyebrow", waterCopy.eyebrow, equipmentSubheadings[0]);
-    setText("h2", waterCopy.title, equipmentSubheadings[0]);
-    setText("p:not(.eyebrow)", waterCopy.desc, equipmentSubheadings[0]);
+  if (equipmentSubheadings[1] && waterCopy) {
+    setText(".eyebrow", waterCopy.eyebrow, equipmentSubheadings[1]);
+    setText("h2", waterCopy.title, equipmentSubheadings[1]);
+    setText("p:not(.eyebrow)", waterCopy.desc, equipmentSubheadings[1]);
   }
-  if (equipmentSubheadings[1] && accessoriesCopy) {
-    setText(".eyebrow", accessoriesCopy.eyebrow, equipmentSubheadings[1]);
-    setText("h2", accessoriesCopy.title, equipmentSubheadings[1]);
-    setText("p:not(.eyebrow)", accessoriesCopy.desc, equipmentSubheadings[1]);
+  if (equipmentSubheadings[2] && accessoriesCopy) {
+    setText(".eyebrow", accessoriesCopy.eyebrow, equipmentSubheadings[2]);
+    setText("h2", accessoriesCopy.title, equipmentSubheadings[2]);
+    setText("p:not(.eyebrow)", accessoriesCopy.desc, equipmentSubheadings[2]);
   }
 
-  applyCardsToGrid(equipmentGrids[1], waterCopy.cards || runtimeDefaults.equipment.water.cards);
+  applyCardsToGrid(equipmentGrids[2], waterCopy.cards || runtimeDefaults.equipment.water.cards);
   applyCardsToGrid(
-    equipmentGrids[2],
+    equipmentGrids[3],
     accessoriesCopy.cards || runtimeDefaults.equipment.accessories.cards
   );
 
-  const equipmentStrip = document.querySelectorAll("#equipment .inventory-strip > div");
+  const equipmentStrip = document.querySelectorAll("#equipment .equipment-summary-strip > div");
   equipmentStrip.forEach((item, index) => {
     const pair = copy.equipment.strip[index];
     if (!pair) return;
