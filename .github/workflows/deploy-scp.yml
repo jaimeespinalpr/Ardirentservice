@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Validate deployment secrets
         env:
@@ -19,7 +19,6 @@ jobs:
           HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
           HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
           HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
-          HOSTINGER_REMOTE_PATH: ${{ secrets.HOSTINGER_REMOTE_PATH }}
         run: |
           set -euo pipefail
           missing=()
@@ -27,7 +26,6 @@ jobs:
           [[ -n "$HOSTINGER_SSH_PORT" ]] || missing+=("HOSTINGER_SSH_PORT")
           [[ -n "$HOSTINGER_SSH_USER" ]] || missing+=("HOSTINGER_SSH_USER")
           [[ -n "$HOSTINGER_SSH_KEY" ]] || missing+=("HOSTINGER_SSH_KEY")
-          [[ -n "$HOSTINGER_REMOTE_PATH" ]] || missing+=("HOSTINGER_REMOTE_PATH")
           if (( ${#missing[@]} > 0 )); then
             echo "Missing GitHub secrets: ${missing[*]}"
             exit 1
@@ -44,21 +42,63 @@ jobs:
           chmod 700 ~/.ssh
           printf '%s\n' "$HOSTINGER_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p "${HOSTINGER_SSH_PORT:-22}" -H "$HOSTINGER_SSH_HOST" >> ~/.ssh/known_hosts
+          ssh-keyscan -p "${HOSTINGER_SSH_PORT:-65002}" -H "$HOSTINGER_SSH_HOST" >> ~/.ssh/known_hosts
 
-      - name: Sync site to Hostinger
+      # Deploy static site (ardirentservice.com)
+      - name: Sync static site to Hostinger
         env:
           HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
           HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
-          HOSTINGER_REMOTE_PATH: ${{ secrets.HOSTINGER_REMOTE_PATH }}
         run: |
           set -euo pipefail
-          REMOTE_PATH="${HOSTINGER_REMOTE_PATH:-/home/u467534899/domains/ardirentservice.com/public_html/}"
+          STATIC_PATH="/home/u467534899/domains/ardirentservice.com/public_html/"
           rsync -az --delete \
             --exclude '.git/' \
             --exclude '.github/' \
             --exclude 'README.md' \
             --exclude '.DS_Store' \
-            -e "ssh -i ~/.ssh/id_ed25519 -p ${HOSTINGER_SSH_PORT:-22}" \
-            ./ "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${REMOTE_PATH}"
+            --exclude 'rentals_*.php' \
+            --exclude 'lead.php' \
+            --exclude 'data/' \
+            --exclude '.env' \
+            -e "ssh -i ~/.ssh/id_ed25519 -p ${HOSTINGER_SSH_PORT:-65002}" \
+            ./ "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${STATIC_PATH}"
+
+      # Deploy PHP checkout (pay.ardirentservice.com)
+      - name: Sync PHP checkout to pay/ on Hostinger
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_MODE: ${{ secrets.STRIPE_MODE }}
+        run: |
+          set -euo pipefail
+          PAY_PATH="/home/u467534899/domains/ardirentservice.com/pay/"
+
+          # Ensure remote pay/ directory and data/ subdirectory exist
+          ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" \
+            "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" \
+            "mkdir -p ${PAY_PATH}data && chmod 755 ${PAY_PATH}data"
+
+          # Sync only PHP checkout files
+          rsync -az \
+            --include 'rentals_availability.php' \
+            --include 'rentals_checkout.php' \
+            --include 'rentals_common.php' \
+            --include 'rentals_confirm.php' \
+            --include 'lead.php' \
+            --filter='- *' \
+            -e "ssh -i ~/.ssh/id_ed25519 -p ${HOSTINGER_SSH_PORT:-65002}" \
+            ./ "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${PAY_PATH}"
+
+          # Write Stripe .env on the server (never committed to repo)
+          ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" \
+            "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" bash -c "
+              cat > ${PAY_PATH}.env << 'ENVEOF'
+STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+STRIPE_MODE=${STRIPE_MODE}
+ENVEOF
+              chmod 600 ${PAY_PATH}.env
+            "
