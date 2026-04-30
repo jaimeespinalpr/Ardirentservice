@@ -9,6 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,13 +20,19 @@ jobs:
           HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
           HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
           HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_MODE: ${{ secrets.STRIPE_MODE }}
         run: |
           set -euo pipefail
+
           missing=()
-          [[ -n "$HOSTINGER_SSH_HOST" ]] || missing+=("HOSTINGER_SSH_HOST")
-          [[ -n "$HOSTINGER_SSH_PORT" ]] || missing+=("HOSTINGER_SSH_PORT")
-          [[ -n "$HOSTINGER_SSH_USER" ]] || missing+=("HOSTINGER_SSH_USER")
-          [[ -n "$HOSTINGER_SSH_KEY" ]] || missing+=("HOSTINGER_SSH_KEY")
+          [[ -n "${HOSTINGER_SSH_HOST}" ]] || missing+=("HOSTINGER_SSH_HOST")
+          [[ -n "${HOSTINGER_SSH_PORT}" ]] || missing+=("HOSTINGER_SSH_PORT")
+          [[ -n "${HOSTINGER_SSH_USER}" ]] || missing+=("HOSTINGER_SSH_USER")
+          [[ -n "${HOSTINGER_SSH_KEY}" ]] || missing+=("HOSTINGER_SSH_KEY")
+          [[ -n "${STRIPE_SECRET_KEY}" ]] || missing+=("STRIPE_SECRET_KEY")
+          [[ -n "${STRIPE_MODE}" ]] || missing+=("STRIPE_MODE")
+
           if (( ${#missing[@]} > 0 )); then
             echo "Missing GitHub secrets: ${missing[*]}"
             exit 1
@@ -38,13 +45,13 @@ jobs:
           HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
         run: |
           set -euo pipefail
+
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          printf '%s\n' "$HOSTINGER_SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "${HOSTINGER_SSH_KEY}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p "${HOSTINGER_SSH_PORT:-65002}" -H "$HOSTINGER_SSH_HOST" >> ~/.ssh/known_hosts
+          ssh-keyscan -p "${HOSTINGER_SSH_PORT:-65002}" -H "${HOSTINGER_SSH_HOST}" >> ~/.ssh/known_hosts
 
-      # Deploy static site (ardirentservice.com)
       - name: Sync static site to Hostinger
         env:
           HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
@@ -52,7 +59,9 @@ jobs:
           HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
         run: |
           set -euo pipefail
+
           STATIC_PATH="/home/u467534899/domains/ardirentservice.com/public_html/"
+
           rsync -az --delete \
             --exclude '.git/' \
             --exclude '.github/' \
@@ -62,11 +71,11 @@ jobs:
             --exclude 'lead.php' \
             --exclude 'data/' \
             --exclude '.env' \
+            --exclude '.env.pay' \
             -e "ssh -i ~/.ssh/id_ed25519 -p ${HOSTINGER_SSH_PORT:-65002}" \
             ./ "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${STATIC_PATH}"
 
-      # Deploy PHP checkout (pay.ardirentservice.com)
-      - name: Sync PHP checkout to pay/ on Hostinger
+      - name: Sync PHP checkout to pay subdomain on Hostinger
         env:
           HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
@@ -75,30 +84,34 @@ jobs:
           STRIPE_MODE: ${{ secrets.STRIPE_MODE }}
         run: |
           set -euo pipefail
+
           PAY_PATH="/home/u467534899/domains/ardirentservice.com/pay/"
 
-          # Ensure remote pay/ directory and data/ subdirectory exist
           ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" \
             "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" \
-            "mkdir -p ${PAY_PATH}data && chmod 755 ${PAY_PATH}data"
+            "mkdir -p '${PAY_PATH}data' && chmod 755 '${PAY_PATH}data'"
 
-          # Sync only PHP checkout files
           rsync -az \
             --include 'rentals_availability.php' \
             --include 'rentals_checkout.php' \
             --include 'rentals_common.php' \
             --include 'rentals_confirm.php' \
             --include 'lead.php' \
-            --filter='- *' \
+            --exclude '*' \
             -e "ssh -i ~/.ssh/id_ed25519 -p ${HOSTINGER_SSH_PORT:-65002}" \
             ./ "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${PAY_PATH}"
 
-          # Write Stripe .env on the server (never committed to repo)
+          cat > .env.pay <<EOF
+          STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+          STRIPE_MODE=${STRIPE_MODE}
+          PUBLIC_SITE_URL=https://ardirentservice.com
+          PAY_SITE_URL=https://pay.ardirentservice.com
+          ALLOWED_ORIGINS=https://ardirentservice.com,https://www.ardirentservice.com,https://jaimeespinalpr.github.io
+          EOF
+
+          scp -i ~/.ssh/id_ed25519 -P "${HOSTINGER_SSH_PORT:-65002}" \
+            .env.pay "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${PAY_PATH}.env"
+
           ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" \
-            "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" bash -c "
-              cat > ${PAY_PATH}.env << 'ENVEOF'
-STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-STRIPE_MODE=${STRIPE_MODE}
-ENVEOF
-              chmod 600 ${PAY_PATH}.env
-            "
+            "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" \
+            "chmod 600 '${PAY_PATH}.env'"
