@@ -1,19 +1,46 @@
 <?php
 declare(strict_types=1);
 
+// Load .env from same directory (pay/) so STRIPE_SECRET_KEY and STRIPE_MODE
+// are available via getenv() without being committed to the repo.
+(static function (): void {
+    $envFile = __DIR__ . '/.env';
+    if (!is_file($envFile)) {
+        return;
+    }
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '#')) {
+            continue;
+        }
+        if (!str_contains($line, '=')) {
+            continue;
+        }
+        [$key, $value] = explode('=', $line, 2);
+        $key   = trim($key);
+        $value = trim($value, " \t\n\r\0\x0B\"'");
+        if ($key !== '' && getenv($key) === false) {
+            putenv("{$key}={$value}");
+            $_ENV[$key]    = $value;
+            $_SERVER[$key] = $value;
+        }
+    }
+})();
+
 const DAILY_RATE_CENTS = 5000;
 const CURRENCY = 'usd';
 
 function rental_item_rate_cents(string $itemId): int
 {
     $cameraRates = [
-        'sony-a7-v' => 7500,
-        'sony-a7s-iii' => 7500,
-        'sony-a7-iv' => 7500,
-        'sony-alpha-1' => 9500,
-        'gopro-hero12-black' => 7500,
-        'gopro-hero13-black' => 7500,
-        'dji-osmo-pocket' => 7500,
+        'sony-a7-v'               => 7500,
+        'sony-a7s-iii'            => 7500,
+        'sony-a7-iv'              => 7500,
+        'sony-alpha-1'            => 9500,
+        'gopro-hero12-black'      => 7500,
+        'gopro-hero13-black'      => 7500,
+        'dji-osmo-pocket'         => 7500,
         'sony-pxw-z150-4k-xdcam' => 7500,
     ];
 
@@ -48,27 +75,27 @@ function rental_db(): PDO
 
     $pdo->exec(
         'CREATE TABLE IF NOT EXISTS reservations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            checkout_session_id TEXT UNIQUE NOT NULL,
-            start_date TEXT NOT NULL,
-            end_date TEXT NOT NULL,
-            customer_name TEXT NOT NULL,
-            customer_email TEXT NOT NULL,
-            customer_phone TEXT,
-            total_amount_cents INTEGER NOT NULL,
-            currency TEXT NOT NULL,
-            status TEXT NOT NULL,
-            created_at TEXT NOT NULL
+            id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+            checkout_session_id  TEXT UNIQUE NOT NULL,
+            start_date           TEXT NOT NULL,
+            end_date             TEXT NOT NULL,
+            customer_name        TEXT NOT NULL,
+            customer_email       TEXT NOT NULL,
+            customer_phone       TEXT,
+            total_amount_cents   INTEGER NOT NULL,
+            currency             TEXT NOT NULL,
+            status               TEXT NOT NULL,
+            created_at           TEXT NOT NULL
         )'
     );
 
     $pdo->exec(
         'CREATE TABLE IF NOT EXISTS reservation_items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            reservation_id INTEGER NOT NULL,
-            item_id TEXT NOT NULL,
-            item_title TEXT NOT NULL,
-            unit_amount_cents INTEGER NOT NULL,
+            id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+            reservation_id     INTEGER NOT NULL,
+            item_id            TEXT NOT NULL,
+            item_title         TEXT NOT NULL,
+            unit_amount_cents  INTEGER NOT NULL,
             FOREIGN KEY (reservation_id) REFERENCES reservations(id) ON DELETE CASCADE
         )'
     );
@@ -119,8 +146,8 @@ function rental_normalize_item_id(string $value): ?string
 function rental_days_between(string $startDate, string $endDate): int
 {
     $start = new DateTimeImmutable($startDate);
-    $end = new DateTimeImmutable($endDate);
-    $days = (int) $start->diff($end)->format('%a') + 1;
+    $end   = new DateTimeImmutable($endDate);
+    $days  = (int) $start->diff($end)->format('%a') + 1;
     return max(1, $days);
 }
 
@@ -137,10 +164,10 @@ function rental_find_unavailable_items(PDO $pdo, string $startDate, string $endD
          INNER JOIN reservations r ON r.id = ri.reservation_id
          WHERE r.status = ?
            AND r.start_date <= ?
-           AND r.end_date >= ?
+           AND r.end_date   >= ?
            AND ri.item_id IN (' . $placeholders . ')';
 
-    $stmt = $pdo->prepare($sql);
+    $stmt   = $pdo->prepare($sql);
     $params = array_merge(['paid', $endDate, $startDate], $itemIds);
     $stmt->execute($params);
 
@@ -149,10 +176,10 @@ function rental_find_unavailable_items(PDO $pdo, string $startDate, string $endD
 
 function rental_base_url(): string
 {
-    $https = $_SERVER['HTTPS'] ?? '';
+    $https  = $_SERVER['HTTPS'] ?? '';
     $scheme = ($https === 'on' || $https === '1') ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $dir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+    $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    $dir    = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
     $prefix = $dir === '' || $dir === '/' ? '' : $dir;
     return $scheme . '://' . $host . $prefix;
 }
@@ -164,10 +191,10 @@ function stripe_request(string $method, string $path, array $form = []): array
         return ['ok' => false, 'error' => 'missing_secret_key'];
     }
 
-    $mode = strtolower(trim((string) (getenv('STRIPE_MODE') ?: 'test')));
+    $mode       = strtolower(trim((string) (getenv('STRIPE_MODE') ?: 'test')));
     $isTestMode = $mode !== 'live';
-    $isTestKey = str_starts_with($secret, 'sk_test_');
-    $isLiveKey = str_starts_with($secret, 'sk_live_');
+    $isTestKey  = str_starts_with($secret, 'sk_test_');
+    $isLiveKey  = str_starts_with($secret, 'sk_live_');
 
     if ($isTestMode && !$isTestKey) {
         return ['ok' => false, 'error' => 'test_mode_requires_sk_test_key'];
@@ -177,25 +204,23 @@ function stripe_request(string $method, string $path, array $form = []): array
     }
 
     $url = 'https://api.stripe.com/v1/' . ltrim($path, '/');
-    $ch = curl_init($url);
+    $ch  = curl_init($url);
     if ($ch === false) {
         return ['ok' => false, 'error' => 'curl_init_failed'];
     }
 
-    $headers = [
-        'Authorization: Bearer ' . $secret,
-    ];
-
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $secret,
+    ]);
 
     if (strtoupper($method) === 'POST') {
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($form));
     }
 
-    $body = curl_exec($ch);
-    $error = curl_error($ch);
+    $body   = curl_exec($ch);
+    $error  = curl_error($ch);
     $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
     curl_close($ch);
 
