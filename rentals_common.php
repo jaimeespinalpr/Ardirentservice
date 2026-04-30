@@ -191,8 +191,12 @@ function stripe_request(string $method, string $path, array $form = []): array
         return ['ok' => false, 'error' => 'missing_secret_key'];
     }
 
-    $mode       = strtolower(trim((string) (getenv('STRIPE_MODE') ?: 'test')));
-    $isTestMode = $mode !== 'live';
+    $mode = strtolower(trim((string) (getenv('STRIPE_MODE') ?: '')));
+    if (!in_array($mode, ['test', 'live'], true)) {
+        return ['ok' => false, 'error' => 'invalid_or_missing_stripe_mode'];
+    }
+
+    $isTestMode = $mode === 'test';
     $isTestKey  = str_starts_with($secret, 'sk_test_');
     $isLiveKey  = str_starts_with($secret, 'sk_live_');
 
