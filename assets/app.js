@@ -2905,7 +2905,9 @@ const rentalCopy = {
     sameDatesShared: "These dates apply to all equipment in your cart.",
     sameDatesPerItem: "Choose dates on each item card to add it to your cart.",
     defaultDatePrompt:
-      "Use these rental dates as the default for every item you add to the cart? Choose OK for same dates, or Cancel to pick different dates per item.",
+      "Do you want to use these rental dates as the default for every item you add to the cart?",
+    defaultDateYes: "Yes",
+    defaultDateNo: "No",
     defaultDateYesStatus:
       "Default rental dates saved. Now you can add available items without choosing dates again.",
     defaultDateNoStatus:
@@ -2962,7 +2964,9 @@ const rentalCopy = {
     sameDatesShared: "Estas fechas aplican a todos los equipos que agregues al carrito.",
     sameDatesPerItem: "Elige fechas en cada equipo para agregarlo al carrito.",
     defaultDatePrompt:
-      "¿Quieres usar estas fechas como predeterminadas para todos los artículos que agregues al carrito? Toca OK para usar las mismas fechas, o Cancelar para escoger fechas distintas por artículo.",
+      "¿Quieres usar estas fechas como predeterminadas para todos los artículos que agregues al carrito?",
+    defaultDateYes: "Yes",
+    defaultDateNo: "No",
     defaultDateYesStatus:
       "Fechas predeterminadas guardadas. Ahora puedes agregar artículos disponibles sin escoger otra fecha.",
     defaultDateNoStatus:
@@ -3426,10 +3430,61 @@ const setupRentalSystem = () => {
     renderCopy(state.lang);
   };
 
+  const showDefaultDateDialog = () =>
+    new Promise((resolve) => {
+      const text = copy();
+      const previousActive = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      const overlay = document.createElement("div");
+      overlay.className = "rental-date-dialog";
+      overlay.setAttribute("role", "dialog");
+      overlay.setAttribute("aria-modal", "true");
+
+      const panel = document.createElement("div");
+      panel.className = "rental-date-dialog-panel";
+
+      const message = document.createElement("p");
+      message.className = "rental-date-dialog-message";
+      message.textContent = text.defaultDatePrompt;
+
+      const actions = document.createElement("div");
+      actions.className = "rental-date-dialog-actions";
+
+      const yesButton = document.createElement("button");
+      yesButton.type = "button";
+      yesButton.className = "button button-primary";
+      yesButton.textContent = text.defaultDateYes;
+
+      const noButton = document.createElement("button");
+      noButton.type = "button";
+      noButton.className = "button button-secondary";
+      noButton.textContent = text.defaultDateNo;
+
+      actions.append(yesButton, noButton);
+      panel.append(message, actions);
+      overlay.append(panel);
+      document.body.append(overlay);
+
+      const close = (value) => {
+        overlay.remove();
+        previousActive?.focus?.();
+        resolve(value);
+      };
+
+      yesButton.addEventListener("click", () => close(true), { once: true });
+      noButton.addEventListener("click", () => close(false), { once: true });
+      overlay.addEventListener("click", (event) => {
+        if (event.target === overlay) close(false);
+      });
+      overlay.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") close(false);
+      });
+      yesButton.focus();
+    });
+
   const askDefaultDatePreference = async (item, addAfterCheck = false) => {
     const range = itemRange(item);
     if (!range || state.sharedDateDecisionMade) return false;
-    const useForAll = window.confirm(copy().defaultDatePrompt);
+    const useForAll = await showDefaultDateDialog();
     if (useForAll) {
       await applySharedDatesFromItem(item, addAfterCheck);
     } else {

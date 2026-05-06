@@ -1546,6 +1546,39 @@ body.is-modal-open {
   padding: 0.45rem 0.55rem;
 }
 
+.rental-date-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.48);
+}
+
+.rental-date-dialog-panel {
+  width: min(92vw, 440px);
+  padding: 1.15rem;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: #fff;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+}
+
+.rental-date-dialog-message {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.rental-date-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
 .rental-card-main {
   display: grid;
   grid-template-columns: 1fr auto;
