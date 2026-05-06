@@ -1061,31 +1061,62 @@
               Select your dates to unlock rentals.
             </p>
 
-            <div class="rental-cart is-hidden">
+            <div class="rental-cart is-hidden" id="rental-cart-page">
               <button class="rental-cart-toggle" type="button" data-rental-cart-toggle>
                 <span data-rental-copy="cartTitle">Rental cart</span>
               </button>
-              <ul class="rental-cart-list" data-rental-cart-list>
-                <li data-rental-copy="emptyCart">No equipment selected yet.</li>
-              </ul>
-              <p class="rental-cart-total" data-rental-copy="totalLabel">Total: $0.00</p>
-              <form class="rental-checkout" data-rental-checkout>
-                <label class="field">
-                  <span data-rental-copy="nameLabel">Full name</span>
-                  <input type="text" name="name" required />
-                </label>
-                <label class="field">
-                  <span data-rental-copy="emailLabel">Email</span>
-                  <input type="email" name="email" required />
-                </label>
-                <label class="field">
-                  <span data-rental-copy="phoneLabel">WhatsApp / phone</span>
-                  <input type="tel" name="phone" />
-                </label>
-                <button class="button button-primary" type="submit" data-rental-copy="payButton">
-                  Pay and reserve
-                </button>
-              </form>
+              <div class="rental-cart-page" data-rental-cart-page>
+                <div class="rental-cart-page-header">
+                  <div>
+                    <p class="eyebrow" data-rental-copy="cartPageEyebrow">Cart</p>
+                    <h2 data-rental-copy="cartPageTitle">Review your rental cart.</h2>
+                    <p data-rental-copy="cartPageIntro">
+                      Confirm your selected gear, rental dates, and contact information before reserving.
+                    </p>
+                  </div>
+                  <button class="rental-cart-close" type="button" data-rental-cart-close>
+                    Close
+                  </button>
+                </div>
+                <div class="rental-cart-page-grid">
+                  <div class="rental-cart-summary-card">
+                    <h3 data-rental-copy="cartSummaryTitle">Selected equipment</h3>
+                    <ul class="rental-cart-list" data-rental-cart-list>
+                      <li data-rental-copy="emptyCart">No equipment selected yet.</li>
+                    </ul>
+                    <p class="rental-cart-total" data-rental-copy="totalLabel">Total: $0.00</p>
+                  </div>
+                  <aside class="rental-cart-info-card">
+                    <h3 data-rental-copy="cartInfoTitle">How the reservation works</h3>
+                    <p data-rental-copy="cartInfoBody">
+                      After checkout, Ardi Rent & Service confirms availability, pickup or delivery details,
+                      and any production-specific requirements.
+                    </p>
+                    <h3 data-rental-copy="cartStepsTitle">Before you reserve</h3>
+                    <p data-rental-copy="cartStepsBody">
+                      Make sure the dates are correct, add your best contact information, and keep an eye on
+                      your email or WhatsApp for confirmation.
+                    </p>
+                  </aside>
+                </div>
+                <form class="rental-checkout" data-rental-checkout>
+                  <label class="field">
+                    <span data-rental-copy="nameLabel">Full name</span>
+                    <input type="text" name="name" required />
+                  </label>
+                  <label class="field">
+                    <span data-rental-copy="emailLabel">Email</span>
+                    <input type="email" name="email" required />
+                  </label>
+                  <label class="field">
+                    <span data-rental-copy="phoneLabel">WhatsApp / phone</span>
+                    <input type="tel" name="phone" />
+                  </label>
+                  <button class="button button-primary" type="submit" data-rental-copy="payButton">
+                    Pay and reserve
+                  </button>
+                </form>
+              </div>
             </div>
           </section>
         </div>

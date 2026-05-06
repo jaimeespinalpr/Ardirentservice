@@ -2914,6 +2914,17 @@ const rentalCopy = {
       "Different dates mode is on. Choose dates on each item before adding it.",
     cartTitle: "Rental cart",
     cartCompact: "Cart",
+    cartPageEyebrow: "Cart",
+    cartPageTitle: "Review your rental cart.",
+    cartPageIntro: "Confirm your selected gear, rental dates, and contact information before reserving.",
+    cartSummaryTitle: "Selected equipment",
+    cartInfoTitle: "How the reservation works",
+    cartInfoBody:
+      "After checkout, Ardi Rent & Service confirms availability, pickup or delivery details, and any production-specific requirements.",
+    cartStepsTitle: "Before you reserve",
+    cartStepsBody:
+      "Make sure the dates are correct, add your best contact information, and keep an eye on your email or WhatsApp for confirmation.",
+    closeCart: "Close",
     emptyCart: "No equipment selected yet.",
     totalLabel: "Total",
     nameLabel: "Full name",
@@ -2974,6 +2985,17 @@ const rentalCopy = {
       "Modo de fechas distintas activo. Escoge fechas en cada artículo antes de agregarlo.",
     cartTitle: "Carrito de renta",
     cartCompact: "Carrito",
+    cartPageEyebrow: "Carrito",
+    cartPageTitle: "Revisa tu carrito de renta.",
+    cartPageIntro: "Confirma los equipos seleccionados, las fechas de renta y tu información de contacto antes de reservar.",
+    cartSummaryTitle: "Equipos seleccionados",
+    cartInfoTitle: "Cómo funciona la reserva",
+    cartInfoBody:
+      "Después del checkout, Ardi Rent & Service confirma disponibilidad, detalles de recogido o entrega y cualquier requisito específico de producción.",
+    cartStepsTitle: "Antes de reservar",
+    cartStepsBody:
+      "Verifica que las fechas estén correctas, añade tu mejor información de contacto y revisa tu correo o WhatsApp para la confirmación.",
+    closeCart: "Cerrar",
     emptyCart: "Aún no has seleccionado equipos.",
     totalLabel: "Total",
     nameLabel: "Nombre completo",
@@ -3253,6 +3275,7 @@ const setupRentalSystem = () => {
     cartBox.classList.toggle("is-pinned", selectedCount > 0);
     cartBox.classList.toggle("is-compact", selectedCount > 0 && !state.cartExpanded);
     cartBox.classList.toggle("is-expanded", selectedCount > 0 && state.cartExpanded);
+    document.body.classList.toggle("is-rental-cart-open", selectedCount > 0 && state.cartExpanded);
 
     const cartToggle = root.querySelector("[data-rental-cart-toggle]");
     if (cartToggle) {
@@ -3685,6 +3708,15 @@ const setupRentalSystem = () => {
     }
     checkButton.textContent = state.checking ? text.buttonLoading : text.checkButton;
     root.querySelector('[data-rental-copy="cartTitle"]')?.replaceChildren(document.createTextNode(text.cartTitle));
+    root.querySelector('[data-rental-copy="cartPageEyebrow"]')?.replaceChildren(document.createTextNode(text.cartPageEyebrow));
+    root.querySelector('[data-rental-copy="cartPageTitle"]')?.replaceChildren(document.createTextNode(text.cartPageTitle));
+    root.querySelector('[data-rental-copy="cartPageIntro"]')?.replaceChildren(document.createTextNode(text.cartPageIntro));
+    root.querySelector('[data-rental-copy="cartSummaryTitle"]')?.replaceChildren(document.createTextNode(text.cartSummaryTitle));
+    root.querySelector('[data-rental-copy="cartInfoTitle"]')?.replaceChildren(document.createTextNode(text.cartInfoTitle));
+    root.querySelector('[data-rental-copy="cartInfoBody"]')?.replaceChildren(document.createTextNode(text.cartInfoBody));
+    root.querySelector('[data-rental-copy="cartStepsTitle"]')?.replaceChildren(document.createTextNode(text.cartStepsTitle));
+    root.querySelector('[data-rental-copy="cartStepsBody"]')?.replaceChildren(document.createTextNode(text.cartStepsBody));
+    root.querySelector("[data-rental-cart-close]")?.replaceChildren(document.createTextNode(text.closeCart));
     root.querySelector('[data-rental-copy="nameLabel"]')?.replaceChildren(document.createTextNode(text.nameLabel));
     root.querySelector('[data-rental-copy="emailLabel"]')?.replaceChildren(document.createTextNode(text.emailLabel));
     root.querySelector('[data-rental-copy="phoneLabel"]')?.replaceChildren(document.createTextNode(text.phoneLabel));
@@ -3846,8 +3878,15 @@ const setupRentalSystem = () => {
     if (state.selectedIds.size === 0) return;
     state.cartExpanded = true;
     renderCart();
-    cartBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    document.body.classList.add("is-rental-cart-open");
+    cartBox.scrollIntoView({ behavior: "smooth", block: "start" });
     setTimeout(() => checkoutName.focus(), 150);
+  });
+
+  root.querySelector("[data-rental-cart-close]")?.addEventListener("click", () => {
+    state.cartExpanded = false;
+    document.body.classList.remove("is-rental-cart-open");
+    renderCart();
   });
 
   checkoutForm.addEventListener("submit", (event) => {
