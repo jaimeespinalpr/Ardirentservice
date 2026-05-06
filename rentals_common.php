@@ -48,6 +48,120 @@ function rental_public_url(string $path = ''): string
     return rental_public_site_url() . ($normalized === '' ? '' : '/' . $normalized);
 }
 
+function rental_format_money(int $amountCents, string $currency = CURRENCY): string
+{
+    $symbol = strtolower($currency) === 'usd' ? '$' : strtoupper($currency) . ' ';
+    return $symbol . number_format($amountCents / 100, 2);
+}
+
+function rental_email_from(): string
+{
+    return rental_env('RENTAL_EMAIL_FROM', 'Ardi Rent & Service <noreply@ardirentservice.com>');
+}
+
+function rental_email_reply_to(): string
+{
+    return rental_env('RENTAL_EMAIL_REPLY_TO', 'info@ardirentservice.com');
+}
+
+function rental_pickup_details_html(): string
+{
+    $address = rental_env('RENTAL_PICKUP_ADDRESS', '[Pickup address / meeting location goes here]');
+    $hours = rental_env('RENTAL_PICKUP_HOURS', '[Pickup hours go here]');
+    $contact = rental_env('RENTAL_PICKUP_CONTACT', '[Pickup contact / phone goes here]');
+    $notes = rental_env(
+        'RENTAL_PICKUP_NOTES',
+        '[Add any ID, deposit, parking, arrival, or return instructions here]'
+    );
+
+    return '<ul style="padding-left:20px;margin:10px 0 0;color:#202124;line-height:1.55">'
+        . '<li><strong>Pickup location:</strong> ' . htmlspecialchars($address, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>'
+        . '<li><strong>Pickup time:</strong> ' . htmlspecialchars($hours, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>'
+        . '<li><strong>Contact:</strong> ' . htmlspecialchars($contact, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>'
+        . '<li><strong>Notes:</strong> ' . htmlspecialchars($notes, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>'
+        . '</ul>';
+}
+
+function rental_send_customer_email(array $reservation, array $items): bool
+{
+    $email = filter_var((string) ($reservation['customer_email'] ?? ''), FILTER_VALIDATE_EMAIL);
+    if (!$email) {
+        return false;
+    }
+
+    $customerName = rental_clean_text($reservation['customer_name'] ?? '');
+    $safeName = htmlspecialchars($customerName !== '' ? $customerName : 'there', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $startDate = htmlspecialchars((string) ($reservation['start_date'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $endDate = htmlspecialchars((string) ($reservation['end_date'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $total = rental_format_money((int) ($reservation['total_amount_cents'] ?? 0), (string) ($reservation['currency'] ?? CURRENCY));
+    $logoUrl = rental_public_url('assets/logos/logo-black-square.png');
+
+    $itemRows = '';
+    foreach ($items as $item) {
+        $title = htmlspecialchars((string) ($item['title'] ?? $item['item_title'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        if ($title === '') {
+            continue;
+        }
+        $itemRows .= '<li style="margin:6px 0">' . $title . '</li>';
+    }
+    if ($itemRows === '') {
+        $itemRows = '<li style="margin:6px 0">Rental equipment</li>';
+    }
+
+    $subject = 'Thank you for your rental — Ardi Rent & Service';
+    $html = '<!doctype html><html><body style="margin:0;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif;color:#111">'
+        . '<div style="max-width:640px;margin:0 auto;padding:24px">'
+        . '<div style="background:#fff;border-radius:18px;padding:26px;border:1px solid #e6e6e6">'
+        . '<div style="text-align:center;margin-bottom:20px">'
+        . '<img src="' . htmlspecialchars($logoUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" alt="Ardi Rent & Service" width="96" height="96" style="border-radius:18px;display:inline-block">'
+        . '<h1 style="margin:14px 0 0;font-size:24px;line-height:1.25">Thank you for your rental</h1>'
+        . '</div>'
+        . '<p style="font-size:16px;line-height:1.55;margin:0 0 14px">Hi ' . $safeName . ',</p>'
+        . '<p style="font-size:16px;line-height:1.55;margin:0 0 18px">Thank you for renting with <strong>Ardi Rent & Service</strong>. Your order has been received and your selected equipment is reserved for the dates below.</p>'
+        . '<div style="background:#f7f7f7;border-radius:14px;padding:16px;margin:18px 0">'
+        . '<p style="margin:0 0 8px"><strong>Rental dates:</strong> ' . $startDate . ' to ' . $endDate . '</p>'
+        . '<p style="margin:0"><strong>Total paid:</strong> ' . htmlspecialchars($total, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>'
+        . '</div>'
+        . '<h2 style="font-size:18px;margin:22px 0 8px">Items reserved</h2>'
+        . '<ul style="padding-left:20px;margin:0 0 18px;color:#202124;line-height:1.55">' . $itemRows . '</ul>'
+        . '<h2 style="font-size:18px;margin:22px 0 8px">Pickup instructions</h2>'
+        . '<p style="font-size:15px;line-height:1.55;margin:0">Please review the pickup details below. Bring a valid ID and your order confirmation when picking up the equipment.</p>'
+        . rental_pickup_details_html()
+        . '<p style="font-size:15px;line-height:1.55;margin:22px 0 0">If you have any questions before pickup, reply to this email and we will help you.</p>'
+        . '<p style="font-size:15px;line-height:1.55;margin:18px 0 0">— Ardi Rent & Service</p>'
+        . '</div></div></body></html>';
+
+    $plainItems = implode(', ', array_filter(array_map(
+        static fn(array $item): string => (string) ($item['title'] ?? $item['item_title'] ?? ''),
+        $items
+    )));
+    $plain = "Thank you for renting with Ardi Rent & Service.\n\n"
+        . "Rental dates: {$startDate} to {$endDate}\n"
+        . "Items: " . ($plainItems !== '' ? $plainItems : 'Rental equipment') . "\n"
+        . "Total paid: {$total}\n\n"
+        . "Pickup instructions:\n"
+        . strip_tags(str_replace(['</li>', '<br>', '<br/>', '<br />'], "\n", rental_pickup_details_html()))
+        . "\n\nReply to this email if you have questions.\n";
+
+    $boundary = 'ardi_' . bin2hex(random_bytes(12));
+    $headers = [
+        'MIME-Version: 1.0',
+        'From: ' . rental_email_from(),
+        'Reply-To: ' . rental_email_reply_to(),
+        'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
+    ];
+
+    $body = '--' . $boundary . "\r\n"
+        . "Content-Type: text/plain; charset=UTF-8\r\n\r\n"
+        . $plain . "\r\n"
+        . '--' . $boundary . "\r\n"
+        . "Content-Type: text/html; charset=UTF-8\r\n\r\n"
+        . $html . "\r\n"
+        . '--' . $boundary . "--\r\n";
+
+    return mail($email, $subject, $body, implode("\r\n", $headers));
+}
+
 function rental_allowed_origins(): array
 {
     $configured = rental_env(

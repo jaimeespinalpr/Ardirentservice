@@ -105,6 +105,12 @@ jobs:
           PUBLIC_SITE_URL=https://www.ardirentservice.com
           PAY_SITE_URL=https://pay.ardirentservice.com
           ALLOWED_ORIGINS=https://ardirentservice.com,https://www.ardirentservice.com,https://jaimeespinalpr.github.io
+          RENTAL_EMAIL_FROM=Ardi Rent & Service <noreply@ardirentservice.com>
+          RENTAL_EMAIL_REPLY_TO=info@ardirentservice.com
+          RENTAL_PICKUP_ADDRESS=[Pickup address / meeting location goes here]
+          RENTAL_PICKUP_HOURS=[Pickup hours go here]
+          RENTAL_PICKUP_CONTACT=[Pickup contact / phone goes here]
+          RENTAL_PICKUP_NOTES=[Add ID, deposit, parking, arrival, or return instructions here]
           EOF
 
           scp -i ~/.ssh/id_ed25519 -P "${HOSTINGER_SSH_PORT:-65002}" \
