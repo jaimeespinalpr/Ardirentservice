@@ -2718,18 +2718,36 @@ const setupInstagramCarousel = () => {
   let slides = [];
   let dots = [];
   let activeIndex = 0;
-  let timer = 0;
+  let animationFrame = 0;
+  let lastFrameTime = 0;
+  let pausedByImageHover = false;
+  let loopWidth = 0;
+  const autoScrollSpeed = 0.035;
 
   const stop = () => {
-    if (timer) window.clearInterval(timer);
-    timer = 0;
+    if (animationFrame) window.cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+    lastFrameTime = 0;
+  };
+
+  const autoScroll = (timestamp) => {
+    if (!lastFrameTime) lastFrameTime = timestamp;
+    const delta = Math.min(timestamp - lastFrameTime, 64);
+    lastFrameTime = timestamp;
+
+    if (!pausedByImageHover && slides.length > 1) {
+      track.scrollLeft += delta * autoScrollSpeed;
+      if (loopWidth > 0 && track.scrollLeft >= loopWidth) {
+        track.scrollLeft -= loopWidth;
+      }
+    }
+
+    animationFrame = window.requestAnimationFrame(autoScroll);
   };
 
   const start = () => {
-    stop();
-    timer = window.setInterval(() => {
-      go(activeIndex + 1);
-    }, 5200);
+    if (animationFrame || slides.length <= 1) return;
+    animationFrame = window.requestAnimationFrame(autoScroll);
   };
 
   const setActive = (index) => {
@@ -2738,8 +2756,8 @@ const setupInstagramCarousel = () => {
   };
 
   const go = (index) => {
-    if (slides.length === 0) return;
-    const nextIndex = (index + slides.length) % slides.length;
+    if (dots.length === 0) return;
+    const nextIndex = (index + dots.length) % dots.length;
     slides[nextIndex]?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
     setActive(nextIndex);
   };
@@ -2766,22 +2784,25 @@ const setupInstagramCarousel = () => {
     const left = track.scrollLeft;
     let best = 0;
     let bestDist = Infinity;
-    slides.forEach((slide, idx) => {
+    slides.forEach((slide) => {
       const dist = Math.abs(slide.offsetLeft - left);
       if (dist < bestDist) {
         bestDist = dist;
-        best = idx;
+        best = Number.parseInt(slide.dataset.igIndex || "0", 10) || 0;
       }
     });
     setActive(best);
   };
 
   const render = (posts) => {
+    stop();
     track.innerHTML = "";
     slides = [];
-    posts.forEach((post) => {
+    const visiblePosts = posts.length > 1 ? [...posts, ...posts] : posts;
+    visiblePosts.forEach((post, index) => {
       const slide = document.createElement("div");
       slide.className = "ig-slide";
+      slide.dataset.igIndex = String(index % posts.length);
 
       const link = document.createElement("a");
       link.className = "ig-card";
@@ -2794,6 +2815,12 @@ const setupInstagramCarousel = () => {
       img.decoding = "async";
       img.alt = "Instagram post";
       img.src = post.image;
+      img.addEventListener("mouseenter", () => {
+        pausedByImageHover = true;
+      });
+      img.addEventListener("mouseleave", () => {
+        pausedByImageHover = false;
+      });
 
       const caption = document.createElement("p");
       caption.className = "ig-caption";
@@ -2807,8 +2834,11 @@ const setupInstagramCarousel = () => {
       slides.push(slide);
     });
 
-    buildDots(slides.length);
-    if (slides.length > 1) start();
+    buildDots(posts.length);
+    window.requestAnimationFrame(() => {
+      loopWidth = posts.length > 1 && slides[posts.length] ? slides[posts.length].offsetLeft : 0;
+      if (slides.length > 1) start();
+    });
   };
 
   prev.addEventListener("click", () => {
@@ -2824,10 +2854,10 @@ const setupInstagramCarousel = () => {
     window.requestAnimationFrame(onScroll);
   });
 
-  root.addEventListener("mouseenter", stop);
-  root.addEventListener("mouseleave", start);
-  root.addEventListener("focusin", stop);
-  root.addEventListener("focusout", start);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stop();
+    else start();
+  });
 
   const load = async () => {
     try {

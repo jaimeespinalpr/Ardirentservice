@@ -1268,7 +1268,6 @@ body.is-modal-open {
   display: flex;
   gap: 0.9rem;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
   scroll-padding: 0.9rem;
   padding: 0.5rem 0.25rem 0.75rem;
   -webkit-overflow-scrolling: touch;
@@ -1276,7 +1275,6 @@ body.is-modal-open {
 
 .ig-slide {
   flex: 0 0 min(76vw, 380px);
-  scroll-snap-align: start;
 }
 
 .ig-card {
