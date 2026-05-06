@@ -512,6 +512,24 @@ h1 {
   text-underline-offset: 2px;
 }
 
+.delivery-policy {
+  margin: 2rem 0;
+}
+
+.delivery-policy-heading {
+  margin-bottom: 1.1rem;
+}
+
+.delivery-policy .split-card h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2vw, 1.7rem);
+  margin-bottom: 0.75rem;
+}
+
+.delivery-policy .split-card-dark h3 {
+  color: #ffffff;
+}
+
 .section-split {
   padding-top: 0;
 }

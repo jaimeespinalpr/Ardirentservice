@@ -221,6 +221,20 @@ const translations = {
         ["Streaming-ready", "Ideal for live production and hybrid events."],
         ["Rental + service", "Hardware and creative help under one brand."],
       ],
+      deliveryPolicy: {
+        eyebrow: "Delivery and pickup",
+        title: "Delivery and pickup system at Park Boulevard.",
+        intro:
+          "Ardi Rent & Service handles equipment delivery and pickup at the Park Boulevard condominium.",
+        deliveryEyebrow: "Delivery",
+        deliveryTitle: "Receive the equipment when you need it.",
+        deliveryText:
+          "You can receive the equipment the same day you will use it or, if preferred, the afternoon before.",
+        pickupEyebrow: "Pickup",
+        pickupTitle: "Return it the same day or by 1:00 p.m. the next day.",
+        pickupText:
+          "If you finish using the equipment the same day, we can pick it up that same day. If you finish very late, you have until 1:00 p.m. the next day to return it.",
+      },
     },
     lenses: {
       eyebrow: "Lenses",
@@ -861,6 +875,20 @@ const translations = {
         ["Lista para streaming", "Ideal para producción en vivo y eventos híbridos."],
         ["Alquiler + servicio", "Equipo y ayuda creativa bajo una sola marca."],
       ],
+      deliveryPolicy: {
+        eyebrow: "Entrega y recogida",
+        title: "Sistema de entrega y recogida en Park Boulevard.",
+        intro:
+          "En Ardi Rent & Service, las entregas y recogidas de equipo se realizan en el condominio Park Boulevard.",
+        deliveryEyebrow: "Entrega",
+        deliveryTitle: "Recibe el equipo cuando lo necesites.",
+        deliveryText:
+          "Puedes recibir el equipo el mismo día que lo vas a usar o, si prefieres, la tarde anterior.",
+        pickupEyebrow: "Recogida",
+        pickupTitle: "Devuélvelo el mismo día o al día siguiente antes de la 1:00 p.m.",
+        pickupText:
+          "Si terminas de usar el equipo el mismo día, podemos recogerlo ese mismo día. Si finalizas muy tarde, tienes hasta el día siguiente a la 1:00 p.m. para devolverlo.",
+      },
     },
     lenses: {
       eyebrow: "Lentes",
@@ -1401,6 +1429,13 @@ const applyCopy = (lang) => {
     if (strong) strong.textContent = title;
     if (span) span.textContent = text;
   });
+
+  const deliveryPolicy = copy.equipment.deliveryPolicy;
+  if (deliveryPolicy) {
+    Object.entries(deliveryPolicy).forEach(([key, value]) => {
+      setText(`[data-delivery-copy="${key}"]`, value);
+    });
+  }
 
   setText('#lenses .section-heading .eyebrow', copy.lenses.eyebrow);
   setText('#lenses .section-heading h2', copy.lenses.title);
