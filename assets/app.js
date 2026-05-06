@@ -2904,6 +2904,12 @@ const rentalCopy = {
     checkButton: "Check availability",
     sameDatesShared: "These dates apply to all equipment in your cart.",
     sameDatesPerItem: "Choose dates on each item card to add it to your cart.",
+    defaultDatePrompt:
+      "Use these rental dates as the default for every item you add to the cart? Choose OK for same dates, or Cancel to pick different dates per item.",
+    defaultDateYesStatus:
+      "Default rental dates saved. Now you can add available items without choosing dates again.",
+    defaultDateNoStatus:
+      "Different dates mode is on. Choose dates on each item before adding it.",
     cartTitle: "Rental cart",
     emptyCart: "No equipment selected yet.",
     totalLabel: "Total",
@@ -2955,6 +2961,12 @@ const rentalCopy = {
     checkButton: "Ver disponibilidad",
     sameDatesShared: "Estas fechas aplican a todos los equipos que agregues al carrito.",
     sameDatesPerItem: "Elige fechas en cada equipo para agregarlo al carrito.",
+    defaultDatePrompt:
+      "¿Quieres usar estas fechas como predeterminadas para todos los artículos que agregues al carrito? Toca OK para usar las mismas fechas, o Cancelar para escoger fechas distintas por artículo.",
+    defaultDateYesStatus:
+      "Fechas predeterminadas guardadas. Ahora puedes agregar artículos disponibles sin escoger otra fecha.",
+    defaultDateNoStatus:
+      "Modo de fechas distintas activo. Escoge fechas en cada artículo antes de agregarlo.",
     cartTitle: "Carrito de renta",
     emptyCart: "Aún no has seleccionado equipos.",
     totalLabel: "Total",
@@ -3046,6 +3058,7 @@ const setupRentalSystem = () => {
   const state = {
     lang: document.documentElement.lang === "es" ? "es" : "en",
     sameDatesForAll: true,
+    sharedDateDecisionMade: false,
     selectedIds: new Set(),
     unavailable: new Set(),
     datesReady: false,
@@ -3099,7 +3112,7 @@ const setupRentalSystem = () => {
     };
   };
   const itemRange = (item) => {
-    if (state.sameDatesForAll) return sharedRange();
+    if (state.sameDatesForAll && state.sharedDateDecisionMade) return sharedRange();
     if (!isValidRange(item.itemStart.value, item.itemEnd.value)) return null;
     return {
       start: item.itemStart.value,
@@ -3194,17 +3207,18 @@ const setupRentalSystem = () => {
       const unavailable = hasRange && state.unavailable.has(item.id);
       const selected = state.selectedIds.has(item.id);
       const locked = !hasRange;
+      const showItemDates = !state.sharedDateDecisionMade || !state.sameDatesForAll;
 
       item.card.classList.toggle("is-unavailable", unavailable);
       item.card.classList.toggle("is-selected", selected);
-      item.wrapper.classList.toggle("has-item-dates", !state.sameDatesForAll);
-      item.itemDates.classList.toggle("is-visible", !state.sameDatesForAll);
+      item.wrapper.classList.toggle("has-item-dates", showItemDates);
+      item.itemDates.classList.toggle("is-visible", showItemDates);
 
       if (!state.datesReady || locked) {
         item.badge.textContent = text.badgeLocked;
         item.badge.classList.remove("available", "unavailable");
         item.button.textContent = text.buttonAdd;
-        item.button.disabled = true;
+        item.button.disabled = locked || state.sharedDateDecisionMade;
         return;
       }
 
@@ -3368,6 +3382,60 @@ const setupRentalSystem = () => {
       renderCardStates();
       renderCart();
     }
+  };
+
+  const syncScopeInputs = () => {
+    scopeInputs.forEach((input) => {
+      input.checked = state.sameDatesForAll ? input.value === "shared" : input.value === "per_item";
+    });
+  };
+
+  const applySharedDatesFromItem = async (item, addAfterCheck = false) => {
+    const range = itemRange(item);
+    if (!range) return;
+    state.sameDatesForAll = true;
+    state.sharedDateDecisionMade = true;
+    startInput.value = range.start;
+    endInput.value = range.end;
+    endInput.setAttribute("min", range.start);
+    datesForm.classList.remove("is-hidden");
+    syncScopeInputs();
+    renderCopy(state.lang);
+    await fetchAvailability();
+    if (addAfterCheck && !state.unavailable.has(item.id)) {
+      state.selectedIds.add(item.id);
+      setStatus(copy().defaultDateYesStatus, "success");
+      renderCardStates();
+      renderCart();
+    }
+  };
+
+  const applyPerItemDatesFromItem = (item, addAfterCheck = false) => {
+    state.sameDatesForAll = false;
+    state.sharedDateDecisionMade = true;
+    datesForm.classList.add("is-hidden");
+    syncScopeInputs();
+    state.selectedIds.clear();
+    state.unavailable = new Set();
+    state.datesReady = true;
+    refreshPerItemAvailability();
+    if (addAfterCheck && itemRange(item) && !state.unavailable.has(item.id)) {
+      state.selectedIds.add(item.id);
+    }
+    setStatus(isCashMode ? copy().defaultDateNoStatus : copy().statusPerItemStripe, isCashMode ? "info" : "error");
+    renderCopy(state.lang);
+  };
+
+  const askDefaultDatePreference = async (item, addAfterCheck = false) => {
+    const range = itemRange(item);
+    if (!range || state.sharedDateDecisionMade) return false;
+    const useForAll = window.confirm(copy().defaultDatePrompt);
+    if (useForAll) {
+      await applySharedDatesFromItem(item, addAfterCheck);
+    } else {
+      applyPerItemDatesFromItem(item, addAfterCheck);
+    }
+    return true;
   };
 
   const checkout = async () => {
@@ -3622,6 +3690,7 @@ const setupRentalSystem = () => {
     input.addEventListener("change", () => {
       state.sameDatesForAll = input.value === "shared";
       datesForm.classList.toggle("is-hidden", !state.sameDatesForAll);
+      state.sharedDateDecisionMade = true;
       state.selectedIds.clear();
       state.unavailable = new Set();
       state.datesReady = state.sameDatesForAll ? isValidDateRange() : true;
@@ -3651,6 +3720,26 @@ const setupRentalSystem = () => {
           item.itemEnd.setAttribute("min", today);
         }
         if (!state.sameDatesForAll) {
+          void askDefaultDatePreference(item, false).then((handled) => {
+            if (handled) return;
+            if (!state.sameDatesForAll) {
+              refreshPerItemAvailability();
+              if (!isCashMode) {
+                setStatus(copy().statusPerItemStripe, "error");
+              } else {
+                setStatus(copy().statusPerItemMode, "info");
+              }
+              renderCardStates();
+              renderCart();
+            }
+          });
+          return;
+        }
+        if (!state.sharedDateDecisionMade) {
+          void askDefaultDatePreference(item, false);
+          return;
+        }
+        if (!state.sameDatesForAll) {
           refreshPerItemAvailability();
           if (!isCashMode) {
             setStatus(copy().statusPerItemStripe, "error");
@@ -3666,6 +3755,10 @@ const setupRentalSystem = () => {
 
   state.items.forEach((item) => {
     item.button.addEventListener("click", () => {
+      if (!state.sharedDateDecisionMade) {
+        void askDefaultDatePreference(item, true);
+        return;
+      }
       const range = itemRange(item);
       if (!state.datesReady || !range || state.unavailable.has(item.id)) return;
       if (state.selectedIds.has(item.id)) {
