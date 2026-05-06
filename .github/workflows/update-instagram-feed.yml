@@ -3,7 +3,8 @@ name: Update Instagram Feed Cache
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: "17 9 * * *"
+    # Refresh every 6 hours so the public Instagram cache stays current.
+    - cron: "17 */6 * * *"
 
 permissions:
   contents: write
@@ -16,10 +17,10 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout gh-pages
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: gh-pages
+          ref: main
 
       - name: Update cache
         run: |
