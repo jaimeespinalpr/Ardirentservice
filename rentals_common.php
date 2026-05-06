@@ -31,6 +31,55 @@ declare(strict_types=1);
 const DAILY_RATE_CENTS = 5000;
 const CURRENCY = 'usd';
 
+function rental_env(string $key, string $default = ''): string
+{
+    $value = getenv($key);
+    return is_string($value) && $value !== '' ? $value : $default;
+}
+
+function rental_public_site_url(): string
+{
+    return rtrim(rental_env('PUBLIC_SITE_URL', 'https://www.ardirentservice.com'), '/');
+}
+
+function rental_public_url(string $path = ''): string
+{
+    $normalized = ltrim($path, '/');
+    return rental_public_site_url() . ($normalized === '' ? '' : '/' . $normalized);
+}
+
+function rental_allowed_origins(): array
+{
+    $configured = rental_env(
+        'ALLOWED_ORIGINS',
+        'https://ardirentservice.com,https://www.ardirentservice.com,https://jaimeespinalpr.github.io'
+    );
+
+    return array_values(array_filter(array_map(
+        static fn(string $origin): string => rtrim(trim($origin), '/'),
+        explode(',', $configured)
+    )));
+}
+
+function rental_apply_cors(): void
+{
+    $origin = isset($_SERVER['HTTP_ORIGIN']) ? rtrim((string) $_SERVER['HTTP_ORIGIN'], '/') : '';
+    if ($origin !== '' && in_array($origin, rental_allowed_origins(), true)) {
+        header('Access-Control-Allow-Origin: ' . $origin);
+        header('Vary: Origin');
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type');
+        header('Access-Control-Max-Age: 86400');
+    }
+
+    if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
+        http_response_code(204);
+        exit;
+    }
+}
+
+rental_apply_cors();
+
 function rental_item_rate_cents(string $itemId): int
 {
     $cameraRates = [

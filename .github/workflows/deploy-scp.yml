@@ -69,6 +69,7 @@ jobs:
             --exclude '.DS_Store' \
             --exclude 'rentals_*.php' \
             --exclude 'lead.php' \
+            --exclude 'pay/' \
             --exclude 'data/' \
             --exclude '.env' \
             --exclude '.env.pay' \
@@ -85,7 +86,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          PAY_PATH="/home/u467534899/domains/ardirentservice.com/pay/"
+          PAY_PATH="/home/u467534899/domains/ardirentservice.com/public_html/pay/"
 
           ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" \
             "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" \
@@ -104,7 +105,7 @@ jobs:
           cat > .env.pay <<EOF
           STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
           STRIPE_MODE=${STRIPE_MODE}
-          PUBLIC_SITE_URL=https://ardirentservice.com
+          PUBLIC_SITE_URL=https://www.ardirentservice.com
           PAY_SITE_URL=https://pay.ardirentservice.com
           ALLOWED_ORIGINS=https://ardirentservice.com,https://www.ardirentservice.com,https://jaimeespinalpr.github.io
           EOF

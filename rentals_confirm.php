@@ -4,18 +4,18 @@ require_once __DIR__ . '/rentals_common.php';
 
 $sessionId = rental_clean_text($_GET['session_id'] ?? '');
 if ($sessionId === '') {
-    rental_redirect('equipment.html?rental=error');
+    rental_redirect(rental_public_url('equipment.html?rental=error'));
 }
 
 $stripe = stripe_request('GET', 'checkout/sessions/' . rawurlencode($sessionId));
 if (!$stripe['ok']) {
-    rental_redirect('equipment.html?rental=error');
+    rental_redirect(rental_public_url('equipment.html?rental=error'));
 }
 
 $session = $stripe['data'];
 $paymentStatus = (string) ($session['payment_status'] ?? '');
 if ($paymentStatus !== 'paid') {
-    rental_redirect('equipment.html?rental=unpaid');
+    rental_redirect(rental_public_url('equipment.html?rental=unpaid'));
 }
 
 $metadata = is_array($session['metadata'] ?? null) ? $session['metadata'] : [];
@@ -32,7 +32,7 @@ $itemTitles = json_decode((string) ($metadata['item_titles'] ?? '[]'), true);
 $itemRates = json_decode((string) ($metadata['item_rates_cents'] ?? '[]'), true);
 
 if (!is_array($itemIds) || !is_array($itemTitles) || $startDate === null || $endDate === null || $startDate > $endDate) {
-    rental_redirect('equipment.html?rental=error');
+    rental_redirect(rental_public_url('equipment.html?rental=error'));
 }
 
 $cleanItemIds = [];
@@ -45,7 +45,7 @@ foreach ($itemIds as $rawId) {
 $cleanItemIds = array_values(array_unique($cleanItemIds));
 
 if ($cleanItemIds === []) {
-    rental_redirect('equipment.html?rental=error');
+    rental_redirect(rental_public_url('equipment.html?rental=error'));
 }
 
 $cleanTitles = [];
@@ -72,7 +72,7 @@ $existsStmt = $pdo->prepare('SELECT id FROM reservations WHERE checkout_session_
 $existsStmt->execute([$sessionId]);
 $existing = $existsStmt->fetch();
 if (is_array($existing)) {
-    rental_redirect('equipment.html?rental=confirmed&start=' . rawurlencode($startDate) . '&end=' . rawurlencode($endDate));
+    rental_redirect(rental_public_url('equipment.html?rental=confirmed&start=' . rawurlencode($startDate) . '&end=' . rawurlencode($endDate)));
 }
 
 $pdo->beginTransaction();
@@ -80,7 +80,7 @@ try {
     $stillUnavailable = rental_find_unavailable_items($pdo, $startDate, $endDate, $cleanItemIds);
     if ($stillUnavailable !== []) {
         $pdo->rollBack();
-        rental_redirect('equipment.html?rental=conflict');
+        rental_redirect(rental_public_url('equipment.html?rental=conflict'));
     }
 
     $insertReservation = $pdo->prepare(
@@ -119,7 +119,7 @@ try {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
-    rental_redirect('equipment.html?rental=error');
+    rental_redirect(rental_public_url('equipment.html?rental=error'));
 }
 
-rental_redirect('equipment.html?rental=confirmed&start=' . rawurlencode($startDate) . '&end=' . rawurlencode($endDate));
+rental_redirect(rental_public_url('equipment.html?rental=confirmed&start=' . rawurlencode($startDate) . '&end=' . rawurlencode($endDate)));

@@ -58,7 +58,7 @@ foreach ($items as $item) {
 $form = [
     'mode' => 'payment',
     'success_url' => rental_base_url() . '/rentals_confirm.php?session_id={CHECKOUT_SESSION_ID}',
-    'cancel_url' => rental_base_url() . '/equipment.html?rental=cancelled',
+    'cancel_url' => rental_public_url('equipment.html?rental=cancelled'),
     'customer_email' => $customerEmail,
     'metadata[start_date]' => $startDate,
     'metadata[end_date]' => $endDate,
