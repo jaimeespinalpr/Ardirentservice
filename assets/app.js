@@ -328,6 +328,12 @@ const translations = {
         },
         {
           tag: "Zoom",
+          title: "Sigma 24-70mm f/2.8 DG DN II Art",
+          text: "Specs: 24-70mm | constant f/2.8 | Sony E-mount | 82mm filter | 735g. Best for: premium photo, video, interviews, events, and hybrid production.",
+          alt: "Sigma 24-70mm f/2.8 DG DN II Art lens for Sony E-mount",
+        },
+        {
+          tag: "Zoom",
           title: "Sony FE 28-70mm f/2 GM",
           text: "Specs: 28-70mm | constant f/2 | min focus 0.38m | 86mm filter | 918g. Best for: high-end photo/video jobs that need one fast pro zoom.",
           alt: "Sony FE 28-70mm f/2 GM lens",
@@ -340,7 +346,7 @@ const translations = {
         },
       ],
       strip: [
-        ["Also available", "Sony 90mm Macro, Sony 200-600mm, Sony 28-70mm f/2 GM, Tamron 28-200mm, TTArtisan 11mm fisheye, and specialty optics."],
+        ["Also available", "Sigma 24-70mm f/2.8 DG DN II Art, Sony 90mm Macro, Sony 200-600mm, Sony 28-70mm f/2 GM, Tamron 28-200mm, TTArtisan 11mm fisheye, and specialty optics."],
         ["Rental ready", "Great for portrait sessions, live events, branded content, and production packages."],
         ["Only glass", "This section keeps the focus on lenses, with no camera bodies shown here."],
       ],
@@ -982,6 +988,12 @@ const translations = {
         },
         {
           tag: "Zoom",
+          title: "Sigma 24-70mm f/2.8 DG DN II Art",
+          text: "Especificaciones: 24-70mm | f/2.8 constante | Sony E-mount | filtro 82 mm | 735 g. Mejor para: foto premium, video, entrevistas, eventos y producción híbrida.",
+          alt: "Lente Sigma 24-70mm f/2.8 DG DN II Art para Sony E-mount",
+        },
+        {
+          tag: "Zoom",
           title: "Sony FE 28-70mm f/2 GM",
           text: "Especificaciones: 28-70mm | f/2 constante | enfoque min. 0.38 m | filtro 86 mm | 918 g. Mejor para: trabajos premium de foto/video que piden un solo zoom rápido.",
           alt: "Lente Sony FE 28-70mm f/2 GM",
@@ -994,7 +1006,7 @@ const translations = {
         },
       ],
       strip: [
-        ["También disponibles", "Sony 90mm Macro, Sony 200-600mm, Sony 28-70mm f/2 GM, Tamron 28-200mm, TTArtisan 11mm fisheye y ópticas especiales."],
+        ["También disponibles", "Sigma 24-70mm f/2.8 DG DN II Art, Sony 90mm Macro, Sony 200-600mm, Sony 28-70mm f/2 GM, Tamron 28-200mm, TTArtisan 11mm fisheye y ópticas especiales."],
         ["Listos para alquilar", "Ideales para retratos, eventos en vivo, contenido de marca y paquetes de producción."],
         ["Solo vidrio", "Esta sección mantiene el enfoque en los lentes, sin mostrar cuerpos de cámara."],
       ],
