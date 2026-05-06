@@ -3,7 +3,9 @@ name: Deploy GitHub Pages
 on:
   push:
     branches:
-      - main
+      - prueba-1
+      - prueba-2
+      - stripe-hostinger-readiness
   workflow_dispatch:
 
 permissions:
