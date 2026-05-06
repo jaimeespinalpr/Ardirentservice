@@ -2913,6 +2913,7 @@ const rentalCopy = {
     defaultDateNoStatus:
       "Different dates mode is on. Choose dates on each item before adding it.",
     cartTitle: "Rental cart",
+    cartCompact: "Cart",
     emptyCart: "No equipment selected yet.",
     totalLabel: "Total",
     nameLabel: "Full name",
@@ -2972,6 +2973,7 @@ const rentalCopy = {
     defaultDateNoStatus:
       "Modo de fechas distintas activo. Escoge fechas en cada artículo antes de agregarlo.",
     cartTitle: "Carrito de renta",
+    cartCompact: "Carrito",
     emptyCart: "Aún no has seleccionado equipos.",
     totalLabel: "Total",
     nameLabel: "Nombre completo",
@@ -3063,6 +3065,7 @@ const setupRentalSystem = () => {
     lang: document.documentElement.lang === "es" ? "es" : "en",
     sameDatesForAll: true,
     sharedDateDecisionMade: false,
+    cartExpanded: false,
     selectedIds: new Set(),
     unavailable: new Set(),
     datesReady: false,
@@ -3243,9 +3246,19 @@ const setupRentalSystem = () => {
   const renderCart = () => {
     const text = copy();
     const selectedItems = state.items.filter((item) => state.selectedIds.has(item.id));
+    const selectedCount = selectedItems.length;
     cartList.innerHTML = "";
-    cartBox.classList.toggle("is-hidden", selectedItems.length === 0);
-    cartBox.classList.toggle("is-pinned", selectedItems.length > 0);
+    if (selectedCount === 0) state.cartExpanded = false;
+    cartBox.classList.toggle("is-hidden", selectedCount === 0);
+    cartBox.classList.toggle("is-pinned", selectedCount > 0);
+    cartBox.classList.toggle("is-compact", selectedCount > 0 && !state.cartExpanded);
+    cartBox.classList.toggle("is-expanded", selectedCount > 0 && state.cartExpanded);
+
+    const cartToggle = root.querySelector("[data-rental-cart-toggle]");
+    if (cartToggle) {
+      cartToggle.textContent = selectedCount > 0 ? `${text.cartCompact} (${selectedCount})` : text.cartTitle;
+      cartToggle.setAttribute("aria-expanded", state.cartExpanded ? "true" : "false");
+    }
 
     if (selectedItems.length === 0) {
       const li = document.createElement("li");
@@ -3408,6 +3421,7 @@ const setupRentalSystem = () => {
     await fetchAvailability();
     if (addAfterCheck && !state.unavailable.has(item.id)) {
       state.selectedIds.add(item.id);
+      state.cartExpanded = false;
       setStatus(copy().defaultDateYesStatus, "success");
       renderCardStates();
       renderCart();
@@ -3425,6 +3439,7 @@ const setupRentalSystem = () => {
     refreshPerItemAvailability();
     if (addAfterCheck && itemRange(item) && !state.unavailable.has(item.id)) {
       state.selectedIds.add(item.id);
+      state.cartExpanded = false;
     }
     setStatus(isCashMode ? copy().defaultDateNoStatus : copy().statusPerItemStripe, isCashMode ? "info" : "error");
     renderCopy(state.lang);
@@ -3820,10 +3835,19 @@ const setupRentalSystem = () => {
         state.selectedIds.delete(item.id);
       } else {
         state.selectedIds.add(item.id);
+        state.cartExpanded = false;
       }
       renderCardStates();
       renderCart();
     });
+  });
+
+  root.querySelector("[data-rental-cart-toggle]")?.addEventListener("click", () => {
+    if (state.selectedIds.size === 0) return;
+    state.cartExpanded = true;
+    renderCart();
+    cartBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    setTimeout(() => checkoutName.focus(), 150);
   });
 
   checkoutForm.addEventListener("submit", (event) => {

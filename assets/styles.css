@@ -1488,8 +1488,35 @@ body.is-modal-open {
   z-index: 45;
 }
 
-.rental-cart h3 {
-  margin: 0 0 0.55rem;
+.rental-cart-toggle {
+  width: 100%;
+  min-height: 3rem;
+  border: 0;
+  border-radius: 14px;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.rental-cart.is-compact {
+  width: auto;
+  min-width: 132px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.rental-cart.is-compact .rental-cart-list,
+.rental-cart.is-compact .rental-cart-total,
+.rental-cart.is-compact .rental-checkout {
+  display: none;
+}
+
+.rental-cart.is-expanded .rental-cart-toggle {
+  margin-bottom: 0.65rem;
 }
 
 .rental-cart-list {
