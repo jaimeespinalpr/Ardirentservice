@@ -3082,6 +3082,7 @@ const setupRentalSystem = () => {
   const isCashMode = modePref === "cash" || (modePref === "auto" && isStaticRuntime);
   const dailyRateCents = Number.parseInt(root.getAttribute("data-daily-rate-cents") || "5000", 10) || 5000;
   const reservationStorageKey = "ardi-rental-cash-reservations-v1";
+  const rentalStateStorageKey = "ardi-rental-current-state-v1";
 
   const datesForm = root.querySelector("[data-rental-dates]");
   const checkoutForm = root.querySelector("[data-rental-checkout]");
@@ -3131,6 +3132,43 @@ const setupRentalSystem = () => {
 
   const copy = () => rentalCopy[state.lang] || rentalCopy.en;
   const payButtonLabel = () => (isCashMode ? copy().payButtonCash : copy().payButtonStripe);
+  const loadSavedRentalState = () => {
+    try {
+      const raw = localStorage.getItem(rentalStateStorageKey);
+      const parsed = raw ? JSON.parse(raw) : null;
+      return parsed && typeof parsed === "object" ? parsed : null;
+    } catch (error) {
+      return null;
+    }
+  };
+  const saveRentalState = () => {
+    try {
+      const itemDates = state.items.map((item) => ({
+        id: item.id,
+        start: item.itemStart.value,
+        end: item.itemEnd.value,
+      }));
+      localStorage.setItem(
+        rentalStateStorageKey,
+        JSON.stringify({
+          startDate: startInput.value,
+          endDate: endInput.value,
+          sameDatesForAll: state.sameDatesForAll,
+          sharedDateDecisionMade: state.sharedDateDecisionMade,
+          selectedIds: Array.from(state.selectedIds),
+          itemDates,
+          customer: {
+            name: checkoutName.value.trim(),
+            email: checkoutEmail.value.trim(),
+            phone: checkoutPhone.value.trim(),
+          },
+          savedAt: Date.now(),
+        })
+      );
+    } catch (error) {
+      // If storage is unavailable, keep the rental flow working without persistence.
+    }
+  };
   const loadReservations = () => {
     try {
       const raw = localStorage.getItem(reservationStorageKey);
@@ -3344,6 +3382,8 @@ const setupRentalSystem = () => {
       }, 0);
       totalNode.textContent = `${text.totalLabel}: ${currency.format(total / 100)}`;
     }
+
+    saveRentalState();
   };
 
   const isValidDateRange = () => isValidRange(startInput.value, endInput.value);
@@ -3463,6 +3503,52 @@ const setupRentalSystem = () => {
     scopeInputs.forEach((input) => {
       input.checked = state.sameDatesForAll ? input.value === "shared" : input.value === "per_item";
     });
+  };
+
+  const restoreRentalState = () => {
+    const saved = loadSavedRentalState();
+    if (!saved) return false;
+
+    if (typeof saved.startDate === "string") startInput.value = saved.startDate;
+    if (typeof saved.endDate === "string") endInput.value = saved.endDate;
+    if (startInput.value !== "") endInput.setAttribute("min", startInput.value);
+
+    state.sameDatesForAll = saved.sameDatesForAll !== false;
+    state.sharedDateDecisionMade = !!saved.sharedDateDecisionMade;
+    datesForm.classList.toggle("is-hidden", !state.sameDatesForAll);
+    syncScopeInputs();
+
+    const itemDates = Array.isArray(saved.itemDates) ? saved.itemDates : [];
+    state.items.forEach((item) => {
+      const savedItem = itemDates.find((entry) => entry && entry.id === item.id);
+      if (!savedItem) return;
+      if (typeof savedItem.start === "string") item.itemStart.value = savedItem.start;
+      if (typeof savedItem.end === "string") item.itemEnd.value = savedItem.end;
+      if (item.itemStart.value !== "") item.itemEnd.setAttribute("min", item.itemStart.value);
+    });
+
+    const customer = saved.customer && typeof saved.customer === "object" ? saved.customer : {};
+    if (typeof customer.name === "string") checkoutName.value = customer.name;
+    if (typeof customer.email === "string") checkoutEmail.value = customer.email;
+    if (typeof customer.phone === "string") checkoutPhone.value = customer.phone;
+
+    const availableIds = new Set(state.items.map((item) => item.id));
+    const savedSelectedIds = Array.isArray(saved.selectedIds) ? saved.selectedIds : [];
+    state.selectedIds = new Set(savedSelectedIds.filter((id) => availableIds.has(id)));
+
+    if (state.sameDatesForAll) {
+      state.datesReady = isValidDateRange();
+      if (!state.datesReady) state.selectedIds.clear();
+    } else {
+      state.datesReady = true;
+      state.selectedIds.forEach((id) => {
+        const item = state.items.find((entry) => entry.id === id);
+        if (!item || !itemRange(item)) state.selectedIds.delete(id);
+      });
+      refreshPerItemAvailability();
+    }
+
+    return true;
   };
 
   const applySharedDatesFromItem = async (item, addAfterCheck = false) => {
@@ -3787,10 +3873,18 @@ const setupRentalSystem = () => {
     item.itemStart.setAttribute("min", today);
     item.itemEnd.setAttribute("min", today);
   });
+  const restoredRentalState = restoreRentalState();
   renderCopy(state.lang);
   setStatus(isCashMode ? copy().statusCashMode : copy().statusSelectDates, "info");
   renderCardStates();
   renderCart();
+  if (restoredRentalState) {
+    if (state.sameDatesForAll && isValidDateRange()) {
+      void fetchAvailability();
+    } else if (!state.sameDatesForAll) {
+      setStatus(isCashMode ? copy().statusPerItemMode : copy().statusPerItemStripe, isCashMode ? "info" : "error");
+    }
+  }
   handleQueryStatus();
 
   datesForm.addEventListener("submit", (event) => {
@@ -3922,6 +4016,10 @@ const setupRentalSystem = () => {
     state.cartExpanded = false;
     document.body.classList.remove("is-rental-cart-open");
     renderCart();
+  });
+
+  [checkoutName, checkoutEmail, checkoutPhone].forEach((input) => {
+    input.addEventListener("input", saveRentalState);
   });
 
   checkoutForm.addEventListener("submit", (event) => {
