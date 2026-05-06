@@ -1585,12 +1585,28 @@ body.is-rental-cart-open {
 }
 
 .rental-cart.is-compact {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  left: auto;
   width: auto;
-  min-width: 132px;
+  min-width: 0;
+  max-height: none;
+  overflow: visible;
   padding: 0;
   border: 0;
+  border-radius: 999px;
   background: transparent;
   box-shadow: none;
+}
+
+.rental-cart.is-compact .rental-cart-toggle {
+  width: auto;
+  min-width: 7.8rem;
+  min-height: 3.05rem;
+  padding: 0 1.05rem;
+  border-radius: 999px;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.22);
 }
 
 .rental-cart.is-compact .rental-cart-page,
@@ -1884,6 +1900,14 @@ body.is-rental-cart-open {
     width: auto;
     bottom: 0.6rem;
     max-height: 56vh;
+  }
+
+  .rental-cart.is-compact {
+    right: 0.75rem;
+    left: auto;
+    bottom: 0.75rem;
+    width: auto;
+    max-height: none;
   }
 
   .rental-cart.is-expanded {

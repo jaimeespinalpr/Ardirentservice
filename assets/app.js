@@ -2944,6 +2944,8 @@ const rentalCopy = {
       "Different dates mode is on. Choose dates on each item before adding it.",
     cartTitle: "Rental cart",
     cartCompact: "Cart",
+    cartItemSingular: "item",
+    cartItemPlural: "items",
     cartPageEyebrow: "Cart",
     cartPageTitle: "Review your rental cart.",
     cartPageIntro: "Confirm your selected gear, rental dates, and contact information before reserving.",
@@ -3015,6 +3017,8 @@ const rentalCopy = {
       "Modo de fechas distintas activo. Escoge fechas en cada artículo antes de agregarlo.",
     cartTitle: "Carrito de renta",
     cartCompact: "Carrito",
+    cartItemSingular: "artículo",
+    cartItemPlural: "artículos",
     cartPageEyebrow: "Carrito",
     cartPageTitle: "Revisa tu carrito de renta.",
     cartPageIntro: "Confirma los equipos seleccionados, las fechas de renta y tu información de contacto antes de reservar.",
@@ -3309,7 +3313,8 @@ const setupRentalSystem = () => {
 
     const cartToggle = root.querySelector("[data-rental-cart-toggle]");
     if (cartToggle) {
-      cartToggle.textContent = selectedCount > 0 ? `${text.cartCompact} (${selectedCount})` : text.cartTitle;
+      const itemWord = selectedCount === 1 ? text.cartItemSingular : text.cartItemPlural;
+      cartToggle.textContent = selectedCount > 0 ? `${text.cartCompact}: ${selectedCount} ${itemWord}` : text.cartTitle;
       cartToggle.setAttribute("aria-expanded", state.cartExpanded ? "true" : "false");
     }
 
