@@ -2988,6 +2988,8 @@ const rentalCopy = {
     cartInfoTitle: "How the reservation works",
     cartInfoBody:
       "After checkout, Ardi Rent & Service confirms availability, pickup or delivery details, and any production-specific requirements.",
+    cartDeliveryPolicy:
+      "Deliveries and pickups are handled at the Park Boulevard condominium. You can receive the equipment the same day you use it or the afternoon before. If you finish very late, you have until 1:00 p.m. the next day to return it.",
     cartStepsTitle: "Before you reserve",
     cartStepsBody:
       "Make sure the dates are correct, add your best contact information, and keep an eye on your email or WhatsApp for confirmation.",
@@ -3061,6 +3063,8 @@ const rentalCopy = {
     cartInfoTitle: "Cómo funciona la reserva",
     cartInfoBody:
       "Después del checkout, Ardi Rent & Service confirma disponibilidad, detalles de recogido o entrega y cualquier requisito específico de producción.",
+    cartDeliveryPolicy:
+      "Las entregas y recogidas se realizan en el condominio Park Boulevard. Puedes recibir el equipo el mismo día que lo vas a usar o la tarde anterior. Si finalizas muy tarde, tienes hasta el día siguiente a la 1:00 p.m. para devolverlo.",
     cartStepsTitle: "Antes de reservar",
     cartStepsBody:
       "Verifica que las fechas estén correctas, añade tu mejor información de contacto y revisa tu correo o WhatsApp para la confirmación.",
@@ -3870,6 +3874,7 @@ const setupRentalSystem = () => {
     root.querySelector('[data-rental-copy="cartSummaryTitle"]')?.replaceChildren(document.createTextNode(text.cartSummaryTitle));
     root.querySelector('[data-rental-copy="cartInfoTitle"]')?.replaceChildren(document.createTextNode(text.cartInfoTitle));
     root.querySelector('[data-rental-copy="cartInfoBody"]')?.replaceChildren(document.createTextNode(text.cartInfoBody));
+    root.querySelector('[data-rental-copy="cartDeliveryPolicy"]')?.replaceChildren(document.createTextNode(text.cartDeliveryPolicy));
     root.querySelector('[data-rental-copy="cartStepsTitle"]')?.replaceChildren(document.createTextNode(text.cartStepsTitle));
     root.querySelector('[data-rental-copy="cartStepsBody"]')?.replaceChildren(document.createTextNode(text.cartStepsBody));
     root.querySelector("[data-rental-cart-close]")?.replaceChildren(document.createTextNode(text.closeCart));

@@ -1590,6 +1590,13 @@ body.is-rental-cart-open {
   margin-bottom: 0;
 }
 
+.rental-policy-note {
+  padding: 0.85rem 0.95rem;
+  border-radius: 16px;
+  background: rgba(17, 17, 17, 0.06);
+  border: 1px solid rgba(17, 17, 17, 0.08);
+}
+
 .rental-cart-toggle {
   width: 100%;
   min-height: 3rem;

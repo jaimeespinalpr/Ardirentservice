@@ -107,10 +107,10 @@ jobs:
           ALLOWED_ORIGINS=https://ardirentservice.com,https://www.ardirentservice.com,https://jaimeespinalpr.github.io
           RENTAL_EMAIL_FROM=Ardi Rent & Service <noreply@ardirentservice.com>
           RENTAL_EMAIL_REPLY_TO=info@ardirentservice.com
-          RENTAL_PICKUP_ADDRESS=[Pickup address / meeting location goes here]
-          RENTAL_PICKUP_HOURS=[Pickup hours go here]
-          RENTAL_PICKUP_CONTACT=[Pickup contact / phone goes here]
-          RENTAL_PICKUP_NOTES=[Add ID, deposit, parking, arrival, or return instructions here]
+          RENTAL_PICKUP_ADDRESS=Park Boulevard condominium
+          RENTAL_PICKUP_HOURS=Same day, the afternoon before, or by 1:00 p.m. the next day when the rental ends very late.
+          RENTAL_PICKUP_CONTACT=Reply to this email or contact Ardi Rent & Service by WhatsApp.
+          RENTAL_PICKUP_NOTES=Deliveries and pickups are handled at Park Boulevard. Bring a valid ID and your order confirmation.
           EOF
 
           scp -i ~/.ssh/id_ed25519 -P "${HOSTINGER_SSH_PORT:-65002}" \

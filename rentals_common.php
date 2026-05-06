@@ -66,20 +66,40 @@ function rental_email_reply_to(): string
 
 function rental_pickup_details_html(): string
 {
-    $address = rental_env('RENTAL_PICKUP_ADDRESS', '[Pickup address / meeting location goes here]');
-    $hours = rental_env('RENTAL_PICKUP_HOURS', '[Pickup hours go here]');
-    $contact = rental_env('RENTAL_PICKUP_CONTACT', '[Pickup contact / phone goes here]');
+    $address = rental_env('RENTAL_PICKUP_ADDRESS', 'Park Boulevard condominium');
+    $hours = rental_env('RENTAL_PICKUP_HOURS', 'Same day, the afternoon before, or by 1:00 p.m. the next day when the rental ends very late.');
+    $contact = rental_env('RENTAL_PICKUP_CONTACT', 'Reply to this email or contact Ardi Rent & Service by WhatsApp.');
     $notes = rental_env(
         'RENTAL_PICKUP_NOTES',
-        '[Add any ID, deposit, parking, arrival, or return instructions here]'
+        'Deliveries and pickups are handled at Park Boulevard. Bring a valid ID and your order confirmation.'
     );
 
     return '<ul style="padding-left:20px;margin:10px 0 0;color:#202124;line-height:1.55">'
-        . '<li><strong>Pickup location:</strong> ' . htmlspecialchars($address, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>'
-        . '<li><strong>Pickup time:</strong> ' . htmlspecialchars($hours, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>'
+        . '<li><strong>Delivery / pickup location:</strong> ' . htmlspecialchars($address, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>'
+        . '<li><strong>Timing:</strong> ' . htmlspecialchars($hours, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>'
         . '<li><strong>Contact:</strong> ' . htmlspecialchars($contact, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>'
         . '<li><strong>Notes:</strong> ' . htmlspecialchars($notes, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>'
         . '</ul>';
+}
+
+function rental_delivery_policy_html(): string
+{
+    return '<div style="background:#f7f7f7;border:1px solid #e5e5e5;border-radius:14px;padding:16px;margin:18px 0">'
+        . '<h2 style="font-size:18px;margin:0 0 8px">Delivery and pickup system</h2>'
+        . '<p style="font-size:15px;line-height:1.55;margin:0 0 10px">Ardi Rent & Service handles equipment delivery and pickup at the <strong>Park Boulevard</strong> condominium.</p>'
+        . '<ul style="padding-left:20px;margin:0;color:#202124;line-height:1.55">'
+        . '<li><strong>Delivery:</strong> You can receive the equipment the same day you will use it or, if preferred, the afternoon before.</li>'
+        . '<li><strong>Pickup:</strong> If you finish using the equipment the same day, we can pick it up that same day. If you finish very late, you have until 1:00 p.m. the next day to return it.</li>'
+        . '</ul>'
+        . '</div>';
+}
+
+function rental_delivery_policy_plain(): string
+{
+    return "Delivery and pickup system:\n"
+        . "Ardi Rent & Service handles equipment delivery and pickup at the Park Boulevard condominium.\n"
+        . "Delivery: You can receive the equipment the same day you will use it or, if preferred, the afternoon before.\n"
+        . "Pickup: If you finish using the equipment the same day, we can pick it up that same day. If you finish very late, you have until 1:00 p.m. the next day to return it.\n";
 }
 
 function rental_send_customer_email(array $reservation, array $items): bool
@@ -124,8 +144,9 @@ function rental_send_customer_email(array $reservation, array $items): bool
         . '</div>'
         . '<h2 style="font-size:18px;margin:22px 0 8px">Items reserved</h2>'
         . '<ul style="padding-left:20px;margin:0 0 18px;color:#202124;line-height:1.55">' . $itemRows . '</ul>'
+        . rental_delivery_policy_html()
         . '<h2 style="font-size:18px;margin:22px 0 8px">Pickup instructions</h2>'
-        . '<p style="font-size:15px;line-height:1.55;margin:0">Please review the pickup details below. Bring a valid ID and your order confirmation when picking up the equipment.</p>'
+        . '<p style="font-size:15px;line-height:1.55;margin:0">Please review the pickup and delivery details below. Bring a valid ID and your order confirmation when receiving or returning the equipment.</p>'
         . rental_pickup_details_html()
         . '<p style="font-size:15px;line-height:1.55;margin:22px 0 0">If you have any questions before pickup, reply to this email and we will help you.</p>'
         . '<p style="font-size:15px;line-height:1.55;margin:18px 0 0">— Ardi Rent & Service</p>'
@@ -139,7 +160,8 @@ function rental_send_customer_email(array $reservation, array $items): bool
         . "Rental dates: {$startDate} to {$endDate}\n"
         . "Items: " . ($plainItems !== '' ? $plainItems : 'Rental equipment') . "\n"
         . "Total paid: {$total}\n\n"
-        . "Pickup instructions:\n"
+        . rental_delivery_policy_plain()
+        . "\nPickup instructions:\n"
         . strip_tags(str_replace(['</li>', '<br>', '<br/>', '<br />'], "\n", rental_pickup_details_html()))
         . "\n\nReply to this email if you have questions.\n";
 
