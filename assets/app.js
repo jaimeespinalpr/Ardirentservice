@@ -3014,7 +3014,7 @@ const rentalCopy = {
     itemStartLabel: "Start",
     itemEndLabel: "End",
     payButtonStripe: "Pay with Stripe",
-    payButtonCash: "Request by WhatsApp",
+    payButtonCash: "Reserve (Cash)",
     statusSelectDates: "Select your dates to unlock rentals.",
     statusPerItemMode: "Per-item dates mode is on. Set dates directly on each item.",
     statusPerItemStripe:
@@ -3025,9 +3025,9 @@ const rentalCopy = {
     statusBackendMissing:
       "Stripe mode needs PHP hosting and STRIPE_SECRET_KEY configured on your server.",
     statusCashMode:
-      "Online payment is being configured. Send your request and Ardi Rent & Service will confirm by WhatsApp.",
+      "Cash demo mode is active. Reservations are saved in this browser for now.",
     statusConfirmed:
-      "Reservation request ready. Opening WhatsApp so Ardi Rent & Service can confirm availability.",
+      "Cash reservation confirmed. Your selected dates are now blocked for those items.",
     statusRedirecting: "Redirecting to Stripe Checkout...",
     statusStripeError:
       "Stripe test mode is active. Configure STRIPE_SECRET_KEY with an sk_test key.",
@@ -3089,7 +3089,7 @@ const rentalCopy = {
     itemStartLabel: "Inicio",
     itemEndLabel: "Fin",
     payButtonStripe: "Pagar con Stripe",
-    payButtonCash: "Solicitar por WhatsApp",
+    payButtonCash: "Reservar en efectivo",
     statusSelectDates: "Selecciona fechas para desbloquear alquileres.",
     statusPerItemMode: "Modo por artículo activo. Define fechas directamente en cada equipo.",
     statusPerItemStripe:
@@ -3100,9 +3100,9 @@ const rentalCopy = {
     statusBackendMissing:
       "El modo Stripe requiere hosting con PHP y STRIPE_SECRET_KEY configurado en el servidor.",
     statusCashMode:
-      "El pago en línea se está configurando. Envía tu solicitud y Ardi Rent & Service confirmará por WhatsApp.",
+      "Modo demostración en efectivo activo. Las reservas se guardan en este navegador por ahora.",
     statusConfirmed:
-      "Solicitud de reserva lista. Abriendo WhatsApp para que Ardi Rent & Service confirme disponibilidad.",
+      "Reserva en efectivo confirmada. Esas fechas ya quedaron bloqueadas para esos equipos.",
     statusRedirecting: "Redirigiendo a Stripe Checkout...",
     statusStripeError:
       "Stripe esta en modo de prueba. Configura STRIPE_SECRET_KEY con una clave sk_test.",
@@ -3841,16 +3841,6 @@ const setupRentalSystem = () => {
       });
       saveReservations(reservations);
 
-      const whatsappLines = [
-        state.lang === "es" ? "Hola, quiero solicitar una reserva de equipo:" : "Hi, I want to request an equipment reservation:",
-        ...selectedRanges.map((entry) => `- ${entry.item.title}: ${entry.range.start} - ${entry.range.end}`),
-        `Total: ${currency.format(selectedRanges.reduce((sum, entry) => sum + entry.item.rateCents * entry.range.days, 0) / 100)}`,
-        `Name: ${checkoutName.value.trim()}`,
-        `Email: ${checkoutEmail.value.trim()}`,
-        checkoutPhone.value.trim() ? `Phone: ${checkoutPhone.value.trim()}` : "",
-      ].filter(Boolean);
-      const whatsappUrl = `https://wa.me/19393661442?text=${encodeURIComponent(whatsappLines.join("\n"))}`;
-
       state.selectedIds.clear();
       if (state.sameDatesForAll && isValidDateRange()) {
         state.unavailable = new Set(
@@ -3864,7 +3854,6 @@ const setupRentalSystem = () => {
       setStatus(copy().statusConfirmed, "success");
       renderCardStates();
       renderCart();
-      window.location.href = whatsappUrl;
     } catch (error) {
       setStatus(copy().statusError, "error");
     } finally {
