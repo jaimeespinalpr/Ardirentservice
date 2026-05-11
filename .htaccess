@@ -1,0 +1,11 @@
+# Ardi Rent & Service static site controls
+# Keep apex and www from serving stale HTML/assets after deploys.
+DirectoryIndex index.html
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|css|js|json)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+</IfModule>
