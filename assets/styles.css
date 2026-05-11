@@ -10,6 +10,8 @@
   --accent: #000000;
   --accent-2: #111111;
   --accent-3: #2a2a2a;
+  --accent-warm: #c8a24a;
+  --accent-warm-soft: rgba(200, 162, 74, 0.18);
   --shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
   --radius: 24px;
   --container: 1160px;
@@ -28,9 +30,9 @@ body {
   font-family: "Manrope", system-ui, sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at 15% 10%, rgba(0, 0, 0, 0.05), transparent 24%),
-    radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.04), transparent 22%),
-    linear-gradient(180deg, #ffffff 0%, #f1f1f1 100%);
+    radial-gradient(circle at 15% 10%, rgba(0, 0, 0, 0.06), transparent 24%),
+    radial-gradient(circle at 82% 18%, var(--accent-warm-soft), transparent 24%),
+    linear-gradient(180deg, #ffffff 0%, #eeeeee 100%);
   min-height: 100vh;
 }
 
@@ -282,7 +284,10 @@ a {
 
 .button-primary {
   color: #ffffff;
-  background: linear-gradient(135deg, #000000, #333333);
+  background:
+    linear-gradient(135deg, rgba(200, 162, 74, 0.2), transparent 38%),
+    linear-gradient(135deg, #000000, #242424);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
 }
 
 .button-secondary,
@@ -335,6 +340,7 @@ a {
   margin: 0 0 1rem;
   color: #000;
   font-weight: 800;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.78rem;
@@ -375,7 +381,49 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   gap: 0.9rem;
-  margin: 2rem 0;
+  margin: 2rem 0 1rem;
+}
+
+.trust-strip {
+  list-style: none;
+  padding: 0.72rem;
+  margin: 0 0 1.8rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(200, 162, 74, 0.16), transparent 34%),
+    rgba(0, 0, 0, 0.94);
+  color: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.trust-strip li {
+  display: flex;
+  align-items: center;
+  gap: 0.48rem;
+  min-height: 2.8rem;
+  padding: 0.65rem 0.72rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.83rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.trust-strip li::before {
+  content: "✓";
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  background: var(--accent-warm);
+  color: #000000;
+  font-size: 0.78rem;
 }
 
 .stats {
@@ -412,8 +460,53 @@ h1 {
   position: relative;
   overflow: hidden;
   border-radius: var(--radius);
-  background: linear-gradient(180deg, #111111, #000000);
+  background:
+    radial-gradient(circle at 25% 12%, rgba(200, 162, 74, 0.18), transparent 26%),
+    linear-gradient(180deg, #111111, #000000);
   min-height: 100%;
+}
+
+.hero-card-visual {
+  display: grid;
+  grid-template-rows: minmax(260px, 0.95fr) auto;
+}
+
+.hero-gear-visual {
+  position: relative;
+  min-height: 310px;
+  margin: 0;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.78)),
+    #050505;
+}
+
+.hero-gear-visual img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 310px;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.92;
+  mix-blend-mode: screen;
+  filter: contrast(1.05) saturate(0.92);
+}
+
+.hero-gear-visual figcaption {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 1;
+  padding: 0.42rem 0.72rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.68);
+  color: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  backdrop-filter: blur(10px);
 }
 
 .card-glow {
@@ -544,7 +637,7 @@ h1 {
   padding: 1.75rem;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: var(--shadow);
 }
 
@@ -687,6 +780,7 @@ h1 {
 
 .feature-grid,
 .equipment-grid,
+.home-featured-grid,
 .vision-grid {
   display: grid;
   gap: 1rem;
@@ -695,6 +789,7 @@ h1 {
 
 .feature-card,
 .equipment-card,
+.featured-equipment-card,
 .vision-card,
 .process-panel,
 .contact-card,
@@ -706,6 +801,7 @@ h1 {
 
 .feature-card h3,
 .equipment-card h3,
+.featured-equipment-card h3,
 .process-panel h3,
 .contact-card h3 {
   margin-bottom: 0.8rem;
@@ -713,10 +809,48 @@ h1 {
 
 .feature-card p,
 .equipment-card p,
+.featured-equipment-card p,
 .process-panel span,
 .contact-card a,
 .site-footer p {
   color: var(--muted);
+}
+
+
+.home-featured {
+  padding-top: 1rem;
+}
+
+.home-featured-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.featured-equipment-card {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  gap: 0.72rem;
+  overflow: hidden;
+}
+
+.featured-equipment-card img {
+  display: block;
+  width: calc(100% + 3rem);
+  max-width: none;
+  height: 12.5rem;
+  margin: -1.5rem -1.5rem 0;
+  object-fit: cover;
+  background: #eeeeee;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.featured-equipment-card .fleet-tag {
+  margin: 0.1rem 0 0;
+}
+
+.featured-equipment-card h3,
+.featured-equipment-card p {
+  margin-bottom: 0;
 }
 
 .feature-card-link {
@@ -1797,6 +1931,52 @@ body.is-rental-cart-open {
   border-color: rgba(0, 0, 0, 0.32);
 }
 
+
+.whatsapp-float {
+  position: fixed;
+  right: 1.1rem;
+  bottom: 1.1rem;
+  z-index: 35;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.82rem 1rem;
+  border-radius: 999px;
+  color: #ffffff;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 42%),
+    #111111;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.whatsapp-float:hover,
+.whatsapp-float:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.34);
+  background:
+    linear-gradient(135deg, rgba(200, 162, 74, 0.28), transparent 44%),
+    #000000;
+}
+
+.whatsapp-float span {
+  display: inline-grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  color: #000000;
+  background: #25d366;
+  font-size: 1rem;
+  line-height: 1;
+}
+
 .site-footer {
   padding: 1.5rem 0 2.25rem;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
@@ -1897,6 +2077,7 @@ body.is-rental-cart-open {
     display: none;
   }
 
+  .trust-strip,
   .hero-grid,
   .production-grid,
   .contact-grid,
@@ -1907,6 +2088,7 @@ body.is-rental-cart-open {
   .split-grid,
   .feature-grid,
   .equipment-grid,
+  .home-featured-grid,
   .lens-grid,
   .vision-grid,
   .inventory-strip,
@@ -2035,4 +2217,15 @@ body.is-rental-cart-open {
   .menu-toggle-label {
     display: none;
   }
+
+  .whatsapp-float {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    padding: 0.72rem;
+  }
+
+  .whatsapp-float strong {
+    display: none;
+  }
 }
+

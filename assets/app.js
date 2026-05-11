@@ -19,11 +19,13 @@ const translations = {
     },
     hero: {
       eyebrow: "Camera rentals and creative production",
-      title: "Professional gear, visual storytelling, and production support in one place.",
+      title: "Camera rentals and production support in Puerto Rico.",
       lead:
-        "Ardi Rent & Service LLC is built for photography, video, podcasts, live streaming, and high-end audiovisual production. The business combines equipment rental, creative services, and lead generation into a scalable operation.",
-      primary: "Request availability",
+        "Rent reliable Sony cameras, lenses, stabilization, and audio gear with fast local support for photo, video, podcast, livestream, and event productions.",
+      primary: "Check availability",
       secondary: "Explore inventory",
+      trustAria: "Rental trust highlights",
+      trust: ["Same-day response", "Puerto Rico service", "Pickup / delivery", "Secure deposit / payment"],
       statsAria: "Key highlights",
       stats: [
         ["Camera-ready", "Sony bodies, cinema camcorder, action cameras"],
@@ -38,6 +40,17 @@ const translations = {
         ["Response time", "Same day"],
         ["Coverage", "Islandwide service"],
         ["Delivery", "Pickup or on-site dropoff"],
+      ],
+    },
+    featuredHome: {
+      eyebrow: "Featured rentals",
+      title: "Popular gear ready for your next production.",
+      desc: "Start with proven camera bodies, lenses, stabilization, and audio tools from the live inventory.",
+      cards: [
+        ["Video-first", "Sony a7S III", "Cinematic low-light camera body for interviews, events, and branded content."],
+        ["Lens", "Sigma 24-70mm f/2.8 DG DN II Art", "Fast standard zoom for portraits, events, studio work, and flexible run-and-gun shoots."],
+        ["Stabilization", "DJI Ronin SC", "Compact gimbal support for smooth movement, social content, and production B-roll."],
+        ["Audio", "DJI Mic Mini", "Wireless microphone kit for interviews, podcasts, creator shoots, and mobile productions."],
       ],
     },
     split: {
@@ -430,6 +443,7 @@ const translations = {
         follow: "Follow on Instagram",
       },
     },
+    whatsappFloat: "Chat on WhatsApp",
     footer: "Camera rentals, production services, and visual storytelling.",
   },
   es: {
@@ -452,11 +466,13 @@ const translations = {
     },
     hero: {
       eyebrow: "Alquiler de cámaras y producción creativa",
-      title: "Equipo profesional, narrativa visual y soporte de producción en un solo lugar.",
+      title: "Alquiler de cámaras y soporte de producción en Puerto Rico.",
       lead:
-        "Ardi Rent & Service LLC está pensado para fotografía, video, podcasts, transmisiones en vivo y producción audiovisual de alto nivel. El negocio combina alquiler de equipo, servicios creativos y generación de clientes en una operación escalable.",
-      primary: "Consultar disponibilidad",
+        "Renta cámaras Sony, lentes, estabilización y audio con soporte local rápido para fotografía, video, podcasts, livestreams y eventos.",
+      primary: "Ver disponibilidad",
       secondary: "Ver inventario",
+      trustAria: "Puntos de confianza para alquiler",
+      trust: ["Respuesta el mismo dia", "Servicio en Puerto Rico", "Recogido / entrega", "Deposito / pago seguro"],
       statsAria: "Puntos clave",
       stats: [
         ["Listo para cámara", "Cuerpos Sony, camcorder de cine, cámaras de acción"],
@@ -471,6 +487,17 @@ const translations = {
         ["Tiempo de respuesta", "El mismo dia"],
         ["Cobertura", "Servicio en toda la isla"],
         ["Entrega", "Recogido o entrega en locacion"],
+      ],
+    },
+    featuredHome: {
+      eyebrow: "Alquileres destacados",
+      title: "Equipo popular listo para tu próxima producción.",
+      desc: "Empieza con cámaras, lentes, estabilización y audio del inventario real disponible.",
+      cards: [
+        ["Video", "Sony a7S III", "Cuerpo de cámara cinematográfico para entrevistas, eventos y contenido de marca."],
+        ["Lente", "Sigma 24-70mm f/2.8 DG DN II Art", "Zoom estándar rápido para retratos, eventos, estudio y rodajes flexibles."],
+        ["Estabilización", "DJI Ronin SC", "Gimbal compacto para movimiento suave, contenido social y B-roll de producción."],
+        ["Audio", "DJI Mic Mini", "Micrófono inalámbrico para entrevistas, podcasts, creadores y producciones móviles."],
       ],
     },
     split: {
@@ -1090,6 +1117,7 @@ const translations = {
         follow: "Seguir en Instagram",
       },
     },
+    whatsappFloat: "Escribir por WhatsApp",
     footer: "Alquiler de cámaras, servicios de producción y narrativa visual.",
   },
 };
@@ -1306,6 +1334,15 @@ const applyCopy = (lang) => {
   setText(".hero .button-primary", copy.hero.primary);
   setText(".hero .button-secondary", copy.hero.secondary);
   document
+    .querySelector(".hero .trust-strip")
+    ?.setAttribute("aria-label", copy.hero.trustAria || "Rental trust highlights");
+
+  const trustItems = document.querySelectorAll(".hero .trust-strip li");
+  trustItems.forEach((item, index) => {
+    if (copy.hero.trust?.[index]) item.textContent = copy.hero.trust[index];
+  });
+
+  document
     .querySelector(".hero .stats")
     ?.setAttribute("aria-label", copy.hero.statsAria || "Key highlights");
 
@@ -1333,6 +1370,21 @@ const applyCopy = (lang) => {
     const strong = item.querySelector("strong");
     if (span) span.textContent = label;
     if (strong) strong.textContent = value;
+  });
+
+  setText("#home-featured .section-heading .eyebrow", copy.featuredHome?.eyebrow || "Featured rentals");
+  setText("#home-featured .section-heading h2", copy.featuredHome?.title || "Popular gear ready for your next production.");
+  setText("#home-featured .section-heading p:not(.eyebrow)", copy.featuredHome?.desc || "Start with proven camera bodies, lenses, stabilization, and audio tools from the live inventory.");
+  document.querySelectorAll("#home-featured .featured-equipment-card").forEach((item, index) => {
+    const card = copy.featuredHome?.cards?.[index];
+    if (!card) return;
+    const [tagText, titleText, bodyText] = card;
+    const tag = item.querySelector(".fleet-tag");
+    const title = item.querySelector("h3");
+    const text = item.querySelector("p");
+    if (tag) tag.textContent = tagText;
+    if (title) title.textContent = titleText;
+    if (text) text.textContent = bodyText;
   });
 
   const splitCards = document.querySelectorAll(".section-split .split-card");
@@ -1582,6 +1634,12 @@ const applyCopy = (lang) => {
   }
 
   setText(".site-footer p:last-child", copy.footer);
+  const whatsappFloat = document.querySelector(".whatsapp-float");
+  if (whatsappFloat && copy.whatsappFloat) {
+    whatsappFloat.setAttribute("aria-label", copy.whatsappFloat);
+    const label = whatsappFloat.querySelector("strong");
+    if (label) label.textContent = copy.whatsappFloat;
+  }
 
   document.querySelectorAll(".lang-button").forEach((button) => {
     const active = button.dataset.lang === lang;
