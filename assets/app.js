@@ -2825,9 +2825,8 @@ const setupInstagramCarousel = () => {
   let activeIndex = 0;
   let animationFrame = 0;
   let lastFrameTime = 0;
-  let pausedByImageHover = false;
   let loopWidth = 0;
-  const autoScrollSpeed = 0.035;
+  const autoScrollSpeed = 0.07;
 
   const stop = () => {
     if (animationFrame) window.cancelAnimationFrame(animationFrame);
@@ -2840,7 +2839,7 @@ const setupInstagramCarousel = () => {
     const delta = Math.min(timestamp - lastFrameTime, 64);
     lastFrameTime = timestamp;
 
-    if (!pausedByImageHover && slides.length > 1) {
+    if (slides.length > 1) {
       track.scrollLeft += delta * autoScrollSpeed;
       if (loopWidth > 0 && track.scrollLeft >= loopWidth) {
         track.scrollLeft -= loopWidth;
@@ -2920,13 +2919,6 @@ const setupInstagramCarousel = () => {
       img.decoding = "async";
       img.alt = "Instagram post";
       img.src = post.image;
-      img.addEventListener("mouseenter", () => {
-        pausedByImageHover = true;
-      });
-      img.addEventListener("mouseleave", () => {
-        pausedByImageHover = false;
-      });
-
       const caption = document.createElement("p");
       caption.className = "ig-caption";
       const text = (post.caption || "").trim();
