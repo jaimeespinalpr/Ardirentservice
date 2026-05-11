@@ -2826,7 +2826,18 @@ const setupInstagramCarousel = () => {
   let animationFrame = 0;
   let lastFrameTime = 0;
   let loopWidth = 0;
-  const autoScrollSpeed = 0.07;
+  let marqueeOffset = 0;
+  const marqueeSpeed = 0.06;
+
+  const applyMarqueeTransform = () => {
+    track.style.transform = `translate3d(${-marqueeOffset}px, 0, 0)`;
+  };
+
+  const normalizeOffset = () => {
+    if (loopWidth > 0) {
+      marqueeOffset = ((marqueeOffset % loopWidth) + loopWidth) % loopWidth;
+    }
+  };
 
   const stop = () => {
     if (animationFrame) window.cancelAnimationFrame(animationFrame);
@@ -2834,16 +2845,31 @@ const setupInstagramCarousel = () => {
     lastFrameTime = 0;
   };
 
+  const setActiveFromOffset = () => {
+    if (!slides.length || !loopWidth) return;
+    let best = 0;
+    let bestDist = Infinity;
+    const normalized = ((marqueeOffset % loopWidth) + loopWidth) % loopWidth;
+    slides.slice(0, dots.length).forEach((slide, index) => {
+      const dist = Math.abs(slide.offsetLeft - normalized);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = index;
+      }
+    });
+    setActive(best);
+  };
+
   const autoScroll = (timestamp) => {
     if (!lastFrameTime) lastFrameTime = timestamp;
     const delta = Math.min(timestamp - lastFrameTime, 64);
     lastFrameTime = timestamp;
 
-    if (slides.length > 1) {
-      track.scrollLeft += delta * autoScrollSpeed;
-      if (loopWidth > 0 && track.scrollLeft >= loopWidth) {
-        track.scrollLeft -= loopWidth;
-      }
+    if (slides.length > 1 && loopWidth > 0) {
+      marqueeOffset += delta * marqueeSpeed;
+      normalizeOffset();
+      applyMarqueeTransform();
+      setActiveFromOffset();
     }
 
     animationFrame = window.requestAnimationFrame(autoScroll);
@@ -2855,15 +2881,18 @@ const setupInstagramCarousel = () => {
   };
 
   const setActive = (index) => {
-    activeIndex = Math.max(0, Math.min(index, Math.max(slides.length - 1, 0)));
+    activeIndex = Math.max(0, Math.min(index, Math.max(dots.length - 1, 0)));
     dots.forEach((dot, i) => dot.classList.toggle("is-active", i === activeIndex));
   };
 
   const go = (index) => {
     if (dots.length === 0) return;
     const nextIndex = (index + dots.length) % dots.length;
-    slides[nextIndex]?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+    marqueeOffset = slides[nextIndex]?.offsetLeft || 0;
+    normalizeOffset();
+    applyMarqueeTransform();
     setActive(nextIndex);
+    start();
   };
 
   const buildDots = (count) => {
@@ -2873,36 +2902,28 @@ const setupInstagramCarousel = () => {
       const dot = document.createElement("button");
       dot.type = "button";
       dot.className = "ig-dot";
-      dot.addEventListener("click", () => {
-        go(i);
-        start();
-      });
+      dot.addEventListener("click", () => go(i));
       dotsWrap.appendChild(dot);
       dots.push(dot);
     }
     setActive(0);
   };
 
-  const onScroll = () => {
-    if (slides.length === 0) return;
-    const left = track.scrollLeft;
-    let best = 0;
-    let bestDist = Infinity;
-    slides.forEach((slide) => {
-      const dist = Math.abs(slide.offsetLeft - left);
-      if (dist < bestDist) {
-        bestDist = dist;
-        best = Number.parseInt(slide.dataset.igIndex || "0", 10) || 0;
-      }
-    });
-    setActive(best);
+  const measureLoop = () => {
+    const originalCount = dots.length;
+    loopWidth = originalCount > 1 && slides[originalCount] ? slides[originalCount].offsetLeft : 0;
+    normalizeOffset();
+    applyMarqueeTransform();
   };
 
   const render = (posts) => {
     stop();
     track.innerHTML = "";
+    track.style.transform = "translate3d(0, 0, 0)";
+    marqueeOffset = 0;
+    loopWidth = 0;
     slides = [];
-    const visiblePosts = posts.length > 1 ? [...posts, ...posts] : posts;
+    const visiblePosts = posts.length > 1 ? [...posts, ...posts, ...posts] : posts;
     visiblePosts.forEach((post, index) => {
       const slide = document.createElement("div");
       slide.className = "ig-slide";
@@ -2919,6 +2940,7 @@ const setupInstagramCarousel = () => {
       img.decoding = "async";
       img.alt = "Instagram post";
       img.src = post.image;
+
       const caption = document.createElement("p");
       caption.className = "ig-caption";
       const text = (post.caption || "").trim();
@@ -2932,24 +2954,16 @@ const setupInstagramCarousel = () => {
     });
 
     buildDots(posts.length);
+    root.classList.add("is-marquee-ready");
     window.requestAnimationFrame(() => {
-      loopWidth = posts.length > 1 && slides[posts.length] ? slides[posts.length].offsetLeft : 0;
+      measureLoop();
       if (slides.length > 1) start();
     });
   };
 
-  prev.addEventListener("click", () => {
-    go(activeIndex - 1);
-    start();
-  });
-  next.addEventListener("click", () => {
-    go(activeIndex + 1);
-    start();
-  });
-
-  track.addEventListener("scroll", () => {
-    window.requestAnimationFrame(onScroll);
-  });
+  prev.addEventListener("click", () => go(activeIndex - 1));
+  next.addEventListener("click", () => go(activeIndex + 1));
+  window.addEventListener("resize", () => window.requestAnimationFrame(measureLoop));
 
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) stop();

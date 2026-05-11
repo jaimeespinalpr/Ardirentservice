@@ -1441,6 +1441,7 @@ body.is-modal-open {
   margin-top: 1rem;
   padding: 1rem;
   border-radius: 22px;
+  overflow: hidden;
   background: linear-gradient(180deg, #ffffff, #f2f2f2);
   border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: var(--shadow);
@@ -1449,14 +1450,16 @@ body.is-modal-open {
 .ig-track {
   display: flex;
   gap: 0.9rem;
-  overflow-x: auto;
+  overflow: visible;
   scroll-padding: 0.9rem;
   padding: 0.5rem 0.25rem 0.75rem;
-  -webkit-overflow-scrolling: touch;
+  width: max-content;
+  will-change: transform;
 }
 
 .ig-slide {
   flex: 0 0 min(76vw, 380px);
+  width: min(76vw, 380px);
 }
 
 .ig-card {
