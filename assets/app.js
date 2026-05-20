@@ -56,21 +56,28 @@ const translations = {
     },
     about: {
       eyebrow: "About us",
-      title: "Sports background and transition into audiovisual production.",
+      title: "Ardiel Jimenez brings surf, image-making, and production together.",
       lead1:
-        "In 2011, he won the ISA DK World Championship, a milestone that marked an important chapter in his athletic career. That experience helped shape his discipline, focus, and ability to perform under pressure.",
+        "Public profiles and surf coverage show Ardiel as a creative rooted in the Canary Islands, with a strong connection to the water and a sharp eye for photography, cinema, music, and travel. That background helps explain why Ardi Rent & Service feels like both a rental company and a visual studio.",
       lead2:
-        "After achieving success in sports, he decided to fully shift his energy into audiovisual production, bringing with him the same competitive mindset, dedication, and attention to detail that defined him as an athlete.",
+        "The story behind the brand is simple: Ardiel understands motion, timing, and live visual work. In surf imagery and public profile photos, he appears both as a subject and as a storyteller, which matches the way this business combines gear rental with hands-on production support.",
       facts: [
         ["Origin", "Maspalomas, Gran Canaria (Canary Islands)"],
         ["Current base", "Puerto Rico"],
         ["Profile", "Pro bodyboarder, photographer, camera operator, audiovisual creator"],
       ],
       portraitCaption: "Public profile portrait",
-      actionCaption: "ISA DK World Championship, 2011",
+      actionCaption: "BRIAN TOTH TUBAZO",
       quote:
         "After competing around the world, I chose to tell stories from behind the camera.",
       quoteSource: "Ardi Rent & Service",
+      sportsEyebrow: "Sports background",
+      sportsTitle: "Sports Background & Transition into Audiovisual Production",
+      sportsLead1:
+        "In 2011, he won the ISA DK World Championship, a milestone that marked an important chapter in his athletic career. That experience helped shape his discipline, focus, and ability to perform under pressure.",
+      sportsLead2:
+        "After achieving success in sports, he decided to fully shift his energy into audiovisual production, bringing with him the same competitive mindset, dedication, and attention to detail that defined him as an athlete.",
+      sportsCaption: "ISA DK World Championship, 2011",
     },
     projects: {
       eyebrow: "Projects & achievements",
@@ -489,21 +496,28 @@ const translations = {
     },
     about: {
       eyebrow: "Acerca de nosotros",
-      title: "Deporte y transición hacia la producción audiovisual.",
+      title: "Ardiel Jiménez une surf, imagen y producción.",
       lead1:
-        "En 2011 ganó el Campeonato Mundial DK ISA, un logro que marcó una etapa importante en su carrera atlética. Esa experiencia ayudó a formar su disciplina, enfoque y capacidad para rendir bajo presión.",
+        "Los perfiles públicos y la cobertura de surf muestran a Ardiel como un creativo arraigado en las Islas Canarias, con una relación fuerte con el mar y una mirada aguda para la fotografía, el cine, la música y los viajes. Ese trasfondo ayuda a explicar por qué Ardi Rent & Service se siente tanto como una empresa de alquiler como un estudio visual.",
       lead2:
-        "Después de alcanzar éxito en el deporte, decidió enfocar por completo su energía en la producción audiovisual, llevando consigo la misma mentalidad competitiva, dedicación y atención al detalle que lo definieron como atleta.",
+        "La historia detrás de la marca es simple: Ardiel entiende el movimiento, el tiempo y el trabajo visual en vivo. En imágenes de surf y fotos de perfil público aparece tanto como sujeto como narrador, lo que encaja con la manera en que este negocio combina alquiler de equipo con apoyo práctico de producción.",
       facts: [
         ["Origen", "Maspalomas, Gran Canaria (Islas Canarias)"],
         ["Residencia actual", "Puerto Rico"],
         ["Perfil", "Bodyboarder profesional, fotografo, camara y realizador audiovisual"],
       ],
       portraitCaption: "Retrato de perfil público",
-      actionCaption: "Campeonato Mundial DK ISA, 2011",
+      actionCaption: "BRIAN TOTH TUBAZO",
       quote:
         "Después de competir por el mundo, elegí contar historias desde detrás de la cámara.",
       quoteSource: "Ardi Rent & Service",
+      sportsEyebrow: "Trasfondo deportivo",
+      sportsTitle: "Trasfondo deportivo y transición hacia la producción audiovisual",
+      sportsLead1:
+        "En 2011 ganó el Campeonato Mundial DK ISA, un logro que marcó una etapa importante en su carrera atlética. Esa experiencia ayudó a formar su disciplina, enfoque y capacidad para rendir bajo presión.",
+      sportsLead2:
+        "Después de alcanzar éxito en el deporte, decidió enfocar por completo su energía en la producción audiovisual, llevando consigo la misma mentalidad competitiva, dedicación y atención al detalle que lo definieron como atleta.",
+      sportsCaption: "Campeonato Mundial DK ISA, 2011",
     },
     projects: {
       eyebrow: "Proyectos y logros",
@@ -1370,6 +1384,13 @@ const applyCopy = (lang) => {
   if (aboutCaptions[1]) aboutCaptions[1].textContent = copy.about.actionCaption;
   setText("#about .about-quote p", copy.about.quote);
   setText("#about .about-quote span", copy.about.quoteSource);
+
+  setText("#about-transition [data-about-transition='eyebrow']", copy.about.sportsEyebrow);
+  setText("#about-transition [data-about-transition='title']", copy.about.sportsTitle);
+  const aboutTransitionParagraphs = document.querySelectorAll("#about-transition [data-about-transition^='lead']");
+  if (aboutTransitionParagraphs[0]) aboutTransitionParagraphs[0].textContent = copy.about.sportsLead1;
+  if (aboutTransitionParagraphs[1]) aboutTransitionParagraphs[1].textContent = copy.about.sportsLead2;
+  setText("#about-transition [data-about-transition='caption']", copy.about.sportsCaption);
 
   setText("#projects .section-heading .eyebrow", copy.projects.eyebrow);
   setText("#projects .section-heading h2", copy.projects.title);
