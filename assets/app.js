@@ -3233,9 +3233,8 @@ const setupRentalSystem = () => {
   const checkoutDateStart = checkoutDatesPanel.querySelector("[data-rental-checkout-start]");
   const checkoutDateEnd = checkoutDatesPanel.querySelector("[data-rental-checkout-end]");
   const checkoutDateUpdate = checkoutDatesPanel.querySelector("[data-rental-checkout-update]");
-  const cartSummaryCard = root.querySelector(".rental-cart-summary-card");
-  if (cartSummaryCard && checkoutDateStart && checkoutDateEnd && checkoutDateUpdate) {
-    cartSummaryCard.insertBefore(checkoutDatesPanel, cartList);
+  if (checkoutDateStart && checkoutDateEnd && checkoutDateUpdate) {
+    statusNode.after(checkoutDatesPanel);
   }
 
   const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
@@ -3501,7 +3500,10 @@ const setupRentalSystem = () => {
       cartToggle.setAttribute("aria-expanded", state.cartExpanded ? "true" : "false");
     }
 
-    checkoutDatesPanel.classList.toggle("is-hidden", !state.sameDatesForAll || selectedCount === 0);
+    checkoutDatesPanel.classList.toggle(
+      "is-hidden",
+      !state.sharedDateDecisionMade || !state.sameDatesForAll
+    );
     if (checkoutDateStart && checkoutDateEnd) {
       checkoutDateStart.value = startInput.value;
       checkoutDateEnd.value = endInput.value;
