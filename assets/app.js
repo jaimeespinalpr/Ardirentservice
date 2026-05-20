@@ -3069,7 +3069,7 @@ const rentalCopy = {
       "Per-item dates need cash mode for now. Stripe mode only supports one date range for all items.",
     statusChecking: "Checking availability...",
     statusReady: "Availability updated. Add available gear to your cart.",
-    statusUnavailable: "Some items are not available for these dates.",
+    statusUnavailable: "Some items are already reserved for these dates.",
     statusBackendMissing:
       "Stripe mode needs PHP hosting and STRIPE_SECRET_KEY configured on your server.",
     statusCashMode:
@@ -3084,7 +3084,7 @@ const rentalCopy = {
     statusError: "We could not process that request. Please try again.",
     badgeLocked: "Select dates",
     badgeAvailable: "Available",
-    badgeUnavailable: "Not available",
+    badgeUnavailable: "Booked",
     buttonAdd: "Add",
     buttonRemove: "Remove",
     buttonUnavailable: "Unavailable",
@@ -3149,7 +3149,7 @@ const rentalCopy = {
       "Las fechas por artículo requieren modo en efectivo por ahora. Stripe solo acepta una fecha para todos.",
     statusChecking: "Verificando disponibilidad...",
     statusReady: "Disponibilidad actualizada. Agrega equipos disponibles al carrito.",
-    statusUnavailable: "Algunos equipos no están disponibles en esas fechas.",
+    statusUnavailable: "Algunos equipos ya están reservados para esas fechas.",
     statusBackendMissing:
       "El modo Stripe requiere hosting con PHP y STRIPE_SECRET_KEY configurado en el servidor.",
     statusCashMode:
@@ -3164,7 +3164,7 @@ const rentalCopy = {
     statusError: "No se pudo procesar la solicitud. Intenta otra vez.",
     badgeLocked: "Elige fechas",
     badgeAvailable: "Disponible",
-    badgeUnavailable: "No disponible",
+    badgeUnavailable: "Reservado",
     buttonAdd: "Agregar",
     buttonRemove: "Quitar",
     buttonUnavailable: "No disponible",
@@ -3449,12 +3449,17 @@ const setupRentalSystem = () => {
       const selected = state.selectedIds.has(item.id);
       const locked = !hasRange;
       const canEditSharedDates = state.sharedDateDecisionMade && state.sameDatesForAll;
-      const showItemDates = !state.sharedDateDecisionMade || !state.sameDatesForAll || state.editingDateIds.has(item.id);
+      const showItemDates =
+        !state.sharedDateDecisionMade ||
+        !state.sameDatesForAll ||
+        state.editingDateIds.has(item.id) ||
+        unavailable;
 
-      item.card.classList.toggle("is-unavailable", unavailable);
+      item.card.classList.toggle("is-reserved", unavailable);
       item.card.classList.toggle("is-selected", selected);
       item.wrapper.classList.toggle("has-item-dates", showItemDates);
       item.itemDates.classList.toggle("is-visible", showItemDates);
+      item.itemDates.classList.toggle("has-conflict", unavailable);
       item.dateEditButton.textContent = text.buttonChangeDates;
       item.dateEditButton.classList.toggle("is-visible", canEditSharedDates);
       item.dateEditButton.disabled = state.checking;
@@ -3470,10 +3475,11 @@ const setupRentalSystem = () => {
       item.badge.textContent = unavailable ? text.badgeUnavailable : text.badgeAvailable;
       item.badge.classList.toggle("available", !unavailable);
       item.badge.classList.toggle("unavailable", unavailable);
+      item.badge.classList.toggle("reserved", unavailable);
 
       if (unavailable) {
-        item.button.textContent = text.buttonUnavailable;
-        item.button.disabled = true;
+        item.button.textContent = text.buttonChangeDates;
+        item.button.disabled = state.checking;
       } else {
         item.button.textContent = selected ? text.buttonRemove : text.buttonAdd;
         item.button.disabled = state.checking;
@@ -4196,7 +4202,14 @@ const setupRentalSystem = () => {
         return;
       }
       const range = itemRange(item);
-      if (!state.datesReady || !range || state.unavailable.has(item.id)) return;
+      if (state.unavailable.has(item.id)) {
+        state.editingDateIds.add(item.id);
+        syncItemEditorToSharedDates(item);
+        renderCardStates();
+        item.itemStart.focus();
+        return;
+      }
+      if (!state.datesReady || !range) return;
       if (state.selectedIds.has(item.id)) {
         state.selectedIds.delete(item.id);
       } else {

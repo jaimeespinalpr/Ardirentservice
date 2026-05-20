@@ -1733,6 +1733,12 @@ body.is-rental-cart-open {
   display: grid;
 }
 
+.rental-item-dates.has-conflict .field input {
+  border-color: rgba(150, 0, 0, 0.34);
+  background: rgba(255, 236, 236, 0.98);
+  box-shadow: 0 0 0 3px rgba(160, 0, 0, 0.07);
+}
+
 .rental-date-edit-button {
   display: none;
   justify-self: start;
@@ -1850,7 +1856,8 @@ body.is-rental-cart-open {
   cursor: not-allowed;
 }
 
-.equipment-card.is-unavailable {
+.equipment-card.is-unavailable,
+.equipment-card.is-reserved {
   opacity: 0.6;
 }
 
