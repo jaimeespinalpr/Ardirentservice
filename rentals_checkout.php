@@ -57,6 +57,7 @@ foreach ($items as $item) {
 
 $form = [
     'mode' => 'payment',
+    'payment_method_types[0]' => 'card',
     'success_url' => rental_base_url() . '/rentals_confirm.php?session_id={CHECKOUT_SESSION_ID}',
     'cancel_url' => rental_public_url('equipment.html?rental=cancelled'),
     'customer_email' => $customerEmail,
