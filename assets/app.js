@@ -56,18 +56,18 @@ const translations = {
     },
     about: {
       eyebrow: "About us",
-      title: "Ardiel Jimenez: 30 years of ocean, image, and production.",
+      title: "Sports background and transition into audiovisual production.",
       lead1:
-        "Born in Maspalomas, Gran Canaria, Ardiel built his career between professional bodyboarding and visual storytelling. After years of working closely with photographers and filmmakers, he moved from being in front of the lens to creating his own photo and video work.",
+        "In 2011, he won the ISA DK World Championship, a milestone that marked an important chapter in his athletic career. That experience helped shape his discipline, focus, and ability to perform under pressure.",
       lead2:
-        "In 2011 he won the ISA DK World Championship, and then shifted fully into audiovisual production. Today, based in Puerto Rico, he works on photography and video projects for brands, magazines, businesses, and independent productions, combining sports experience with a strong technical eye.",
+        "After achieving success in sports, he decided to fully shift his energy into audiovisual production, bringing with him the same competitive mindset, dedication, and attention to detail that defined him as an athlete.",
       facts: [
         ["Origin", "Maspalomas, Gran Canaria (Canary Islands)"],
         ["Current base", "Puerto Rico"],
         ["Profile", "Pro bodyboarder, photographer, camera operator, audiovisual creator"],
       ],
       portraitCaption: "Public profile portrait",
-      actionCaption: "BRIAN TOTH TUBAZO",
+      actionCaption: "ISA DK World Championship, 2011",
       quote:
         "After competing around the world, I chose to tell stories from behind the camera.",
       quoteSource: "Ardi Rent & Service",
@@ -489,18 +489,18 @@ const translations = {
     },
     about: {
       eyebrow: "Acerca de nosotros",
-      title: "Ardiel Jiménez: por más de 30 años entre el océano, la imagen y la producción.",
+      title: "Deporte y transición hacia la producción audiovisual.",
       lead1:
-        "Nacido en Maspalomas, Gran Canaria, Ardiel construyó su carrera entre el bodyboard profesional y la narrativa visual. Tras años trabajando junto a fotógrafos y realizadores, pasó de estar frente al objetivo a crear sus propios proyectos de foto y video.",
+        "En 2011 ganó el Campeonato Mundial DK ISA, un logro que marcó una etapa importante en su carrera atlética. Esa experiencia ayudó a formar su disciplina, enfoque y capacidad para rendir bajo presión.",
       lead2:
-        "En 2011 ganó el Campeonato Mundial DK ISA y luego se enfocó de lleno en la producción audiovisual. Hoy, desde Puerto Rico, realiza trabajos de fotografía y video para marcas, revistas, negocios y producciones independientes, combinando experiencia deportiva con una mirada técnica y creativa.",
+        "Después de alcanzar éxito en el deporte, decidió enfocar por completo su energía en la producción audiovisual, llevando consigo la misma mentalidad competitiva, dedicación y atención al detalle que lo definieron como atleta.",
       facts: [
         ["Origen", "Maspalomas, Gran Canaria (Islas Canarias)"],
         ["Residencia actual", "Puerto Rico"],
         ["Perfil", "Bodyboarder profesional, fotografo, camara y realizador audiovisual"],
       ],
       portraitCaption: "Retrato de perfil público",
-      actionCaption: "BRIAN TOTH TUBAZO",
+      actionCaption: "Campeonato Mundial DK ISA, 2011",
       quote:
         "Después de competir por el mundo, elegí contar historias desde detrás de la cámara.",
       quoteSource: "Ardi Rent & Service",
