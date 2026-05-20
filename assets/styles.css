@@ -640,6 +640,27 @@ h1 {
   object-fit: cover;
 }
 
+.about-photo-placeholder {
+  min-height: 320px;
+  display: grid;
+  align-content: stretch;
+}
+
+.about-photo-placeholder-inner {
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.98rem;
+  letter-spacing: 0.02em;
+  background:
+    radial-gradient(circle at top, rgba(0, 0, 0, 0.04), transparent 42%),
+    linear-gradient(135deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.06));
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
 .about-photo figcaption {
   padding: 0.8rem 0.95rem 1rem;
   color: var(--muted);

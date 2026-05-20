@@ -78,6 +78,14 @@ const translations = {
       sportsLead2:
         "After achieving success in sports, he decided to fully shift his energy into audiovisual production, bringing with him the same competitive mindset, dedication, and attention to detail that defined him as an athlete.",
       sportsCaption: "ISA DK World Championship, 2011",
+      currentWorkEyebrow: "Current work",
+      currentWorkTitle: "Current Work in Photography & Video Production",
+      currentWorkLead1:
+        "Today, based in Puerto Rico, he works on photography and video projects for brands, magazines, businesses, and independent productions.",
+      currentWorkLead2:
+        "His work combines a strong technical eye with a deep understanding of movement, storytelling, and visual impact. Whether working on commercial content, editorial shoots, promotional campaigns, or independent creative projects, he brings a unique perspective shaped by both his sports background and his experience behind the camera.",
+      currentWorkPlaceholder: "Image coming soon",
+      currentWorkCaption: "Reserved for the next project image",
     },
     projects: {
       eyebrow: "Projects & achievements",
@@ -518,6 +526,14 @@ const translations = {
       sportsLead2:
         "Después de alcanzar éxito en el deporte, decidió enfocar por completo su energía en la producción audiovisual, llevando consigo la misma mentalidad competitiva, dedicación y atención al detalle que lo definieron como atleta.",
       sportsCaption: "Campeonato Mundial DK ISA, 2011",
+      currentWorkEyebrow: "Trabajo actual",
+      currentWorkTitle: "Trabajo actual en fotografía y producción de video",
+      currentWorkLead1:
+        "Hoy, desde Puerto Rico, trabaja en proyectos de fotografía y video para marcas, revistas, negocios y producciones independientes.",
+      currentWorkLead2:
+        "Su trabajo combina una mirada técnica sólida con una comprensión profunda del movimiento, la narrativa y el impacto visual. Ya sea en contenido comercial, sesiones editoriales, campañas promocionales o proyectos creativos independientes, aporta una perspectiva única formada por su trasfondo deportivo y su experiencia detrás de la cámara.",
+      currentWorkPlaceholder: "Imagen próximamente",
+      currentWorkCaption: "Reservado para la próxima imagen del proyecto",
     },
     projects: {
       eyebrow: "Proyectos y logros",
@@ -1391,6 +1407,14 @@ const applyCopy = (lang) => {
   if (aboutTransitionParagraphs[0]) aboutTransitionParagraphs[0].textContent = copy.about.sportsLead1;
   if (aboutTransitionParagraphs[1]) aboutTransitionParagraphs[1].textContent = copy.about.sportsLead2;
   setText("#about-transition [data-about-transition='caption']", copy.about.sportsCaption);
+
+  setText("#about-current-work [data-about-current-work='eyebrow']", copy.about.currentWorkEyebrow);
+  setText("#about-current-work [data-about-current-work='title']", copy.about.currentWorkTitle);
+  const aboutCurrentWorkParagraphs = document.querySelectorAll("#about-current-work [data-about-current-work^='lead']");
+  if (aboutCurrentWorkParagraphs[0]) aboutCurrentWorkParagraphs[0].textContent = copy.about.currentWorkLead1;
+  if (aboutCurrentWorkParagraphs[1]) aboutCurrentWorkParagraphs[1].textContent = copy.about.currentWorkLead2;
+  setText("#about-current-work [data-about-current-work='placeholder']", copy.about.currentWorkPlaceholder);
+  setText("#about-current-work [data-about-current-work='caption']", copy.about.currentWorkCaption);
 
   setText("#projects .section-heading .eyebrow", copy.projects.eyebrow);
   setText("#projects .section-heading h2", copy.projects.title);
