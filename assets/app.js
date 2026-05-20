@@ -67,7 +67,7 @@ const translations = {
         ["Profile", "Pro bodyboarder, photographer, camera operator, audiovisual creator"],
       ],
       portraitCaption: "Public profile portrait",
-      actionCaption: "Surf coverage and action work",
+      actionCaption: "BRIAN TOTH TUBAZO",
       quote:
         "After competing around the world, I chose to tell stories from behind the camera.",
       quoteSource: "Ardi Rent & Service",
@@ -500,7 +500,7 @@ const translations = {
         ["Perfil", "Bodyboarder profesional, fotografo, camara y realizador audiovisual"],
       ],
       portraitCaption: "Retrato de perfil público",
-      actionCaption: "Cobertura de surf y trabajo en acción",
+      actionCaption: "BRIAN TOTH TUBAZO",
       quote:
         "Después de competir por el mundo, elegí contar historias desde detrás de la cámara.",
       quoteSource: "Ardi Rent & Service",

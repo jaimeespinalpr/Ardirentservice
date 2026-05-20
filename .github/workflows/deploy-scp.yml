@@ -94,6 +94,7 @@ jobs:
             --include 'rentals_checkout.php' \
             --include 'rentals_common.php' \
             --include 'rentals_confirm.php' \
+            --include 'rentals_admin.php' \
             --include 'lead.php' \
             --exclude '*' \
             -e "ssh -i ~/.ssh/id_ed25519 -p ${HOSTINGER_SSH_PORT:-65002}" \

@@ -106,9 +106,20 @@ function rental_send_customer_email(array $reservation, array $items): bool
 {
     $email = filter_var((string) ($reservation['customer_email'] ?? ''), FILTER_VALIDATE_EMAIL);
     if (!$email) {
+        error_log('Ardi rental email skipped: invalid customer email');
         return false;
     }
 
+    $message = rental_build_customer_email_message($reservation, $items);
+    $sent = mail($email, $message['subject'], $message['body'], implode("\r\n", $message['headers']));
+    if (!$sent) {
+        error_log('Ardi rental email failed for ' . $email);
+    }
+    return $sent;
+}
+
+function rental_build_customer_email_message(array $reservation, array $items): array
+{
     $customerName = rental_clean_text($reservation['customer_name'] ?? '');
     $safeName = htmlspecialchars($customerName !== '' ? $customerName : 'there', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $startDate = htmlspecialchars((string) ($reservation['start_date'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -128,7 +139,7 @@ function rental_send_customer_email(array $reservation, array $items): bool
         $itemRows = '<li style="margin:6px 0">Rental equipment</li>';
     }
 
-    $subject = 'Thank you for your rental — Ardi Rent & Service';
+    $subject = 'Thank you for your rental - Ardi Rent & Service';
     $html = '<!doctype html><html><body style="margin:0;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif;color:#111">'
         . '<div style="max-width:640px;margin:0 auto;padding:24px">'
         . '<div style="background:#fff;border-radius:18px;padding:26px;border:1px solid #e6e6e6">'
@@ -149,7 +160,7 @@ function rental_send_customer_email(array $reservation, array $items): bool
         . '<p style="font-size:15px;line-height:1.55;margin:0">Please review the pickup and delivery details below. Bring a valid ID and your order confirmation when receiving or returning the equipment.</p>'
         . rental_pickup_details_html()
         . '<p style="font-size:15px;line-height:1.55;margin:22px 0 0">If you have any questions before pickup, reply to this email and we will help you.</p>'
-        . '<p style="font-size:15px;line-height:1.55;margin:18px 0 0">— Ardi Rent & Service</p>'
+        . '<p style="font-size:15px;line-height:1.55;margin:18px 0 0">- Ardi Rent & Service</p>'
         . '</div></div></body></html>';
 
     $plainItems = implode(', ', array_filter(array_map(
@@ -181,7 +192,13 @@ function rental_send_customer_email(array $reservation, array $items): bool
         . $html . "\r\n"
         . '--' . $boundary . "--\r\n";
 
-    return mail($email, $subject, $body, implode("\r\n", $headers));
+    return [
+        'subject' => $subject,
+        'headers' => $headers,
+        'body' => $body,
+        'html' => $html,
+        'plain' => $plain,
+    ];
 }
 
 function rental_allowed_origins(): array
@@ -270,6 +287,7 @@ function rental_db(): PDO
             total_amount_cents   INTEGER NOT NULL,
             currency             TEXT NOT NULL,
             status               TEXT NOT NULL,
+            fulfillment_status   TEXT NOT NULL DEFAULT 'pending',
             created_at           TEXT NOT NULL
         )'
     );
@@ -285,8 +303,16 @@ function rental_db(): PDO
         )'
     );
 
+    $columnsStmt = $pdo->query('PRAGMA table_info(reservations)');
+    $columns = $columnsStmt ? $columnsStmt->fetchAll() : [];
+    $columnNames = array_map(static fn(array $row): string => (string) ($row['name'] ?? ''), $columns);
+    if (!in_array('fulfillment_status', $columnNames, true)) {
+        $pdo->exec("ALTER TABLE reservations ADD COLUMN fulfillment_status TEXT NOT NULL DEFAULT 'pending'");
+    }
+
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_reservation_dates ON reservations(start_date, end_date, status)');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_reservation_items_item ON reservation_items(item_id)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_reservation_fulfillment ON reservations(fulfillment_status, created_at)');
 
     return $pdo;
 }
@@ -357,6 +383,42 @@ function rental_find_unavailable_items(PDO $pdo, string $startDate, string $endD
     $stmt->execute($params);
 
     return array_values(array_map(static fn(array $row): string => (string) $row['item_id'], $stmt->fetchAll()));
+}
+
+function rental_reservation_statuses(): array
+{
+    return ['pending', 'confirmed', 'ready', 'delivered', 'completed', 'cancelled'];
+}
+
+function rental_get_reservation(PDO $pdo, int $reservationId): ?array
+{
+    $stmt = $pdo->prepare('SELECT * FROM reservations WHERE id = ? LIMIT 1');
+    $stmt->execute([$reservationId]);
+    $reservation = $stmt->fetch();
+    if (!is_array($reservation)) {
+        return null;
+    }
+
+    $itemsStmt = $pdo->prepare(
+        'SELECT item_id, item_title, unit_amount_cents
+         FROM reservation_items
+         WHERE reservation_id = ?
+         ORDER BY id ASC'
+    );
+    $itemsStmt->execute([$reservationId]);
+    $reservation['items'] = $itemsStmt->fetchAll();
+
+    return $reservation;
+}
+
+function rental_update_reservation_fulfillment_status(PDO $pdo, int $reservationId, string $status): bool
+{
+    if (!in_array($status, rental_reservation_statuses(), true)) {
+        return false;
+    }
+
+    $stmt = $pdo->prepare('UPDATE reservations SET fulfillment_status = ? WHERE id = ?');
+    return $stmt->execute([$status, $reservationId]);
 }
 
 function rental_base_url(): string

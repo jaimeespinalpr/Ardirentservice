@@ -86,8 +86,8 @@ try {
     $insertReservation = $pdo->prepare(
         'INSERT INTO reservations (
             checkout_session_id, start_date, end_date, customer_name, customer_email, customer_phone,
-            total_amount_cents, currency, status, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            total_amount_cents, currency, status, fulfillment_status, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
     );
 
     $insertReservation->execute([
@@ -100,6 +100,7 @@ try {
         $totalAmount,
         $currency !== '' ? $currency : CURRENCY,
         'paid',
+        'pending',
         (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format(DateTimeInterface::ATOM),
     ]);
 
