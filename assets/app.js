@@ -84,8 +84,7 @@ const translations = {
         "Today, based in Puerto Rico, he works on photography and video projects for brands, magazines, businesses, and independent productions.",
       currentWorkLead2:
         "His work combines a strong technical eye with a deep understanding of movement, storytelling, and visual impact. Whether working on commercial content, editorial shoots, promotional campaigns, or independent creative projects, he brings a unique perspective shaped by both his sports background and his experience behind the camera.",
-      currentWorkPlaceholder: "Image coming soon",
-      currentWorkCaption: "Reserved for the next project image",
+      currentWorkCaption: "Underwater production work",
     },
     projects: {
       eyebrow: "Projects & achievements",
@@ -532,8 +531,7 @@ const translations = {
         "Hoy, desde Puerto Rico, trabaja en proyectos de fotografía y video para marcas, revistas, negocios y producciones independientes.",
       currentWorkLead2:
         "Su trabajo combina una mirada técnica sólida con una comprensión profunda del movimiento, la narrativa y el impacto visual. Ya sea en contenido comercial, sesiones editoriales, campañas promocionales o proyectos creativos independientes, aporta una perspectiva única formada por su trasfondo deportivo y su experiencia detrás de la cámara.",
-      currentWorkPlaceholder: "Imagen próximamente",
-      currentWorkCaption: "Reservado para la próxima imagen del proyecto",
+      currentWorkCaption: "Trabajo de producción bajo el agua",
     },
     projects: {
       eyebrow: "Proyectos y logros",
@@ -1413,7 +1411,6 @@ const applyCopy = (lang) => {
   const aboutCurrentWorkParagraphs = document.querySelectorAll("#about-current-work [data-about-current-work^='lead']");
   if (aboutCurrentWorkParagraphs[0]) aboutCurrentWorkParagraphs[0].textContent = copy.about.currentWorkLead1;
   if (aboutCurrentWorkParagraphs[1]) aboutCurrentWorkParagraphs[1].textContent = copy.about.currentWorkLead2;
-  setText("#about-current-work [data-about-current-work='placeholder']", copy.about.currentWorkPlaceholder);
   setText("#about-current-work [data-about-current-work='caption']", copy.about.currentWorkCaption);
 
   setText("#projects .section-heading .eyebrow", copy.projects.eyebrow);
