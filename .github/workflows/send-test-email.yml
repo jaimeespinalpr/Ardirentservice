@@ -1,0 +1,103 @@
+name: Send Rental Test Email
+
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: Recipient email address
+        required: true
+        type: string
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate deployment secrets
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+        run: |
+          set -euo pipefail
+
+          missing=()
+          [[ -n "${HOSTINGER_SSH_HOST}" ]] || missing+=("HOSTINGER_SSH_HOST")
+          [[ -n "${HOSTINGER_SSH_PORT}" ]] || missing+=("HOSTINGER_SSH_PORT")
+          [[ -n "${HOSTINGER_SSH_USER}" ]] || missing+=("HOSTINGER_SSH_USER")
+          [[ -n "${HOSTINGER_SSH_KEY}" ]] || missing+=("HOSTINGER_SSH_KEY")
+
+          if (( ${#missing[@]} > 0 )); then
+            echo "Missing GitHub secrets: ${missing[*]}"
+            exit 1
+          fi
+
+      - name: Prepare SSH
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${HOSTINGER_SSH_KEY}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${HOSTINGER_SSH_PORT:-65002}" -H "${HOSTINGER_SSH_HOST}" >> ~/.ssh/known_hosts
+
+      - name: Send test email from pay backend
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          RECIPIENT_EMAIL: ${{ inputs.email }}
+        run: |
+          set -euo pipefail
+
+          PAY_PATH="/home/u467534899/domains/ardirentservice.com/public_html/pay/"
+
+          cat > send_rental_test_email.php <<'PHP'
+          <?php
+          declare(strict_types=1);
+
+          require_once __DIR__ . '/rentals_common.php';
+
+          $email = filter_var($argv[1] ?? '', FILTER_VALIDATE_EMAIL);
+          if (!$email) {
+              fwrite(STDERR, "Invalid recipient email\n");
+              exit(2);
+          }
+
+          $sent = rental_send_customer_email(
+              [
+                  'customer_name' => 'Jaime',
+                  'customer_email' => $email,
+                  'start_date' => (new DateTimeImmutable('tomorrow'))->format('Y-m-d'),
+                  'end_date' => (new DateTimeImmutable('tomorrow'))->format('Y-m-d'),
+                  'total_amount_cents' => 5000,
+                  'currency' => CURRENCY,
+              ],
+              [
+                  [
+                      'item_id' => 'test-rental',
+                      'title' => 'Test rental confirmation',
+                  ],
+              ]
+          );
+
+          if (!$sent) {
+              fwrite(STDERR, "mail() returned false\n");
+              exit(1);
+          }
+
+          echo "Test email sent to {$email}\n";
+          PHP
+
+          scp -i ~/.ssh/id_ed25519 -P "${HOSTINGER_SSH_PORT:-65002}" \
+            send_rental_test_email.php "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${PAY_PATH}send_rental_test_email.php"
+
+          ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" \
+            "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" \
+            "cd '${PAY_PATH}' && php send_rental_test_email.php '${RECIPIENT_EMAIL}' && rm -f send_rental_test_email.php"
