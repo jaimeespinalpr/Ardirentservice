@@ -287,7 +287,7 @@ function rental_db(): PDO
             total_amount_cents   INTEGER NOT NULL,
             currency             TEXT NOT NULL,
             status               TEXT NOT NULL,
-            fulfillment_status   TEXT NOT NULL DEFAULT 'pending',
+            fulfillment_status   TEXT NOT NULL DEFAULT "pending",
             created_at           TEXT NOT NULL
         )'
     );
