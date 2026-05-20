@@ -1657,6 +1657,38 @@ body.is-rental-cart-open {
   gap: 0.4rem;
 }
 
+.rental-checkout-dates {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(120px, 0.7fr)) auto;
+  gap: 0.65rem;
+  align-items: end;
+  margin: 0.75rem 0 1rem;
+  padding: 0.85rem;
+  border-radius: 18px;
+  border: 1px solid rgba(17, 17, 17, 0.1);
+  background: rgba(17, 17, 17, 0.045);
+}
+
+.rental-checkout-dates.is-hidden {
+  display: none;
+}
+
+.rental-checkout-dates h4 {
+  margin: 0 0 0.2rem;
+  font-size: 0.98rem;
+}
+
+.rental-checkout-dates p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.rental-checkout-dates .field {
+  margin: 0;
+}
+
 .rental-cart-total {
   margin: 0.8rem 0 0.6rem;
   font-weight: 700;
@@ -1699,6 +1731,30 @@ body.is-rental-cart-open {
 
 .rental-item-dates.is-visible {
   display: grid;
+}
+
+.rental-date-edit-button {
+  display: none;
+  justify-self: start;
+  border: 0;
+  background: transparent;
+  color: #111;
+  padding: 0;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  cursor: pointer;
+}
+
+.rental-date-edit-button.is-visible {
+  display: inline-flex;
+}
+
+.rental-date-edit-button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .rental-item-dates .field {
@@ -1907,6 +1963,7 @@ body.is-rental-cart-open {
   .contact-grid,
   .rental-dates,
   .rental-checkout,
+  .rental-checkout-dates,
   .production-stack,
   .about-grid,
   .split-grid,

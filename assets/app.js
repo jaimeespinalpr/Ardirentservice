@@ -3089,6 +3089,11 @@ const rentalCopy = {
     buttonRemove: "Remove",
     buttonUnavailable: "Unavailable",
     buttonLoading: "Processing...",
+    buttonChangeDates: "Change dates",
+    checkoutDatesTitle: "Need to change the dates?",
+    checkoutDatesHelp: "Update the shared rental range before going to Stripe.",
+    checkoutUpdateDates: "Update dates",
+    statusDatesChanged: "Rental dates updated. Review availability before paying.",
     perDay: "/day",
     cartDateLabel: "Dates",
   },
@@ -3164,6 +3169,11 @@ const rentalCopy = {
     buttonRemove: "Quitar",
     buttonUnavailable: "No disponible",
     buttonLoading: "Procesando...",
+    buttonChangeDates: "Cambiar fechas",
+    checkoutDatesTitle: "Necesitas cambiar las fechas?",
+    checkoutDatesHelp: "Actualiza el rango compartido antes de ir a Stripe.",
+    checkoutUpdateDates: "Actualizar fechas",
+    statusDatesChanged: "Fechas de renta actualizadas. Revisa la disponibilidad antes de pagar.",
     perDay: "/día",
     cartDateLabel: "Fechas",
   },
@@ -3203,6 +3213,30 @@ const setupRentalSystem = () => {
   const cartBox = root.querySelector(".rental-cart");
   if (!cartBox) return;
   const datesNote = root.querySelector('[data-rental-copy="sameDates"]');
+  const checkoutDatesPanel = document.createElement("div");
+  checkoutDatesPanel.className = "rental-checkout-dates";
+  checkoutDatesPanel.innerHTML = `
+    <div>
+      <h4 data-rental-checkout-dates="title"></h4>
+      <p data-rental-checkout-dates="help"></p>
+    </div>
+    <label class="field">
+      <span data-rental-copy="startLabel"></span>
+      <input type="date" data-rental-checkout-start />
+    </label>
+    <label class="field">
+      <span data-rental-copy="endLabel"></span>
+      <input type="date" data-rental-checkout-end />
+    </label>
+    <button class="button button-secondary" type="button" data-rental-checkout-update></button>
+  `;
+  const checkoutDateStart = checkoutDatesPanel.querySelector("[data-rental-checkout-start]");
+  const checkoutDateEnd = checkoutDatesPanel.querySelector("[data-rental-checkout-end]");
+  const checkoutDateUpdate = checkoutDatesPanel.querySelector("[data-rental-checkout-update]");
+  const cartSummaryCard = root.querySelector(".rental-cart-summary-card");
+  if (cartSummaryCard && checkoutDateStart && checkoutDateEnd && checkoutDateUpdate) {
+    cartSummaryCard.insertBefore(checkoutDatesPanel, cartList);
+  }
 
   const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
   const allCards = Array.from(
@@ -3224,6 +3258,7 @@ const setupRentalSystem = () => {
     cartExpanded: false,
     selectedIds: new Set(),
     unavailable: new Set(),
+    editingDateIds: new Set(),
     datesReady: false,
     checking: false,
     items: [],
@@ -3354,6 +3389,11 @@ const setupRentalSystem = () => {
       button.setAttribute("data-rental-toggle", itemId);
       mainRow.appendChild(button);
 
+      const dateEditButton = document.createElement("button");
+      dateEditButton.type = "button";
+      dateEditButton.className = "rental-date-edit-button";
+      dateEditButton.setAttribute("data-rental-edit-dates", itemId);
+
       const itemDates = document.createElement("div");
       itemDates.className = "rental-item-dates";
 
@@ -3381,6 +3421,7 @@ const setupRentalSystem = () => {
       itemDates.appendChild(itemEndField);
 
       wrapper.appendChild(mainRow);
+      wrapper.appendChild(dateEditButton);
       wrapper.appendChild(itemDates);
 
       card.appendChild(wrapper);
@@ -3392,6 +3433,7 @@ const setupRentalSystem = () => {
         wrapper,
         badge,
         button,
+        dateEditButton,
         itemDates,
         itemStart: itemStartInput,
         itemEnd: itemEndInput,
@@ -3407,12 +3449,16 @@ const setupRentalSystem = () => {
       const unavailable = hasRange && state.unavailable.has(item.id);
       const selected = state.selectedIds.has(item.id);
       const locked = !hasRange;
-      const showItemDates = !state.sharedDateDecisionMade || !state.sameDatesForAll;
+      const canEditSharedDates = state.sharedDateDecisionMade && state.sameDatesForAll;
+      const showItemDates = !state.sharedDateDecisionMade || !state.sameDatesForAll || state.editingDateIds.has(item.id);
 
       item.card.classList.toggle("is-unavailable", unavailable);
       item.card.classList.toggle("is-selected", selected);
       item.wrapper.classList.toggle("has-item-dates", showItemDates);
       item.itemDates.classList.toggle("is-visible", showItemDates);
+      item.dateEditButton.textContent = text.buttonChangeDates;
+      item.dateEditButton.classList.toggle("is-visible", canEditSharedDates);
+      item.dateEditButton.disabled = state.checking;
 
       if (!state.datesReady || locked) {
         item.badge.textContent = text.badgeLocked;
@@ -3453,6 +3499,14 @@ const setupRentalSystem = () => {
       const itemWord = selectedCount === 1 ? text.cartItemSingular : text.cartItemPlural;
       cartToggle.textContent = selectedCount > 0 ? `${text.cartCompact}: ${selectedCount} ${itemWord}` : text.cartTitle;
       cartToggle.setAttribute("aria-expanded", state.cartExpanded ? "true" : "false");
+    }
+
+    checkoutDatesPanel.classList.toggle("is-hidden", !state.sameDatesForAll || selectedCount === 0);
+    if (checkoutDateStart && checkoutDateEnd) {
+      checkoutDateStart.value = startInput.value;
+      checkoutDateEnd.value = endInput.value;
+      checkoutDateStart.setAttribute("min", startInput.getAttribute("min") || "");
+      checkoutDateEnd.setAttribute("min", startInput.value || startInput.getAttribute("min") || "");
     }
 
     if (selectedItems.length === 0) {
@@ -3596,6 +3650,29 @@ const setupRentalSystem = () => {
       renderCardStates();
       renderCart();
     }
+  };
+
+  const setSharedDatesAndRefresh = async (nextStart, nextEnd) => {
+    if (!isValidRange(nextStart, nextEnd)) {
+      setStatus(copy().statusSelectDates, "error");
+      return false;
+    }
+    state.sameDatesForAll = true;
+    state.sharedDateDecisionMade = true;
+    startInput.value = nextStart;
+    endInput.value = nextEnd;
+    endInput.setAttribute("min", nextStart);
+    datesForm.classList.remove("is-hidden");
+    syncScopeInputs();
+    setStatus(copy().statusDatesChanged, "info");
+    await fetchAvailability();
+    return true;
+  };
+
+  const syncItemEditorToSharedDates = (item) => {
+    item.itemStart.value = startInput.value;
+    item.itemEnd.value = endInput.value;
+    item.itemEnd.setAttribute("min", startInput.value || today);
   };
 
   const syncScopeInputs = () => {
@@ -3918,6 +3995,19 @@ const setupRentalSystem = () => {
     root.querySelector('[data-rental-copy="note"]')?.replaceChildren(document.createTextNode(text.note));
     root.querySelector('[data-rental-copy="startLabel"]')?.replaceChildren(document.createTextNode(text.startLabel));
     root.querySelector('[data-rental-copy="endLabel"]')?.replaceChildren(document.createTextNode(text.endLabel));
+    checkoutDatesPanel
+      .querySelector('[data-rental-checkout-dates="title"]')
+      ?.replaceChildren(document.createTextNode(text.checkoutDatesTitle));
+    checkoutDatesPanel
+      .querySelector('[data-rental-checkout-dates="help"]')
+      ?.replaceChildren(document.createTextNode(text.checkoutDatesHelp));
+    checkoutDatesPanel
+      .querySelector('[data-rental-copy="startLabel"]')
+      ?.replaceChildren(document.createTextNode(text.startLabel));
+    checkoutDatesPanel
+      .querySelector('[data-rental-copy="endLabel"]')
+      ?.replaceChildren(document.createTextNode(text.endLabel));
+    if (checkoutDateUpdate) checkoutDateUpdate.textContent = text.checkoutUpdateDates;
     root.querySelector('[data-rental-copy="scopeLegend"]')?.replaceChildren(document.createTextNode(text.scopeLegend));
     root.querySelector('[data-rental-copy="scopeYes"]')?.replaceChildren(document.createTextNode(text.scopeYes));
     root.querySelector('[data-rental-copy="scopeNo"]')?.replaceChildren(document.createTextNode(text.scopeNo));
@@ -4070,6 +4160,12 @@ const setupRentalSystem = () => {
           void askDefaultDatePreference(item, false);
           return;
         }
+        if (state.sameDatesForAll) {
+          if (isValidRange(item.itemStart.value, item.itemEnd.value)) {
+            void setSharedDatesAndRefresh(item.itemStart.value, item.itemEnd.value);
+          }
+          return;
+        }
         if (!state.sameDatesForAll) {
           refreshPerItemAvailability();
           if (!isCashMode) {
@@ -4085,6 +4181,13 @@ const setupRentalSystem = () => {
   });
 
   state.items.forEach((item) => {
+    item.dateEditButton.addEventListener("click", () => {
+      state.editingDateIds.add(item.id);
+      syncItemEditorToSharedDates(item);
+      renderCardStates();
+      item.itemStart.focus();
+    });
+
     item.button.addEventListener("click", () => {
       if (!state.sharedDateDecisionMade) {
         void askDefaultDatePreference(item, true);
@@ -4116,6 +4219,21 @@ const setupRentalSystem = () => {
     state.cartExpanded = false;
     document.body.classList.remove("is-rental-cart-open");
     renderCart();
+  });
+
+  checkoutDateStart?.addEventListener("change", () => {
+    if (!checkoutDateStart || !checkoutDateEnd) return;
+    if (checkoutDateStart.value !== "") {
+      checkoutDateEnd.setAttribute("min", checkoutDateStart.value);
+      if (checkoutDateEnd.value !== "" && checkoutDateEnd.value < checkoutDateStart.value) {
+        checkoutDateEnd.value = checkoutDateStart.value;
+      }
+    }
+  });
+
+  checkoutDateUpdate?.addEventListener("click", () => {
+    if (!checkoutDateStart || !checkoutDateEnd) return;
+    void setSharedDatesAndRefresh(checkoutDateStart.value, checkoutDateEnd.value);
   });
 
   [checkoutName, checkoutEmail, checkoutPhone].forEach((input) => {
