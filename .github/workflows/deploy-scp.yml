@@ -80,6 +80,11 @@ jobs:
           HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_MODE: ${{ secrets.STRIPE_MODE }}
+          RENTAL_SMTP_HOST: ${{ secrets.RENTAL_SMTP_HOST }}
+          RENTAL_SMTP_PORT: ${{ secrets.RENTAL_SMTP_PORT }}
+          RENTAL_SMTP_USERNAME: ${{ secrets.RENTAL_SMTP_USERNAME }}
+          RENTAL_SMTP_PASSWORD: ${{ secrets.RENTAL_SMTP_PASSWORD }}
+          RENTAL_SMTP_ENCRYPTION: ${{ secrets.RENTAL_SMTP_ENCRYPTION }}
         run: |
           set -euo pipefail
 
@@ -106,8 +111,13 @@ jobs:
           PUBLIC_SITE_URL=https://www.ardirentservice.com
           PAY_SITE_URL=https://pay.ardirentservice.com
           ALLOWED_ORIGINS=https://ardirentservice.com,https://www.ardirentservice.com,https://jaimeespinalpr.github.io
-          RENTAL_EMAIL_FROM=Ardi Rent & Service <noreply@ardirentservice.com>
+          RENTAL_EMAIL_FROM=Ardi Rent & Service <info@ardirentservice.com>
           RENTAL_EMAIL_REPLY_TO=info@ardirentservice.com
+          RENTAL_SMTP_HOST=${RENTAL_SMTP_HOST}
+          RENTAL_SMTP_PORT=${RENTAL_SMTP_PORT}
+          RENTAL_SMTP_USERNAME=${RENTAL_SMTP_USERNAME}
+          RENTAL_SMTP_PASSWORD=${RENTAL_SMTP_PASSWORD}
+          RENTAL_SMTP_ENCRYPTION=${RENTAL_SMTP_ENCRYPTION}
           RENTAL_PICKUP_ADDRESS=Park Boulevard condominium
           RENTAL_PICKUP_HOURS=Same day, the afternoon before, or by 1:00 p.m. the next day when the rental ends very late.
           RENTAL_PICKUP_CONTACT=Reply to this email or contact Ardi Rent & Service by WhatsApp.

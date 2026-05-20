@@ -24,6 +24,11 @@ Push to `main` auto-deploys via GitHub Actions:
 - `STRIPE_SECRET_KEY`
 - `STRIPE_MODE`
 - `RENTAL_ADMIN_TOKEN` - protects the reservation admin page at `rentals_admin.php`
+- `RENTAL_SMTP_HOST` - optional authenticated SMTP host, for example `smtp.titan.email`
+- `RENTAL_SMTP_PORT` - optional SMTP port, for example `587`
+- `RENTAL_SMTP_USERNAME` - optional SMTP username, usually the full mailbox address
+- `RENTAL_SMTP_PASSWORD` - optional SMTP password or app password
+- `RENTAL_SMTP_ENCRYPTION` - optional SMTP encryption, usually `starttls`
 
 ## Admin
 

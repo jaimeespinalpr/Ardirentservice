@@ -111,6 +111,14 @@ function rental_send_customer_email(array $reservation, array $items): bool
     }
 
     $message = rental_build_customer_email_message($reservation, $items);
+    if (rental_smtp_configured()) {
+        $sent = rental_send_smtp_message($email, $message);
+        if (!$sent) {
+            error_log('Ardi rental SMTP email failed for ' . $email);
+        }
+        return $sent;
+    }
+
     $sent = mail($email, $message['subject'], $message['body'], implode("\r\n", $message['headers']));
     if (!$sent) {
         error_log('Ardi rental email failed for ' . $email);
@@ -199,6 +207,137 @@ function rental_build_customer_email_message(array $reservation, array $items): 
         'html' => $html,
         'plain' => $plain,
     ];
+}
+
+function rental_smtp_configured(): bool
+{
+    return rental_env('RENTAL_SMTP_HOST') !== ''
+        && rental_env('RENTAL_SMTP_USERNAME') !== ''
+        && rental_env('RENTAL_SMTP_PASSWORD') !== '';
+}
+
+function rental_extract_email_address(string $headerValue): string
+{
+    if (preg_match('/<([^>]+)>/', $headerValue, $matches)) {
+        return filter_var($matches[1], FILTER_VALIDATE_EMAIL) ?: '';
+    }
+
+    return filter_var($headerValue, FILTER_VALIDATE_EMAIL) ?: '';
+}
+
+function rental_smtp_read_response($socket): string
+{
+    $response = '';
+    while (($line = fgets($socket, 515)) !== false) {
+        $response .= $line;
+        if (strlen($line) >= 4 && $line[3] === ' ') {
+            break;
+        }
+    }
+    return $response;
+}
+
+function rental_smtp_command($socket, string $command, array $expectedCodes): string
+{
+    fwrite($socket, $command . "\r\n");
+    $response = rental_smtp_read_response($socket);
+    $code = (int) substr($response, 0, 3);
+    if (!in_array($code, $expectedCodes, true)) {
+        throw new RuntimeException('Unexpected SMTP response: ' . trim($response));
+    }
+    return $response;
+}
+
+function rental_send_smtp_message(string $recipientEmail, array $message): bool
+{
+    $host = rental_env('RENTAL_SMTP_HOST');
+    $port = (int) rental_env('RENTAL_SMTP_PORT', '587');
+    $username = rental_env('RENTAL_SMTP_USERNAME');
+    $password = rental_env('RENTAL_SMTP_PASSWORD');
+    $encryption = strtolower(rental_env('RENTAL_SMTP_ENCRYPTION', 'starttls'));
+    $fromHeader = rental_email_from();
+    $fromEmail = rental_extract_email_address($fromHeader);
+
+    if ($host === '' || $port <= 0 || $username === '' || $password === '' || $fromEmail === '') {
+        return false;
+    }
+
+    $remote = $encryption === 'ssl' ? 'ssl://' . $host . ':' . $port : $host . ':' . $port;
+    $context = stream_context_create([
+        'ssl' => [
+            'verify_peer' => true,
+            'verify_peer_name' => true,
+            'peer_name' => $host,
+        ],
+    ]);
+
+    $socket = @stream_socket_client($remote, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
+    if (!is_resource($socket)) {
+        error_log("SMTP connection failed: {$errstr} ({$errno})");
+        return false;
+    }
+
+    stream_set_timeout($socket, 30);
+
+    try {
+        $greeting = rental_smtp_read_response($socket);
+        if ((int) substr($greeting, 0, 3) !== 220) {
+            throw new RuntimeException('Unexpected SMTP greeting: ' . trim($greeting));
+        }
+
+        $hostname = $_SERVER['SERVER_NAME'] ?? 'ardirentservice.com';
+        rental_smtp_command($socket, 'EHLO ' . $hostname, [250]);
+
+        if (in_array($encryption, ['tls', 'starttls'], true)) {
+            rental_smtp_command($socket, 'STARTTLS', [220]);
+            if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+                throw new RuntimeException('Unable to enable SMTP TLS');
+            }
+            rental_smtp_command($socket, 'EHLO ' . $hostname, [250]);
+        }
+
+        rental_smtp_command($socket, 'AUTH LOGIN', [334]);
+        rental_smtp_command($socket, base64_encode($username), [334]);
+        rental_smtp_command($socket, base64_encode($password), [235]);
+        rental_smtp_command($socket, 'MAIL FROM:<' . $fromEmail . '>', [250]);
+        rental_smtp_command($socket, 'RCPT TO:<' . $recipientEmail . '>', [250, 251]);
+        rental_smtp_command($socket, 'DATA', [354]);
+
+        $headers = array_merge(
+            [
+                'To: ' . $recipientEmail,
+                'Subject: ' . (string) ($message['subject'] ?? ''),
+            ],
+            $message['headers'] ?? []
+        );
+        $raw = implode("\r\n", $headers) . "\r\n\r\n" . (string) ($message['body'] ?? '');
+        $raw = str_replace(["\r\n.", "\n."], ["\r\n..", "\n.."], $raw);
+        fwrite($socket, $raw . "\r\n.\r\n");
+        $dataResponse = rental_smtp_read_response($socket);
+        if ((int) substr($dataResponse, 0, 3) !== 250) {
+            throw new RuntimeException('Unexpected SMTP DATA response: ' . trim($dataResponse));
+        }
+
+        rental_smtp_command($socket, 'QUIT', [221]);
+        fclose($socket);
+        return true;
+    } catch (Throwable $e) {
+        error_log('SMTP send failed: ' . $e->getMessage());
+        rental_smtp_command_safely($socket, 'QUIT');
+        fclose($socket);
+        return false;
+    }
+}
+
+function rental_smtp_command_safely($socket, string $command): void
+{
+    try {
+        if (is_resource($socket)) {
+            fwrite($socket, $command . "\r\n");
+        }
+    } catch (Throwable) {
+        // Best-effort cleanup only.
+    }
 }
 
 function rental_allowed_origins(): array
