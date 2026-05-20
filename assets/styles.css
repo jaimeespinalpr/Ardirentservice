@@ -1856,6 +1856,29 @@ body.is-rental-cart-open {
   cursor: not-allowed;
 }
 
+.rental-card-remove-button {
+  display: none;
+  justify-self: start;
+  border: 1px solid rgba(120, 0, 0, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 235, 235, 0.96);
+  color: #7f0000;
+  padding: 0.5rem 0.78rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.rental-card-remove-button.is-visible {
+  display: inline-flex;
+}
+
+.rental-card-remove-button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .equipment-card.is-unavailable,
 .equipment-card.is-reserved {
   opacity: 0.6;

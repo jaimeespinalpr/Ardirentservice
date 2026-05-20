@@ -3086,6 +3086,7 @@ const rentalCopy = {
     badgeAvailable: "Available",
     badgeUnavailable: "Booked",
     buttonAdd: "Add",
+    buttonSelected: "Selected",
     buttonRemove: "Remove",
     buttonUnavailable: "Unavailable",
     buttonLoading: "Processing...",
@@ -3166,6 +3167,7 @@ const rentalCopy = {
     badgeAvailable: "Disponible",
     badgeUnavailable: "Reservado",
     buttonAdd: "Agregar",
+    buttonSelected: "Seleccionado",
     buttonRemove: "Quitar",
     buttonUnavailable: "No disponible",
     buttonLoading: "Procesando...",
@@ -3388,6 +3390,12 @@ const setupRentalSystem = () => {
       button.setAttribute("data-rental-toggle", itemId);
       mainRow.appendChild(button);
 
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "rental-card-remove-button";
+      removeButton.setAttribute("data-rental-remove", itemId);
+      removeButton.textContent = "Remove";
+
       const dateEditButton = document.createElement("button");
       dateEditButton.type = "button";
       dateEditButton.className = "rental-date-edit-button";
@@ -3420,6 +3428,7 @@ const setupRentalSystem = () => {
       itemDates.appendChild(itemEndField);
 
       wrapper.appendChild(mainRow);
+      wrapper.appendChild(removeButton);
       wrapper.appendChild(dateEditButton);
       wrapper.appendChild(itemDates);
 
@@ -3432,6 +3441,7 @@ const setupRentalSystem = () => {
         wrapper,
         badge,
         button,
+        removeButton,
         dateEditButton,
         itemDates,
         itemStart: itemStartInput,
@@ -3463,6 +3473,9 @@ const setupRentalSystem = () => {
       item.dateEditButton.textContent = text.buttonChangeDates;
       item.dateEditButton.classList.toggle("is-visible", canEditSharedDates);
       item.dateEditButton.disabled = state.checking;
+      item.removeButton.textContent = text.buttonRemove;
+      item.removeButton.classList.toggle("is-visible", selected && !unavailable);
+      item.removeButton.disabled = state.checking;
 
       if (!state.datesReady || locked) {
         item.badge.textContent = text.badgeLocked;
@@ -3481,8 +3494,8 @@ const setupRentalSystem = () => {
         item.button.textContent = text.buttonChangeDates;
         item.button.disabled = state.checking;
       } else {
-        item.button.textContent = selected ? text.buttonRemove : text.buttonAdd;
-        item.button.disabled = state.checking;
+        item.button.textContent = selected ? text.buttonSelected : text.buttonAdd;
+        item.button.disabled = state.checking || selected;
       }
     });
   };
@@ -4194,6 +4207,12 @@ const setupRentalSystem = () => {
       syncItemEditorToSharedDates(item);
       renderCardStates();
       item.itemStart.focus();
+    });
+
+    item.removeButton.addEventListener("click", () => {
+      state.selectedIds.delete(item.id);
+      renderCardStates();
+      renderCart();
     });
 
     item.button.addEventListener("click", () => {
