@@ -375,6 +375,7 @@ rental_apply_cors();
 function rental_item_rate_cents(string $itemId): int
 {
     $cameraRates = [
+        'cable-hdmi'              => 100,
         'sony-a7-v'               => 7500,
         'sony-a7s-iii'            => 7500,
         'sony-a7-iv'              => 7500,

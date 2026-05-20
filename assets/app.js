@@ -777,6 +777,12 @@ const translations = {
           "Accesorios esenciales usados en set para movimiento estable de cámara y flujos de producción profesionales.",
         cards: [
           {
+            tag: "Prueba",
+            title: "Cable HDMI",
+            text: "Cable HDMI sencillo agregado como producto de prueba para checkout en vivo a $1 por dia.",
+            alt: "Cable HDMI",
+          },
+          {
             tag: "Trípode",
             title: "SmallRig AD-01 Heavy Duty Tripod with Fluid Head (Bumblebee Edition)",
             text: "Sistema de trípode robusto con cabezal fluido para video estable, paneos suaves y control preciso de inclinación.",

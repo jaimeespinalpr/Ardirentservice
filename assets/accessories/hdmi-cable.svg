@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">HDMI cable</title>
+  <desc id="desc">A coiled HDMI cable with two connector ends.</desc>
+  <rect width="1200" height="900" fill="#f7f3ea"/>
+  <circle cx="560" cy="470" r="255" fill="none" stroke="#111" stroke-width="58"/>
+  <circle cx="560" cy="470" r="150" fill="#f7f3ea" stroke="#111" stroke-width="34"/>
+  <path d="M786 350c130-20 205 26 252 92" fill="none" stroke="#111" stroke-width="58" stroke-linecap="round"/>
+  <path d="M1018 418l88 88-76 76-88-88z" fill="#111"/>
+  <path d="M1000 456l68 68-37 37-68-68z" fill="#f7f3ea"/>
+  <path d="M324 613c-113 43-211 19-286-59" fill="none" stroke="#111" stroke-width="58" stroke-linecap="round"/>
+  <path d="M101 470l96 78-68 84-96-78z" fill="#111"/>
+  <path d="M119 506l70 57-33 41-70-57z" fill="#f7f3ea"/>
+  <text x="600" y="805" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="800" fill="#111">HDMI</text>
+</svg>
