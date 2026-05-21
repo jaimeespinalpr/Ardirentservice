@@ -3192,8 +3192,10 @@ const setupRentalSystem = () => {
   const modePref = (root.getAttribute("data-payment-mode") || "auto").toLowerCase();
   const isCashMode = modePref === "cash" || (modePref === "auto" && isStaticRuntime);
   const dailyRateCents = Number.parseInt(root.getAttribute("data-daily-rate-cents") || "5000", 10) || 5000;
-  const reservationStorageKey = "ardi-rental-cash-reservations-v1";
-  const rentalStateStorageKey = "ardi-rental-current-state-v1";
+  const reservationStorageKey = "ardi-rental-cash-reservations-v2";
+  const rentalStateStorageKey = "ardi-rental-current-state-v2";
+  const legacyReservationKeys = ["ardi-rental-cash-reservations-v1"];
+  const legacyStateKeys = ["ardi-rental-current-state-v1"];
 
   const datesForm = root.querySelector("[data-rental-dates]");
   const checkoutForm = root.querySelector("[data-rental-checkout]");
@@ -3267,6 +3269,14 @@ const setupRentalSystem = () => {
 
   const copy = () => rentalCopy[state.lang] || rentalCopy.en;
   const payButtonLabel = () => (isCashMode ? copy().payButtonCash : copy().payButtonStripe);
+  const clearLegacyRentalStorage = () => {
+    try {
+      legacyReservationKeys.forEach((key) => localStorage.removeItem(key));
+      legacyStateKeys.forEach((key) => localStorage.removeItem(key));
+    } catch (error) {
+      // Ignore storage errors and continue with current keys.
+    }
+  };
   const loadSavedRentalState = () => {
     try {
       const raw = localStorage.getItem(rentalStateStorageKey);
@@ -4163,6 +4173,7 @@ const setupRentalSystem = () => {
     item.itemStart.setAttribute("min", today);
     item.itemEnd.setAttribute("min", today);
   });
+  clearLegacyRentalStorage();
   const restoredRentalState = restoreRentalState();
   renderCopy(state.lang);
   setStatus(isCashMode ? copy().statusCashMode : copy().statusSelectDates, "info");

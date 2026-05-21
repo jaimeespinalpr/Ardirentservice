@@ -510,19 +510,44 @@ function rental_find_unavailable_items(PDO $pdo, string $startDate, string $endD
 
     $placeholders = implode(',', array_fill(0, count($itemIds), '?'));
     $sql =
-        'SELECT DISTINCT ri.item_id
+        'SELECT ri.item_id, COUNT(*) AS reserved_count
          FROM reservation_items ri
          INNER JOIN reservations r ON r.id = ri.reservation_id
          WHERE r.status = ?
            AND r.start_date <= ?
            AND r.end_date   >= ?
-           AND ri.item_id IN (' . $placeholders . ')';
+           AND ri.item_id IN (' . $placeholders . ')
+         GROUP BY ri.item_id';
 
     $stmt   = $pdo->prepare($sql);
     $params = array_merge(['paid', $endDate, $startDate], $itemIds);
     $stmt->execute($params);
 
-    return array_values(array_map(static fn(array $row): string => (string) $row['item_id'], $stmt->fetchAll()));
+    $rows = $stmt->fetchAll();
+    $unavailable = [];
+    foreach ($rows as $row) {
+        $itemId = (string) ($row['item_id'] ?? '');
+        if ($itemId === '') {
+            continue;
+        }
+        $reservedCount = (int) ($row['reserved_count'] ?? 0);
+        if ($reservedCount >= rental_item_inventory($itemId)) {
+            $unavailable[] = $itemId;
+        }
+    }
+
+    return array_values(array_unique($unavailable));
+}
+
+function rental_item_inventory(string $itemId): int
+{
+    // Default inventory per item is 1 until additional units are configured.
+    $inventory = [
+        // 'sony-a7-v' => 2,
+    ];
+
+    $value = (int) ($inventory[$itemId] ?? 1);
+    return max(1, $value);
 }
 
 function rental_reservation_statuses(): array
