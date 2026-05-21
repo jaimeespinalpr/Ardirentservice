@@ -34,6 +34,7 @@
   }
 
   body.home-page .mobile-hero-panel {
+    position: relative;
     background: #000;
     border-bottom: 0;
     box-shadow: 0 18px 42px rgba(0, 0, 0, 0.62);
@@ -46,19 +47,24 @@
 
   body.home-page .mobile-hero-overlay {
     background:
-      linear-gradient(180deg, rgba(0, 0, 0, 0.52), rgba(0, 0, 0, 0.28) 32%, rgba(0, 0, 0, 0.95) 100%),
-      linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.02) 60%);
+      linear-gradient(180deg, rgba(0, 0, 0, 0.54) 0%, rgba(0, 0, 0, 0.35) 31%, rgba(0, 0, 0, 0.16) 54%, rgba(0, 0, 0, 0.92) 100%),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.56), rgba(0, 0, 0, 0.02) 62%);
   }
 
   body.home-page .mobile-hero-content {
-    padding-left: 1.15rem;
-    padding-right: 1.15rem;
-    transform: translateY(-4.8rem);
+    position: absolute;
+    z-index: 4;
+    top: 5.2rem;
+    left: 0;
+    right: 0;
+    padding: 0 1.15rem;
+    transform: none !important;
   }
 
   body.home-page .mobile-hero-content h1 {
     width: min(96vw, 25rem) !important;
     max-width: none !important;
+    margin: 0 0 0.95rem !important;
     font-size: clamp(2rem, 8.9vw, 2.5rem) !important;
     line-height: 1.04 !important;
     letter-spacing: -0.045em;
