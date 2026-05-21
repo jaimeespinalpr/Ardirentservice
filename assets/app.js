@@ -3553,13 +3553,20 @@ const setupRentalSystem = () => {
         editButton.className = "rental-cart-inline-button";
         editButton.textContent = text.buttonChangeDates;
         editButton.addEventListener("click", () => {
-          state.cartExpanded = false;
-          state.editingDateIds.add(item.id);
-          syncItemEditorToSharedDates(item);
-          renderCardStates();
-          renderCart();
-          item.itemStart.focus();
-          item.card.scrollIntoView({ behavior: "smooth", block: "center" });
+          if (state.sameDatesForAll) {
+            state.cartExpanded = true;
+            renderCart();
+            if (checkoutDateStart) {
+              checkoutDateStart.focus();
+              checkoutDateStart.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+            return;
+          }
+          const editor = li.querySelector(".rental-cart-item-editor");
+          if (!editor) return;
+          editor.classList.toggle("is-visible");
+          const startField = editor.querySelector('[data-cart-item-start]');
+          if (startField) startField.focus();
         });
 
         const removeButton = document.createElement("button");
@@ -3577,6 +3584,44 @@ const setupRentalSystem = () => {
         actions.appendChild(removeButton);
         li.appendChild(line);
         li.appendChild(actions);
+
+        if (!state.sameDatesForAll) {
+          const editor = document.createElement("div");
+          editor.className = "rental-cart-item-editor";
+
+          const startField = document.createElement("input");
+          startField.type = "date";
+          startField.value = item.itemStart.value;
+          startField.setAttribute("data-cart-item-start", item.id);
+
+          const endField = document.createElement("input");
+          endField.type = "date";
+          endField.value = item.itemEnd.value;
+          endField.setAttribute("data-cart-item-end", item.id);
+
+          const applyButton = document.createElement("button");
+          applyButton.type = "button";
+          applyButton.className = "rental-cart-inline-button";
+          applyButton.textContent = text.checkoutUpdateDates;
+          applyButton.addEventListener("click", () => {
+            if (!isValidRange(startField.value, endField.value)) {
+              setStatus(copy().statusSelectDates, "error");
+              return;
+            }
+            item.itemStart.value = startField.value;
+            item.itemEnd.value = endField.value;
+            state.editingDateIds.delete(item.id);
+            refreshPerItemAvailability();
+            renderCardStates();
+            renderCart();
+            setStatus(copy().statusDatesChanged, "info");
+          });
+
+          editor.appendChild(startField);
+          editor.appendChild(endField);
+          editor.appendChild(applyButton);
+          li.appendChild(editor);
+        }
         cartList.appendChild(li);
       });
     }

@@ -1685,6 +1685,24 @@ body.is-rental-cart-open {
   color: #7c1111;
 }
 
+.rental-cart-item-editor {
+  display: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  gap: 0.45rem;
+}
+
+.rental-cart-item-editor.is-visible {
+  display: grid;
+}
+
+.rental-cart-item-editor input[type="date"] {
+  min-height: 2.2rem;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 10px;
+  padding: 0.35rem 0.5rem;
+  font: inherit;
+}
+
 .rental-checkout-dates {
   display: grid;
   grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(120px, 0.7fr)) auto;
@@ -2087,6 +2105,10 @@ body.is-rental-cart-open {
   }
 
   .rental-item-dates {
+    grid-template-columns: 1fr;
+  }
+
+  .rental-cart-item-editor {
     grid-template-columns: 1fr;
   }
 
