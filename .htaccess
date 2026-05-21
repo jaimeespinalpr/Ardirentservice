@@ -1,0 +1,16 @@
+# Ardi Rent & Service canonical routing
+# Keep the public site on one working version and force the homepage to load index.html.
+
+Options -MultiViews
+DirectoryIndex index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Send the apex domain to the working canonical www domain.
+  RewriteCond %{HTTP_HOST} ^ardirentservice\.com$ [NC]
+  RewriteRule ^(.*)$ https://www.ardirentservice.com/$1 [R=301,L]
+
+  # Make sure a bare homepage request resolves to index.html.
+  RewriteRule ^$ index.html [L]
+</IfModule>
