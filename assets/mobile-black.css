@@ -1,0 +1,109 @@
+@media (max-width: 640px) {
+  body.home-page,
+  body.home-page .mobile-home {
+    background: #000;
+    color: #fff;
+  }
+
+  body.home-page .site-header::after {
+    height: 5rem;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0));
+  }
+
+  body.home-page .brand-text strong {
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.75);
+  }
+
+  body.home-page .nav-links {
+    background: rgba(12, 12, 12, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
+  body.home-page .nav-links a {
+    color: #fff;
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+  }
+
+  body.home-page .mobile-hero-panel {
+    background: #000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
+  body.home-page .mobile-hero-bg {
+    filter: saturate(0.76) contrast(1.12) brightness(0.62);
+    opacity: 0.82;
+  }
+
+  body.home-page .mobile-hero-overlay {
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.52), rgba(0, 0, 0, 0.28) 32%, rgba(0, 0, 0, 0.95) 100%),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.02) 60%);
+  }
+
+  body.home-page .mobile-hero-content h1 {
+    max-width: 13.8rem;
+    text-shadow: 0 3px 18px rgba(0, 0, 0, 0.92);
+  }
+
+  body.home-page .mobile-outline-button {
+    background: rgba(0, 0, 0, 0.22);
+    border-color: rgba(255, 255, 255, 0.9);
+    color: #fff;
+    font-weight: 800;
+  }
+
+  body.home-page .mobile-featured-card {
+    background: linear-gradient(180deg, #101010, #050505);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
+  }
+
+  body.home-page .mobile-product-frame {
+    margin-bottom: 0.35rem;
+    border-radius: 0.85rem;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  body.home-page .mobile-black-button,
+  body.home-page .mobile-white-button {
+    background: #fff;
+    color: #000;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    font-weight: 900;
+  }
+
+  body.home-page .mobile-copy-block-light,
+  body.home-page .mobile-services-block,
+  body.home-page .mobile-soft-blue,
+  body.home-page .mobile-black-tail {
+    background: #000;
+    color: #fff;
+  }
+
+  body.home-page .mobile-copy-block-light,
+  body.home-page .mobile-services-block,
+  body.home-page .mobile-image-break {
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
+  body.home-page .mobile-copy-block h2,
+  body.home-page .mobile-services-block h2 {
+    color: #fff;
+    font-size: 1.52rem;
+  }
+
+  body.home-page .mobile-copy-block p,
+  body.home-page .mobile-services-block p {
+    width: min(100%, 17.4rem);
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.84rem;
+    line-height: 1.32;
+  }
+
+  body.home-page .mobile-image-break img {
+    filter: contrast(1.1) saturate(0.82) brightness(0.74);
+  }
+}
