@@ -42,14 +42,20 @@
   }
 
   body.home-page .mobile-hero-content h1 {
-    max-width: 13.8rem;
+    max-width: 16.8rem;
+    font-size: clamp(1.96rem, 9.2vw, 2.58rem);
+    line-height: 0.98;
     text-shadow: 0 3px 18px rgba(0, 0, 0, 0.92);
   }
 
   body.home-page .mobile-outline-button {
+    min-width: 7.15rem;
+    min-height: calc(1.55rem + 5px);
+    padding: 0.3rem 1rem;
     background: rgba(0, 0, 0, 0.22);
     border-color: rgba(255, 255, 255, 0.9);
     color: #fff;
+    font-size: 0.72rem;
     font-weight: 800;
   }
 
