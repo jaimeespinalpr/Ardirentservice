@@ -1,1 +1,2 @@
-Force deploy for mobile homepage updates: 2026-05-21 mobile-visible
+Force deploy for mobile homepage updates: 2026-05-21 mobile-visible-2
+Latest mobile hero title pinned to top: c452a57
