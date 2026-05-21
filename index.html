@@ -16,10 +16,10 @@
       property="og:description"
       content="Camera rentals, photography, video production, live streaming, and creative production services."
     />
-    <meta property="og:url" content="https://ardirentservice.com/" />
+    <meta property="og:url" content="https://www.ardirentservice.com/" />
     <meta
       property="og:image"
-      content="https://ardirentservice.com/assets/logos/logo-black-square.png"
+      content="https://www.ardirentservice.com/assets/logos/logo-black-square.png"
     />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Ardi Rent & Service LLC" />
@@ -29,12 +29,22 @@
     />
     <meta
       name="twitter:image"
-      content="https://ardirentservice.com/assets/logos/logo-black-square.png"
+      content="https://www.ardirentservice.com/assets/logos/logo-black-square.png"
     />
     <title>Ardi Rent & Service LLC</title>
-    <link rel="canonical" href="https://ardirentservice.com/" />
+    <link rel="canonical" href="https://www.ardirentservice.com/" />
     <link rel="icon" href="assets/logos/logo-black-square.png" />
     <link rel="apple-touch-icon" href="assets/logos/logo-black-square.png" />
+    <script>
+      if (window.location.hostname === "ardirentservice.com") {
+        window.location.replace(
+          "https://www.ardirentservice.com" +
+            window.location.pathname +
+            window.location.search +
+            window.location.hash
+        );
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -42,13 +52,14 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/styles.css?v=20260506-restore-state" />
+    <link rel="stylesheet" href="assets/mobile-home.css?v=20260521-mobile-showcase" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "LocalBusiness",
         "name": "Ardi Rent & Service LLC",
-        "url": "https://ardirentservice.com/",
-        "image": "https://ardirentservice.com/assets/logos/logo-black-square.png",
+        "url": "https://www.ardirentservice.com/",
+        "image": "https://www.ardirentservice.com/assets/logos/logo-black-square.png",
         "email": "ardirentservice@gmail.com",
         "telephone": "+1-939-366-1442",
         "sameAs": ["https://wa.me/19393661442"],
@@ -60,7 +71,7 @@
       }
     </script>
   </head>
-  <body>
+  <body class="home-page">
     <div class="ambient ambient-left"></div>
     <div class="ambient ambient-right"></div>
     <div class="ambient ambient-center"></div>
@@ -124,6 +135,72 @@
     </header>
 
     <main id="top">
+      <section class="mobile-home" aria-label="Ardi Rent & Service mobile home">
+        <section class="mobile-hero-panel">
+          <img
+            class="mobile-hero-bg"
+            src="assets/about/ardiel-underwater-production.jpg"
+            alt=""
+            aria-hidden="true"
+            loading="eager"
+            decoding="async"
+          />
+          <div class="mobile-hero-overlay"></div>
+          <div class="mobile-hero-content">
+            <h1>Renta de equipo fotográfico para profesionales y aficionados</h1>
+            <a class="mobile-outline-button" href="about.html">Más información</a>
+          </div>
+          <div class="mobile-slider-dots" aria-hidden="true">
+            <span class="is-active"></span>
+            <span></span>
+            <span></span>
+          </div>
+        </section>
+
+        <section class="mobile-featured-card" aria-label="Equipo destacado">
+          <div class="mobile-product-frame">
+            <button class="mobile-product-arrow" type="button" aria-label="Anterior">‹</button>
+            <img
+              src="assets/cameras/sony-alpha-1-hq.jpg"
+              alt="Sony Alpha 1 camera"
+              loading="lazy"
+              decoding="async"
+            />
+            <button class="mobile-product-arrow" type="button" aria-label="Siguiente">›</button>
+          </div>
+          <a class="mobile-black-button" href="equipment.html">Ver Listado</a>
+        </section>
+
+        <section class="mobile-copy-block mobile-copy-block-light">
+          <h2>Equipo Fotográfico</h2>
+          <p>
+            Disponemos de cámaras profesionales y semiprofesionales para fotografía y video,
+            ideales para producciones audiovisuales de alta calidad y diferentes tipos de proyectos.
+          </p>
+        </section>
+
+        <figure class="mobile-image-break">
+          <img
+            src="assets/cameras/sony-pxw-z150.jpg"
+            alt="Cámara profesional para producción audiovisual"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+
+        <section class="mobile-services-block">
+          <h2>Servicios</h2>
+          <p>
+            Disponemos de cámaras profesionales y semiprofesionales para fotografía y video,
+            ideales para producciones audiovisuales de alta calidad y diferentes tipos de proyectos.
+          </p>
+          <a class="mobile-white-button" href="services.html">Ver Nuestros Servicios</a>
+        </section>
+
+        <section class="mobile-soft-blue" aria-hidden="true"></section>
+        <section class="mobile-black-tail" aria-hidden="true"></section>
+      </section>
+
       <section class="hero">
         <div class="container hero-grid">
           <div class="hero-copy">
