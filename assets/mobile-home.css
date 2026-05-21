@@ -1,0 +1,351 @@
+.mobile-home {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --mobile-blue: #b9d2f0;
+  }
+
+  body.home-page {
+    background: #000;
+  }
+
+  body.home-page .ambient,
+  body.home-page .hero,
+  body.home-page .section-split,
+  body.home-page #vision,
+  body.home-page .site-footer {
+    display: none;
+  }
+
+  body.home-page .site-header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    background: transparent;
+    border-bottom: 0;
+    backdrop-filter: none;
+  }
+
+  body.home-page .site-header::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4.6rem;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0));
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  body.home-page .nav {
+    width: 100%;
+    padding: 0.75rem 0.72rem 0;
+    gap: 0.42rem;
+  }
+
+  body.home-page .brand {
+    gap: 0.32rem;
+    min-width: 0;
+    color: #fff;
+  }
+
+  body.home-page .brand-logo {
+    width: 2.15rem;
+    height: 2.15rem;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+  }
+
+  body.home-page .brand-text strong {
+    max-width: 7.25rem;
+    color: #fff;
+    font-size: 0.72rem;
+    line-height: 1.02;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  body.home-page .brand-text small {
+    display: none;
+  }
+
+  body.home-page .header-actions {
+    gap: 0.34rem;
+  }
+
+  body.home-page .menu-toggle {
+    display: inline-flex;
+    min-width: 2.35rem;
+    height: 1.58rem;
+    padding: 0.34rem 0.58rem;
+    border: 0;
+    background: rgba(255, 255, 255, 0.93);
+    color: #000;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  }
+
+  body.home-page .menu-toggle-bars {
+    width: 0.9rem;
+    height: 0.64rem;
+  }
+
+  body.home-page .language-switcher {
+    gap: 0.16rem;
+    padding: 0.13rem;
+    border: 0;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  }
+
+  body.home-page .lang-button {
+    padding: 0.18rem 0.32rem;
+    min-height: 1.4rem;
+  }
+
+  body.home-page .lang-button img {
+    width: 1.08rem;
+    height: 0.72rem;
+  }
+
+  body.home-page .nav-links {
+    position: absolute;
+    top: 3.35rem;
+    left: 0.72rem;
+    right: 0.72rem;
+    z-index: 55;
+    flex: none;
+    width: auto;
+    border-radius: 16px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 18px 46px rgba(0, 0, 0, 0.35);
+  }
+
+  body.home-page .site-header.is-menu-open .nav-links {
+    padding: 0.55rem;
+  }
+
+  body.home-page .nav-links a {
+    color: #111;
+    border-bottom-color: rgba(0, 0, 0, 0.07);
+  }
+
+  body.home-page .mobile-home {
+    display: block;
+    min-height: 100vh;
+    background: #000;
+    color: #0b0b0b;
+  }
+
+  body.home-page .mobile-hero-panel {
+    position: relative;
+    min-height: 30.2rem;
+    display: grid;
+    align-items: end;
+    overflow: hidden;
+    background: #111;
+  }
+
+  body.home-page .mobile-hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 42%;
+    filter: saturate(0.86) contrast(1.05);
+    transform: scale(1.03);
+  }
+
+  body.home-page .mobile-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.28) 34%, rgba(0, 0, 0, 0.82) 100%),
+      radial-gradient(circle at 48% 40%, rgba(255, 255, 255, 0.08), transparent 44%);
+  }
+
+  body.home-page .mobile-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 8.6rem 0.9rem 5.15rem;
+    color: #fff;
+  }
+
+  body.home-page .mobile-hero-content h1 {
+    max-width: 13.2rem;
+    margin: 0 0 1.05rem;
+    font-family: "Space Grotesk", "Manrope", system-ui, sans-serif;
+    font-size: clamp(2rem, 9.5vw, 2.62rem);
+    line-height: 0.96;
+    letter-spacing: -0.06em;
+    text-wrap: balance;
+  }
+
+  body.home-page .mobile-outline-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 6.65rem;
+    min-height: 1.55rem;
+    padding: 0.2rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    color: #fff;
+    font-size: 0.64rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  body.home-page .mobile-slider-dots {
+    position: absolute;
+    right: 1.1rem;
+    bottom: 2.1rem;
+    display: flex;
+    gap: 0.35rem;
+    z-index: 3;
+  }
+
+  body.home-page .mobile-slider-dots span {
+    width: 0.32rem;
+    height: 0.32rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.48);
+  }
+
+  body.home-page .mobile-slider-dots span.is-active {
+    background: #fff;
+  }
+
+  body.home-page .mobile-featured-card {
+    margin: 0.72rem 0.62rem 0.78rem;
+    padding: 1.05rem 0.8rem 1.18rem;
+    border-radius: 1.05rem;
+    background: #fff;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.24);
+    text-align: center;
+  }
+
+  body.home-page .mobile-product-frame {
+    min-height: 10.3rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.35rem;
+    align-items: center;
+  }
+
+  body.home-page .mobile-product-frame img {
+    width: 100%;
+    height: 9.2rem;
+    object-fit: contain;
+    object-position: center;
+  }
+
+  body.home-page .mobile-product-arrow {
+    width: 1.35rem;
+    height: 1.35rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: rgba(0, 0, 0, 0.35);
+    font-size: 1.35rem;
+    line-height: 1;
+    font-family: Georgia, serif;
+  }
+
+  body.home-page .mobile-black-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 7.1rem;
+    min-height: 1.55rem;
+    padding: 0.22rem 1.05rem;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid #000;
+    color: #000;
+    font-size: 0.64rem;
+    font-weight: 800;
+  }
+
+  body.home-page .mobile-copy-block {
+    padding: 1.05rem 0.92rem 1.35rem;
+  }
+
+  body.home-page .mobile-copy-block-light {
+    background: #fff;
+    border-top: 1px solid rgba(0, 0, 0, 0.74);
+  }
+
+  body.home-page .mobile-copy-block h2,
+  body.home-page .mobile-services-block h2 {
+    margin: 0 0 0.62rem;
+    font-family: "Space Grotesk", "Manrope", system-ui, sans-serif;
+    font-size: 1.48rem;
+    line-height: 1;
+    letter-spacing: -0.045em;
+  }
+
+  body.home-page .mobile-copy-block p,
+  body.home-page .mobile-services-block p {
+    width: min(100%, 16.2rem);
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+  }
+
+  body.home-page .mobile-image-break {
+    margin: 0;
+    height: 15.2rem;
+    overflow: hidden;
+    background: #000;
+  }
+
+  body.home-page .mobile-image-break img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 52% 48%;
+    filter: contrast(1.05) saturate(0.92);
+  }
+
+  body.home-page .mobile-services-block {
+    padding: 1.08rem 0.9rem 1.45rem;
+    background: #000;
+    color: #fff;
+  }
+
+  body.home-page .mobile-services-block p {
+    color: rgba(255, 255, 255, 0.86);
+    margin-bottom: 1.4rem;
+  }
+
+  body.home-page .mobile-white-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 7.9rem;
+    min-height: 1.42rem;
+    padding: 0.18rem 0.95rem;
+    border-radius: 999px;
+    background: #fff;
+    color: #000;
+    font-size: 0.55rem;
+    font-weight: 900;
+  }
+
+  body.home-page .mobile-soft-blue {
+    min-height: 18.85rem;
+    background: var(--mobile-blue);
+  }
+
+  body.home-page .mobile-black-tail {
+    min-height: 1.5rem;
+    background: #000;
+  }
+}
