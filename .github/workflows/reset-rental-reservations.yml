@@ -44,16 +44,16 @@ jobs:
             set -euo pipefail
             DB="/home/u467534899/domains/ardirentservice.com/public_html/pay/data/rentals.sqlite"
             test -f "${DB}"
-
-            php -r "
-            \$db = new PDO('sqlite:${DB}');
-            \$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            \$db->exec('BEGIN IMMEDIATE');
-            \$db->exec('DELETE FROM reservation_items;');
-            \$db->exec('DELETE FROM reservations;');
-            \$db->exec('COMMIT');
-            echo 'Reservations cleared' . PHP_EOL;
-            "
+            DB_PATH="${DB}" php -r '\''
+            $dbPath = getenv("DB_PATH");
+            $db = new PDO("sqlite:" . $dbPath);
+            $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $db->exec("BEGIN IMMEDIATE");
+            $db->exec("DELETE FROM reservation_items;");
+            $db->exec("DELETE FROM reservations;");
+            $db->exec("COMMIT");
+            echo "Reservations cleared" . PHP_EOL;
+            '\''
           '
 
       - name: Verify apex and www after reset
