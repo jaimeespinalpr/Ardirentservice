@@ -1,0 +1,67 @@
+name: Verify Hostinger Routing
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate SSH secrets exist
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          [[ -n "${HOSTINGER_SSH_HOST}" ]]
+          [[ -n "${HOSTINGER_SSH_PORT}" ]]
+          [[ -n "${HOSTINGER_SSH_USER}" ]]
+          [[ -n "${HOSTINGER_SSH_KEY}" ]]
+
+      - name: Prepare SSH
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${HOSTINGER_SSH_KEY}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${HOSTINGER_SSH_PORT}" -H "${HOSTINGER_SSH_HOST}" >> ~/.ssh/known_hosts
+
+      - name: Verify .htaccess on Hostinger over SSH
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT}" "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" '
+            set -e
+            TARGET="/home/u467534899/domains/ardirentservice.com/public_html/.htaccess"
+            echo "Checking: ${TARGET}"
+            test -f "${TARGET}"
+            ls -l "${TARGET}"
+            echo
+            echo "----- .htaccess -----"
+            sed -n "1,160p" "${TARGET}"
+          '
+
+      - name: Verify domain behavior from runner
+        run: |
+          set -euo pipefail
+          echo "=== curl -I https://ardirentservice.com/ ==="
+          curl -I https://ardirentservice.com/
+          echo
+          echo "=== curl -I -L https://ardirentservice.com/ ==="
+          curl -I -L https://ardirentservice.com/
+          echo
+          echo "=== curl -I https://www.ardirentservice.com/ ==="
+          curl -I https://www.ardirentservice.com/
+          echo
+          echo "=== curl -I https://ardirentservice.com/index.html ==="
+          curl -I https://ardirentservice.com/index.html
