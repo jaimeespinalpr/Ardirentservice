@@ -163,4 +163,55 @@
   body.home-page .mobile-image-break img {
     filter: contrast(1.1) saturate(0.82) brightness(0.74);
   }
+
+  body.home-page .mobile-soft-blue {
+    min-height: auto;
+    padding: 2rem 1.15rem 1.3rem;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 18%),
+      #000;
+    box-shadow: inset 0 22px 28px -30px rgba(255, 255, 255, 0.45);
+  }
+
+  body.home-page .mobile-soft-blue::before,
+  body.home-page .mobile-soft-blue::after {
+    display: block;
+    white-space: pre-line;
+  }
+
+  body.home-page .mobile-soft-blue::before {
+    content: "Ardi Rent & Service\A Renta de cámaras, lentes y soporte de producción en Puerto Rico.\A WhatsApp: 939-366-1442\A Email: ardirentservice@gmail.com";
+    padding-bottom: 1.25rem;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: calc(0.82rem + 5px);
+    line-height: 1.35;
+  }
+
+  body.home-page .mobile-soft-blue::first-line {
+    color: #fff;
+    font-family: "Space Grotesk", "Manrope", system-ui, sans-serif;
+    font-size: calc(1.35rem + 5px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+
+  body.home-page .mobile-soft-blue::after {
+    content: "Servicios\A • Renta de cámaras y lentes\A • Fotografía y video\A • Podcast y livestream\A • Producción audiovisual";
+    padding: 1.1rem 0 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.8);
+    font-size: calc(0.82rem + 5px);
+    line-height: 1.45;
+  }
+
+  body.home-page .mobile-black-tail {
+    min-height: auto;
+    padding: 0 1.15rem 2rem;
+    color: rgba(255, 255, 255, 0.52);
+    font-size: calc(0.72rem + 5px);
+  }
+
+  body.home-page .mobile-black-tail::before {
+    content: "© Ardi Rent & Service LLC. Camera rentals, production services, and visual storytelling.";
+  }
 }
