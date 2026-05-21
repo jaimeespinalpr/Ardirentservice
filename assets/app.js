@@ -3471,10 +3471,10 @@ const setupRentalSystem = () => {
       item.itemDates.classList.toggle("is-visible", showItemDates);
       item.itemDates.classList.toggle("has-conflict", unavailable);
       item.dateEditButton.textContent = text.buttonChangeDates;
-      item.dateEditButton.classList.toggle("is-visible", canEditSharedDates);
+      item.dateEditButton.classList.toggle("is-visible", selected || canEditSharedDates);
       item.dateEditButton.disabled = state.checking;
       item.removeButton.textContent = text.buttonRemove;
-      item.removeButton.classList.toggle("is-visible", selected && !unavailable);
+      item.removeButton.classList.toggle("is-visible", selected);
       item.removeButton.disabled = state.checking;
 
       if (!state.datesReady || locked) {
@@ -3537,12 +3537,46 @@ const setupRentalSystem = () => {
     } else {
       selectedItems.forEach((item) => {
         const li = document.createElement("li");
+        li.className = "rental-cart-item";
         const range = itemRange(item);
         const detail =
-          range && !state.sameDatesForAll
+          range
             ? ` (${text.cartDateLabel}: ${range.start} - ${range.end})`
             : "";
-        li.textContent = `${item.title} — ${currency.format(item.rateCents / 100)}${text.perDay}${detail}`;
+        const line = document.createElement("span");
+        line.textContent = `${item.title} — ${currency.format(item.rateCents / 100)}${text.perDay}${detail}`;
+        const actions = document.createElement("div");
+        actions.className = "rental-cart-item-actions";
+
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.className = "rental-cart-inline-button";
+        editButton.textContent = text.buttonChangeDates;
+        editButton.addEventListener("click", () => {
+          state.cartExpanded = false;
+          state.editingDateIds.add(item.id);
+          syncItemEditorToSharedDates(item);
+          renderCardStates();
+          renderCart();
+          item.itemStart.focus();
+          item.card.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "rental-cart-inline-button is-danger";
+        removeButton.textContent = text.buttonRemove;
+        removeButton.addEventListener("click", () => {
+          state.selectedIds.delete(item.id);
+          state.editingDateIds.delete(item.id);
+          renderCardStates();
+          renderCart();
+        });
+
+        actions.appendChild(editButton);
+        actions.appendChild(removeButton);
+        li.appendChild(line);
+        li.appendChild(actions);
         cartList.appendChild(li);
       });
     }
