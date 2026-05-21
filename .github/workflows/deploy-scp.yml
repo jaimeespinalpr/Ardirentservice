@@ -7,21 +7,19 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  deploy-static:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate deployment secrets
+      - name: Validate Hostinger secrets
         env:
           HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
           HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
           HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_MODE: ${{ secrets.STRIPE_MODE }}
         run: |
           set -euo pipefail
 
@@ -30,8 +28,6 @@ jobs:
           [[ -n "${HOSTINGER_SSH_PORT}" ]] || missing+=("HOSTINGER_SSH_PORT")
           [[ -n "${HOSTINGER_SSH_USER}" ]] || missing+=("HOSTINGER_SSH_USER")
           [[ -n "${HOSTINGER_SSH_KEY}" ]] || missing+=("HOSTINGER_SSH_KEY")
-          [[ -n "${STRIPE_SECRET_KEY}" ]] || missing+=("STRIPE_SECRET_KEY")
-          [[ -n "${STRIPE_MODE}" ]] || missing+=("STRIPE_MODE")
 
           if (( ${#missing[@]} > 0 )); then
             echo "Missing GitHub secrets: ${missing[*]}"
@@ -52,7 +48,7 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p "${HOSTINGER_SSH_PORT:-65002}" -H "${HOSTINGER_SSH_HOST}" >> ~/.ssh/known_hosts
 
-      - name: Sync static site to Hostinger
+      - name: Sync static website to Hostinger public_html
         env:
           HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
@@ -67,6 +63,7 @@ jobs:
             --exclude '.github/' \
             --exclude 'README.md' \
             --exclude '.DS_Store' \
+            --exclude 'deploy-trigger.txt' \
             --exclude 'rentals_*.php' \
             --exclude 'lead.php' \
             --exclude 'pay/' \
@@ -76,7 +73,29 @@ jobs:
             -e "ssh -i ~/.ssh/id_ed25519 -p ${HOSTINGER_SSH_PORT:-65002}" \
             ./ "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${STATIC_PATH}"
 
-      - name: Sync PHP checkout to pay subdomain on Hostinger
+  deploy-pay-backend:
+    runs-on: ubuntu-latest
+    needs: deploy-static
+    if: ${{ secrets.STRIPE_SECRET_KEY != '' && secrets.STRIPE_MODE != '' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${HOSTINGER_SSH_KEY}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${HOSTINGER_SSH_PORT:-65002}" -H "${HOSTINGER_SSH_HOST}" >> ~/.ssh/known_hosts
+
+      - name: Sync PHP checkout to pay folder
         env:
           HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
@@ -90,7 +109,6 @@ jobs:
           RENTAL_SMTP_ENCRYPTION: ${{ secrets.RENTAL_SMTP_ENCRYPTION }}
         run: |
           set -euo pipefail
-
           PAY_PATH="/home/u467534899/domains/ardirentservice.com/public_html/pay/"
 
           ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" \
