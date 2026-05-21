@@ -27,7 +27,8 @@
 
   body.home-page .mobile-hero-panel {
     background: #000;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    border-bottom: 0;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.62);
   }
 
   body.home-page .mobile-hero-bg {
@@ -42,9 +43,12 @@
   }
 
   body.home-page .mobile-hero-content h1 {
-    max-width: 16.8rem;
-    font-size: clamp(1.96rem, 9.2vw, 2.58rem);
-    line-height: 0.98;
+    width: min(92vw, 22rem) !important;
+    max-width: none !important;
+    font-size: clamp(1.68rem, 7.7vw, 2.18rem) !important;
+    line-height: 1.04 !important;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
     text-shadow: 0 3px 18px rgba(0, 0, 0, 0.92);
   }
 
@@ -61,15 +65,27 @@
 
   body.home-page .mobile-featured-card {
     background: linear-gradient(180deg, #101010, #050505);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
+    border: 0;
+    box-shadow:
+      0 14px 42px rgba(0, 0, 0, 0.62),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.04);
   }
 
   body.home-page .mobile-product-frame {
     margin-bottom: 0.35rem;
     border-radius: 0.85rem;
-    background: #fff;
+    background:
+      radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 1), rgba(246, 246, 246, 0.96) 58%, rgba(235, 235, 235, 0.88) 100%);
     overflow: hidden;
+    border: 0;
+    box-shadow:
+      0 10px 28px rgba(0, 0, 0, 0.32),
+      inset 0 0 28px rgba(0, 0, 0, 0.05);
+  }
+
+  body.home-page .mobile-product-frame img {
+    filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.18));
   }
 
   body.home-page .mobile-black-button,
@@ -91,8 +107,11 @@
   body.home-page .mobile-copy-block-light,
   body.home-page .mobile-services-block,
   body.home-page .mobile-image-break {
-    border-top: 1px solid rgba(255, 255, 255, 0.16);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    border-top: 0;
+    border-bottom: 0;
+    box-shadow:
+      inset 0 22px 24px -28px rgba(255, 255, 255, 0.35),
+      inset 0 -22px 24px -28px rgba(255, 255, 255, 0.35);
   }
 
   body.home-page .mobile-copy-block h2,
