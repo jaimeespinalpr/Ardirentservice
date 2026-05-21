@@ -1,0 +1,65 @@
+name: Reset Rental Reservations
+
+on:
+  workflow_dispatch:
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate SSH secrets exist
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          [[ -n "${HOSTINGER_SSH_HOST}" ]]
+          [[ -n "${HOSTINGER_SSH_PORT}" ]]
+          [[ -n "${HOSTINGER_SSH_USER}" ]]
+          [[ -n "${HOSTINGER_SSH_KEY}" ]]
+
+      - name: Prepare SSH
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${HOSTINGER_SSH_KEY}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${HOSTINGER_SSH_PORT}" -H "${HOSTINGER_SSH_HOST}" >> ~/.ssh/known_hosts
+
+      - name: Reset reservations database on Hostinger
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT}" "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" '
+            set -euo pipefail
+            DB="/home/u467534899/domains/ardirentservice.com/public_html/pay/data/rentals.sqlite"
+            test -f "${DB}"
+
+            php -r "
+            \$db = new PDO('sqlite:${DB}');
+            \$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            \$db->exec('BEGIN IMMEDIATE');
+            \$db->exec('DELETE FROM reservation_items;');
+            \$db->exec('DELETE FROM reservations;');
+            \$db->exec('COMMIT');
+            echo 'Reservations cleared' . PHP_EOL;
+            "
+          '
+
+      - name: Verify apex and www after reset
+        run: |
+          set -euo pipefail
+          echo "=== availability endpoint smoke test ==="
+          curl -sS "https://pay.ardirentservice.com/rentals_availability.php?start_date=2026-06-01&end_date=2026-06-02&items=sony-a7-v" | head -c 400; echo
+          echo "=== domain redirect check ==="
+          curl -I -L https://ardirentservice.com/ | sed -n '1,20p'
