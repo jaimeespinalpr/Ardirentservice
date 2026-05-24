@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-05-23T18:23:19.744808",
+  "metadata_entries": 184,
+  "image_files_jpg": 184,
+  "categories": {
+    "underwater": 36,
+    "action": 42,
+    "aerial": 9,
+    "coast": 63,
+    "art": 34
+  },
+  "missing_files_from_metadata": [],
+  "missing_count": 0
+}
