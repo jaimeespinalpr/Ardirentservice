@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Prints gallery by Ardi Rent & Service LLC. Select from 184 photos available for print."
+      content="Colección curada de prints de Ardi Rent & Service LLC con selección destacada, top 25 y galerías por categoría."
     />
     <meta name="robots" content="index,follow" />
     <meta name="theme-color" content="#000000" />
@@ -20,17 +20,307 @@
     />
     <link rel="stylesheet" href="assets/styles.css?v=20260506-restore-state" />
     <style>
+      .prints-hero {
+        display: grid;
+        gap: 1rem;
+        padding: 1.5rem 0 0.5rem;
+      }
+
+      .prints-hero h1 {
+        margin: 0;
+        max-width: 12ch;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(2.35rem, 6vw, 4.9rem);
+        line-height: 0.95;
+        letter-spacing: -0.05em;
+      }
+
+      .prints-hero p {
+        margin: 0;
+        max-width: 68ch;
+        color: var(--muted);
+        line-height: 1.7;
+        font-size: 1.02rem;
+      }
+
+      .prints-hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+      }
+
+      .prints-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.55rem 0.85rem;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.84);
+        color: var(--muted);
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+      }
+
+      .prints-section {
+        padding-top: 0.9rem;
+      }
+
+      .prints-section .section-heading {
+        margin-bottom: 1rem;
+      }
+
+      .prints-section .section-heading h2 {
+        margin-bottom: 0.5rem;
+      }
+
+      .prints-section .section-heading p:last-child {
+        max-width: 66ch;
+      }
+
+      .prints-carousel {
+        margin-top: 1rem;
+      }
+
+      .prints-carousel .ig-track {
+        padding-bottom: 0.95rem;
+        scroll-snap-type: x mandatory;
+      }
+
+      .prints-carousel .ig-slide {
+        flex: 0 0 min(82vw, 620px);
+        scroll-snap-align: start;
+      }
+
+      .print-slide {
+        display: grid;
+        overflow: hidden;
+        border-radius: 22px;
+        background: linear-gradient(180deg, #ffffff, #f1f1f1);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow);
+        transition:
+          transform 180ms ease,
+          box-shadow 180ms ease,
+          border-color 180ms ease;
+      }
+
+      .print-slide-media {
+        position: relative;
+        aspect-ratio: 16 / 10;
+        overflow: hidden;
+        background: #111111;
+      }
+
+      .print-slide-media img,
+      .print-tile-media img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .print-slide-media::after,
+      .print-tile-media::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.42) 100%);
+        pointer-events: none;
+      }
+
+      .print-slide-copy {
+        display: grid;
+        gap: 0.35rem;
+        padding: 1rem 1.1rem 1.15rem;
+      }
+
+      .print-kicker {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.82rem;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+        font-weight: 800;
+      }
+
+      .print-title {
+        margin: 0;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.18rem;
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+      }
+
+      .print-copy {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.55;
+        font-size: 0.94rem;
+      }
+
+      .print-badge {
+        position: absolute;
+        top: 0.95rem;
+        left: 0.95rem;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.4rem 0.7rem;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.72);
+        color: #ffffff;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        backdrop-filter: blur(8px);
+      }
+
+      .prints-dots {
+        margin-top: 0.15rem;
+      }
+
+      .prints-dot {
+        width: 0.6rem;
+        height: 0.6rem;
+      }
+
+      .prints-grid {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .prints-top-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+
+      .print-tile {
+        position: relative;
+        display: grid;
+        overflow: hidden;
+        border-radius: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        background: linear-gradient(180deg, #ffffff, #f2f2f2);
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+        min-height: 100%;
+        transition:
+          transform 180ms ease,
+          box-shadow 180ms ease,
+          border-color 180ms ease;
+      }
+
+      .print-tile-media {
+        position: relative;
+        aspect-ratio: 4 / 5;
+        overflow: hidden;
+        background: #111111;
+      }
+
+      .print-tile-copy {
+        display: grid;
+        gap: 0.3rem;
+        padding: 0.95rem 1rem 1.05rem;
+      }
+
+      .print-tile .print-title {
+        font-size: 1rem;
+        line-height: 1.15;
+      }
+
+      .print-tile .print-copy {
+        font-size: 0.84rem;
+      }
+
+      .print-tile--hero .print-title {
+        font-size: 1.1rem;
+      }
+
       .prints-category {
-        margin-top: 2rem;
+        margin-top: 1.9rem;
       }
 
       .prints-category h3 {
         margin: 0 0 0.35rem;
+        font-family: "Space Grotesk", sans-serif;
+        letter-spacing: -0.03em;
       }
 
       .prints-category p {
         margin: 0 0 1rem;
         color: var(--muted);
+      }
+
+      .prints-category-grid {
+        display: grid;
+        gap: 0.95rem;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .print-tile:hover,
+      .print-tile:focus-within,
+      .print-slide:hover,
+      .print-slide:focus-within {
+        transform: translateY(-2px);
+        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        border-color: rgba(0, 0, 0, 0.18);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.11);
+      }
+
+      .print-slide:hover .print-slide-media img,
+      .print-tile:hover .print-tile-media img {
+        transform: scale(1.03);
+      }
+
+      .print-slide-media img,
+      .print-tile-media img {
+        transition: transform 300ms ease;
+      }
+
+      .prints-empty {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      @media (max-width: 1100px) {
+        .prints-top-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .prints-category-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .prints-hero h1 {
+          max-width: 11ch;
+          font-size: clamp(2.1rem, 12vw, 3.6rem);
+        }
+
+        .prints-top-grid,
+        .prints-category-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .prints-carousel .ig-slide {
+          flex-basis: min(86vw, 520px);
+        }
+
+        .print-slide-media {
+          aspect-ratio: 4 / 5;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .print-slide-media img,
+        .print-tile-media img,
+        .print-slide,
+        .print-tile {
+          transition: none !important;
+        }
       }
     </style>
   </head>
@@ -56,14 +346,14 @@
           </span>
         </a>
 
-        <nav class="nav-links" id="primary-nav" aria-label="Primary">
-          <a data-nav-link="about" href="about.html">About</a>
-          <a data-nav-link="services" href="services.html">Services</a>
-          <a data-nav-link="equipment" href="equipment.html">Equipment</a>
+        <nav class="nav-links" id="primary-nav" aria-label="Principal">
+          <a data-nav-link="about" href="about.html">Acerca</a>
+          <a data-nav-link="services" href="services.html">Servicios</a>
+          <a data-nav-link="equipment" href="equipment.html">Equipo</a>
           <a href="prints.html" aria-current="page">Prints</a>
-          <a data-nav-link="production" href="production.html">Production</a>
-          <a data-nav-link="contact" href="contact.html">Contact</a>
-          <a href="production.html#project-brief" class="nav-mobile-cta">Request a quote</a>
+          <a data-nav-link="production" href="production.html">Producción</a>
+          <a data-nav-link="contact" href="contact.html">Contacto</a>
+          <a href="production.html#project-brief" class="nav-mobile-cta">Solicitar cotización</a>
         </nav>
 
         <div class="header-actions">
@@ -72,27 +362,27 @@
             type="button"
             aria-expanded="false"
             aria-controls="primary-nav"
-            aria-label="Open menu"
+            aria-label="Abrir menú"
           >
             <span class="menu-toggle-bars" aria-hidden="true">
               <span></span>
               <span></span>
               <span></span>
             </span>
-            <span class="menu-toggle-label">Menu</span>
+            <span class="menu-toggle-label">Menú</span>
           </button>
-          <div class="language-switcher" aria-label="Language selector">
-            <button class="lang-button" type="button" data-lang="es" aria-pressed="false">
+          <div class="language-switcher" aria-label="Selector de idioma">
+            <button class="lang-button is-active" type="button" data-lang="es" aria-pressed="true">
               <img src="assets/flags/es.svg" alt="" aria-hidden="true" />
               <span>ES</span>
             </button>
-            <button class="lang-button" type="button" data-lang="en" aria-pressed="true">
+            <button class="lang-button" type="button" data-lang="en" aria-pressed="false">
               <img src="assets/flags/us.svg" alt="" aria-hidden="true" />
               <span>EN</span>
             </button>
           </div>
 
-          <a class="button button-ghost nav-cta" href="production.html#project-brief">Request a quote</a>
+          <a class="button button-ghost nav-cta" href="production.html#project-brief">Solicitar cotización</a>
         </div>
       </div>
     </header>
@@ -100,16 +390,71 @@
     <main id="top">
       <section class="section section-alt">
         <div class="container">
-          <div class="section-heading">
+          <div class="prints-hero">
             <p class="eyebrow">Prints</p>
-            <h2>Colección de Prints (184 fotos)</h2>
+            <h1>Colección curada de impresiones artísticas</h1>
             <p>
-              Reorganicé las fotos por tipos y cambié los nombres técnicos por títulos
-              artísticos de colección.
+              Reorganicé la galería para que se vea editorial: una selección destacada con carrusel,
+              un Top 25 con las piezas más fuertes al principio y el resto de la colección ordenado
+              por categoría debajo.
+            </p>
+            <div class="prints-hero-meta" aria-label="Resumen de la colección">
+              <span class="prints-pill">25 imágenes destacadas</span>
+              <span class="prints-pill">184 fotos en total</span>
+              <span class="prints-pill">5 categorías</span>
+              <span class="prints-pill">Título artístico en español</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section prints-section">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">Selección destacada</p>
+            <h2>Carrusel editorial</h2>
+            <p>
+              Las primeras piezas de la colección aparecen en formato carrusel para abrir la página con
+              más fuerza visual y un recorrido más profesional.
             </p>
           </div>
 
-          <div id="prints-gallery"></div>
+          <div class="ig-carousel prints-carousel" data-featured-carousel>
+            <button class="ig-nav ig-prev" type="button" data-featured-prev aria-label="Imagen anterior">‹</button>
+            <button class="ig-nav ig-next" type="button" data-featured-next aria-label="Imagen siguiente">›</button>
+            <div class="ig-track" data-featured-track></div>
+          </div>
+          <div class="ig-dots prints-dots" data-featured-dots></div>
+        </div>
+      </section>
+
+      <section class="section prints-section section-alt">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">Top 25</p>
+            <h2>Las mejores imágenes primero</h2>
+            <p>
+              Esta selección premium reúne las 25 imágenes con mejor presencia visual para que entren de
+              inmediato en la experiencia principal, sin numeración visible ni títulos genéricos.
+            </p>
+          </div>
+
+          <div class="prints-grid prints-top-grid" data-top-grid></div>
+        </div>
+      </section>
+
+      <section class="section prints-section">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">Colección completa</p>
+            <h2>El resto de la galería</h2>
+            <p>
+              Las imágenes restantes siguen organizadas por categoría para que la navegación sea clara y
+              la colección conserve un ritmo visual consistente.
+            </p>
+          </div>
+
+          <div data-collection-sections></div>
         </div>
       </section>
     </main>
@@ -128,30 +473,198 @@
           />
           <span>Ardi Rent & Service LLC</span>
         </p>
-        <p>Camera rentals, production services, and visual storytelling.</p>
+        <p>Alquiler de cámaras, producción audiovisual y narrativa visual.</p>
       </div>
     </footer>
 
-    <script src="assets/app.js?v=20260506-restore-state" defer></script>
     <script>
       window.addEventListener("DOMContentLoaded", async () => {
-        const gallery = document.getElementById("prints-gallery");
-        if (!gallery) return;
+        const featuredCarousel = document.querySelector("[data-featured-carousel]");
+        const featuredTrack = document.querySelector("[data-featured-track]");
+        const featuredPrev = document.querySelector("[data-featured-prev]");
+        const featuredNext = document.querySelector("[data-featured-next]");
+        const featuredDots = document.querySelector("[data-featured-dots]");
+        const topGrid = document.querySelector("[data-top-grid]");
+        const collectionWrap = document.querySelector("[data-collection-sections]");
+
+        if (!featuredCarousel || !featuredTrack || !featuredPrev || !featuredNext || !featuredDots || !topGrid || !collectionWrap) {
+          return;
+        }
+
+        const badgeLabels = {
+          coast: "Costa y paisaje",
+          action: "Olas en acción",
+          underwater: "Debajo del agua",
+          aerial: "Vista aérea",
+          art: "Edición artística",
+        };
+
+        const createMedia = (item, loading = "lazy") => {
+          const media = document.createElement("div");
+          media.className = "print-slide-media";
+
+          const img = document.createElement("img");
+          img.src = item.src;
+          img.alt = item.displayTitle || "Print";
+          img.loading = loading;
+          img.decoding = "async";
+          media.appendChild(img);
+
+          const badge = document.createElement("span");
+          badge.className = "print-badge";
+          badge.textContent = badgeLabels[item.category] || item.category;
+          media.appendChild(badge);
+
+          return media;
+        };
+
+        const createTile = (item, compact = false) => {
+          const card = document.createElement("article");
+          card.className = compact ? "print-tile print-tile--compact" : "print-tile print-tile--hero";
+
+          card.appendChild(createMedia(item, "lazy"));
+
+          const copy = document.createElement("div");
+          copy.className = "print-tile-copy";
+
+          const kicker = document.createElement("p");
+          kicker.className = "print-kicker";
+          kicker.textContent = badgeLabels[item.category] || item.category;
+
+          const title = document.createElement("h3");
+          title.className = "print-title";
+          title.textContent = item.displayTitle || item.id;
+
+          copy.append(kicker, title);
+          card.appendChild(copy);
+          return card;
+        };
+
+        const createSlide = (item, loading = "lazy") => {
+          const slide = document.createElement("div");
+          slide.className = "ig-slide";
+
+          const card = document.createElement("article");
+          card.className = "print-slide";
+
+          card.appendChild(createMedia(item, loading));
+
+          const copy = document.createElement("div");
+          copy.className = "print-slide-copy";
+
+          const kicker = document.createElement("p");
+          kicker.className = "print-kicker";
+          kicker.textContent = "Selección destacada";
+
+          const title = document.createElement("h3");
+          title.className = "print-title";
+          title.textContent = item.displayTitle || item.id;
+
+          const description = document.createElement("p");
+          description.className = "print-copy";
+          description.textContent = badgeLabels[item.category] || item.category;
+
+          copy.append(kicker, title, description);
+          card.appendChild(copy);
+          slide.appendChild(card);
+          return slide;
+        };
+
         try {
           const response = await fetch("data/prints_metadata.json", { cache: "no-store" });
           const payload = await response.json();
-          const categories = payload.categories || [];
-          const prints = payload.prints || [];
-          const byCategory = new Map(categories.map((cat) => [cat.id, []]));
+          const categories = Array.isArray(payload.categories) ? payload.categories : [];
+          const prints = Array.isArray(payload.prints) ? payload.prints.slice() : [];
 
-          prints.forEach((item) => {
-            if (!byCategory.has(item.category)) byCategory.set(item.category, []);
-            byCategory.get(item.category).push(item);
+          const featured = prints
+            .filter((item) => Number.isFinite(item.featuredRank))
+            .sort((a, b) => (a.featuredRank || 0) - (b.featuredRank || 0));
+
+          const featuredIds = new Set(featured.map((item) => item.id));
+          const remaining = prints.filter((item) => !featuredIds.has(item.id));
+
+          const heroItems = featured.slice(0, 8);
+
+          const buildDots = (count) => {
+            featuredDots.innerHTML = "";
+            const dots = [];
+
+            for (let index = 0; index < count; index += 1) {
+              const dot = document.createElement("button");
+              dot.type = "button";
+              dot.className = "ig-dot prints-dot";
+              dot.setAttribute("aria-label", `Ir a la imagen ${index + 1}`);
+              dot.addEventListener("click", () => {
+                slides[index]?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+              });
+              featuredDots.appendChild(dot);
+              dots.push(dot);
+            }
+
+            return dots;
+          };
+
+          featuredTrack.innerHTML = "";
+          const slides = heroItems.map((item, index) => {
+            const slide = createSlide(item, index === 0 ? "eager" : "lazy");
+            featuredTrack.appendChild(slide);
+            return slide;
           });
 
-          const pageFragment = document.createDocumentFragment();
+          const dots = buildDots(slides.length);
+          let activeIndex = 0;
+
+          const setActive = (index) => {
+            if (slides.length === 0) return;
+            activeIndex = Math.max(0, Math.min(index, slides.length - 1));
+            dots.forEach((dot, dotIndex) => dot.classList.toggle("is-active", dotIndex === activeIndex));
+          };
+
+          const go = (index) => {
+            if (slides.length === 0) return;
+            const nextIndex = (index + slides.length) % slides.length;
+            slides[nextIndex].scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+            setActive(nextIndex);
+          };
+
+          featuredPrev.addEventListener("click", () => go(activeIndex - 1));
+          featuredNext.addEventListener("click", () => go(activeIndex + 1));
+
+          featuredTrack.addEventListener("scroll", () => {
+            window.requestAnimationFrame(() => {
+              if (slides.length === 0) return;
+              const left = featuredTrack.scrollLeft;
+              let best = 0;
+              let bestDistance = Infinity;
+              slides.forEach((slide, index) => {
+                const distance = Math.abs(slide.offsetLeft - left);
+                if (distance < bestDistance) {
+                  bestDistance = distance;
+                  best = index;
+                }
+              });
+              setActive(best);
+            });
+          });
+
+          setActive(0);
+
+          topGrid.innerHTML = "";
+          featured.forEach((item) => {
+            topGrid.appendChild(createTile(item, false));
+          });
+
+          const remainingByCategory = new Map(categories.map((category) => [category.id, []]));
+          remaining.forEach((item) => {
+            if (!remainingByCategory.has(item.category)) {
+              remainingByCategory.set(item.category, []);
+            }
+            remainingByCategory.get(item.category).push(item);
+          });
+
+          collectionWrap.innerHTML = "";
           categories.forEach((category) => {
-            const items = byCategory.get(category.id) || [];
+            const items = remainingByCategory.get(category.id) || [];
             if (items.length === 0) return;
 
             const section = document.createElement("section");
@@ -166,38 +679,23 @@
             section.appendChild(desc);
 
             const grid = document.createElement("div");
-            grid.className = "equipment-grid";
-
+            grid.className = "prints-category-grid";
             items.forEach((item) => {
-              const label = item.id.replace("print-", "Print ");
-              const card = document.createElement("article");
-              card.className = "equipment-card";
-
-              const image = document.createElement("img");
-              image.src = item.src;
-              image.alt = item.displayTitle || label;
-              image.loading = "lazy";
-              image.decoding = "async";
-
-              const tag = document.createElement("span");
-              tag.className = "fleet-tag";
-              tag.textContent = label;
-
-              const title = document.createElement("h3");
-              title.textContent = item.displayTitle || label;
-
-              card.append(image, tag, title);
-              grid.appendChild(card);
+              grid.appendChild(createTile(item, true));
             });
 
             section.appendChild(grid);
-            pageFragment.appendChild(section);
+            collectionWrap.appendChild(section);
           });
 
-          gallery.appendChild(pageFragment);
+          if (heroItems.length === 0) {
+            featuredCarousel.classList.add("is-hidden");
+            featuredDots.classList.add("is-hidden");
+          }
         } catch (error) {
-          gallery.innerHTML =
-            '<p class="lead">No pudimos cargar las fotos en este momento. Recarga la página.</p>';
+          featuredCarousel.innerHTML = '<p class="prints-empty">No pudimos cargar la colección en este momento. Recarga la página.</p>';
+          topGrid.innerHTML = "";
+          collectionWrap.innerHTML = '<p class="prints-empty">No pudimos cargar las galerías por categoría.</p>';
           console.error(error);
         }
       });

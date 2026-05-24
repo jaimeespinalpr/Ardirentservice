@@ -37,13 +37,17 @@
       "id": "print-002",
       "src": "assets/prints/print-002.jpg",
       "category": "coast",
-      "displayTitle": "Horizonte de Luna"
+      "displayTitle": "Horizonte de Luna",
+      "featured": true,
+      "featuredRank": 20
     },
     {
       "id": "print-003",
       "src": "assets/prints/print-003.jpg",
       "category": "underwater",
-      "displayTitle": "Abismo de Luz"
+      "displayTitle": "Abismo de Luz",
+      "featured": true,
+      "featuredRank": 9
     },
     {
       "id": "print-004",
@@ -55,19 +59,25 @@
       "id": "print-005",
       "src": "assets/prints/print-005.jpg",
       "category": "underwater",
-      "displayTitle": "Abismo de Cristal"
+      "displayTitle": "Abismo de Cristal",
+      "featured": true,
+      "featuredRank": 10
     },
     {
       "id": "print-006",
       "src": "assets/prints/print-006.jpg",
       "category": "action",
-      "displayTitle": "Pulso de Sal"
+      "displayTitle": "Pulso de Sal",
+      "featured": true,
+      "featuredRank": 15
     },
     {
       "id": "print-007",
       "src": "assets/prints/print-007.jpg",
       "category": "coast",
-      "displayTitle": "Horizonte de Bruma"
+      "displayTitle": "Horizonte de Bruma",
+      "featured": true,
+      "featuredRank": 21
     },
     {
       "id": "print-008",
@@ -115,7 +125,9 @@
       "id": "print-015",
       "src": "assets/prints/print-015.jpg",
       "category": "action",
-      "displayTitle": "Pulso de Luz"
+      "displayTitle": "Pulso de Luz",
+      "featured": true,
+      "featuredRank": 16
     },
     {
       "id": "print-016",
@@ -127,13 +139,17 @@
       "id": "print-017",
       "src": "assets/prints/print-017.jpg",
       "category": "art",
-      "displayTitle": "Nocturno Marino"
+      "displayTitle": "Nocturno Marino",
+      "featured": true,
+      "featuredRank": 4
     },
     {
       "id": "print-018",
       "src": "assets/prints/print-018.jpg",
       "category": "coast",
-      "displayTitle": "Horizonte de Marea"
+      "displayTitle": "Horizonte de Marea",
+      "featured": true,
+      "featuredRank": 22
     },
     {
       "id": "print-019",
@@ -169,7 +185,9 @@
       "id": "print-024",
       "src": "assets/prints/print-024.jpg",
       "category": "underwater",
-      "displayTitle": "Arrecife de Luz"
+      "displayTitle": "Arrecife de Luz",
+      "featured": true,
+      "featuredRank": 11
     },
     {
       "id": "print-025",
@@ -181,7 +199,9 @@
       "id": "print-026",
       "src": "assets/prints/print-026.jpg",
       "category": "action",
-      "displayTitle": "Pulso de Fuego"
+      "displayTitle": "Pulso de Fuego",
+      "featured": true,
+      "featuredRank": 17
     },
     {
       "id": "print-027",
@@ -253,7 +273,9 @@
       "id": "print-038",
       "src": "assets/prints/print-038.jpg",
       "category": "underwater",
-      "displayTitle": "Arrecife de Azul"
+      "displayTitle": "Arrecife de Azul",
+      "featured": true,
+      "featuredRank": 12
     },
     {
       "id": "print-039",
@@ -271,7 +293,9 @@
       "id": "print-041",
       "src": "assets/prints/print-041.jpg",
       "category": "coast",
-      "displayTitle": "Bahía de Luna"
+      "displayTitle": "Bahía de Luna",
+      "featured": true,
+      "featuredRank": 23
     },
     {
       "id": "print-042",
@@ -301,13 +325,17 @@
       "id": "print-046",
       "src": "assets/prints/print-046.jpg",
       "category": "aerial",
-      "displayTitle": "Cartografía del Viento"
+      "displayTitle": "Cartografía del Viento",
+      "featured": true,
+      "featuredRank": 1
     },
     {
       "id": "print-047",
       "src": "assets/prints/print-047.jpg",
       "category": "aerial",
-      "displayTitle": "Cartografía del Mar"
+      "displayTitle": "Cartografía del Mar",
+      "featured": true,
+      "featuredRank": 2
     },
     {
       "id": "print-048",
@@ -361,7 +389,9 @@
       "id": "print-056",
       "src": "assets/prints/print-056.jpg",
       "category": "coast",
-      "displayTitle": "Bahía de Oro"
+      "displayTitle": "Bahía de Oro",
+      "featured": true,
+      "featuredRank": 24
     },
     {
       "id": "print-057",
@@ -373,7 +403,9 @@
       "id": "print-058",
       "src": "assets/prints/print-058.jpg",
       "category": "action",
-      "displayTitle": "Impacto de Sal"
+      "displayTitle": "Impacto de Sal",
+      "featured": true,
+      "featuredRank": 18
     },
     {
       "id": "print-059",
@@ -409,13 +441,17 @@
       "id": "print-064",
       "src": "assets/prints/print-064.jpg",
       "category": "underwater",
-      "displayTitle": "Fondo de Cristal"
+      "displayTitle": "Fondo de Cristal",
+      "featured": true,
+      "featuredRank": 13
     },
     {
       "id": "print-065",
       "src": "assets/prints/print-065.jpg",
       "category": "art",
-      "displayTitle": "Aura Marina"
+      "displayTitle": "Aura Marina",
+      "featured": true,
+      "featuredRank": 5
     },
     {
       "id": "print-066",
@@ -589,7 +625,9 @@
       "id": "print-094",
       "src": "assets/prints/print-094.jpg",
       "category": "art",
-      "displayTitle": "Memoria Azul"
+      "displayTitle": "Memoria Azul",
+      "featured": true,
+      "featuredRank": 6
     },
     {
       "id": "print-095",
@@ -709,7 +747,9 @@
       "id": "print-114",
       "src": "assets/prints/print-114.jpg",
       "category": "action",
-      "displayTitle": "Vórtice de Sal"
+      "displayTitle": "Vórtice de Sal",
+      "featured": true,
+      "featuredRank": 19
     },
     {
       "id": "print-115",
@@ -853,7 +893,9 @@
       "id": "print-138",
       "src": "assets/prints/print-138.jpg",
       "category": "coast",
-      "displayTitle": "Costa de Luz"
+      "displayTitle": "Costa de Luz",
+      "featured": true,
+      "featuredRank": 25
     },
     {
       "id": "print-139",
@@ -925,7 +967,9 @@
       "id": "print-150",
       "src": "assets/prints/print-150.jpg",
       "category": "underwater",
-      "displayTitle": "Silencio de Luz"
+      "displayTitle": "Silencio de Luz",
+      "featured": true,
+      "featuredRank": 14
     },
     {
       "id": "print-151",
@@ -955,7 +999,9 @@
       "id": "print-155",
       "src": "assets/prints/print-155.jpg",
       "category": "art",
-      "displayTitle": "Órbita Marina"
+      "displayTitle": "Órbita Marina",
+      "featured": true,
+      "featuredRank": 7
     },
     {
       "id": "print-156",
@@ -1003,7 +1049,9 @@
       "id": "print-163",
       "src": "assets/prints/print-163.jpg",
       "category": "aerial",
-      "displayTitle": "Perspectiva de Sal"
+      "displayTitle": "Perspectiva de Sal",
+      "featured": true,
+      "featuredRank": 3
     },
     {
       "id": "print-164",
@@ -1117,7 +1165,9 @@
       "id": "print-182",
       "src": "assets/prints/print-182.jpg",
       "category": "art",
-      "displayTitle": "Silencio Azul"
+      "displayTitle": "Silencio Azul",
+      "featured": true,
+      "featuredRank": 8
     },
     {
       "id": "print-183",
