@@ -67,7 +67,6 @@ jobs:
             --exclude 'rentals_*.php' \
             --exclude 'lead.php' \
             --exclude 'pay/' \
-            --exclude 'data/' \
             --exclude '.env' \
             --exclude '.env.pay' \
             -e "ssh -i ~/.ssh/id_ed25519 -p ${HOSTINGER_SSH_PORT:-65002}" \
@@ -76,7 +75,7 @@ jobs:
   deploy-pay-backend:
     runs-on: ubuntu-latest
     needs: deploy-static
-    if: ${{ secrets.STRIPE_SECRET_KEY != '' && secrets.STRIPE_MODE != '' }}
+    if: secrets.STRIPE_SECRET_KEY != '' && secrets.STRIPE_MODE != ''
 
     steps:
       - name: Checkout
