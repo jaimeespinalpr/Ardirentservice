@@ -52,9 +52,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/styles.css?v=20260506-restore-state" />
-    <link rel="stylesheet" href="assets/mobile-home.css?v=20260521-mobile-showcase" />
-    <link rel="stylesheet" href="assets/mobile-black.css?v=20260521-black-template-2" />
-    <link rel="stylesheet" href="assets/friendly-theme.css?v=20260804-friendlier-layout" />
+    <link rel="stylesheet" href="assets/friendly-theme.css?v=20260708-unified-home" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -136,81 +134,29 @@
     </header>
 
     <main id="top">
-      <section class="mobile-home" aria-label="Ardi Rent & Service mobile home">
-        <section class="mobile-hero-panel">
+      <section class="hero hero-photo">
+        <picture class="hero-bg" aria-hidden="true">
+          <source
+            media="(max-width: 640px)"
+            srcset="assets/about/ardiel-underwater-hero-mobile.jpg"
+          />
           <img
-            class="mobile-hero-bg"
-            src="assets/about/ardiel-underwater-production.jpg"
+            src="assets/about/ardiel-underwater-hero.jpg"
             alt=""
-            aria-hidden="true"
             loading="eager"
+            fetchpriority="high"
             decoding="async"
           />
-          <div class="mobile-hero-overlay"></div>
-          <div class="mobile-hero-content">
-            <h1>Renta de equipo fotográfico para profesionales y aficionados</h1>
-            <a class="mobile-outline-button" href="about.html">Más información</a>
-          </div>
-          <div class="mobile-slider-dots" aria-hidden="true">
-            <span class="is-active"></span>
-            <span></span>
-            <span></span>
-          </div>
-        </section>
-
-        <section class="mobile-featured-card" aria-label="Equipo destacado">
-          <div class="mobile-product-frame">
-            <button class="mobile-product-arrow" type="button" aria-label="Anterior">‹</button>
-            <img
-              src="assets/cameras/sony-alpha-1-hq.jpg"
-              alt="Sony Alpha 1 camera"
-              loading="lazy"
-              decoding="async"
-            />
-            <button class="mobile-product-arrow" type="button" aria-label="Siguiente">›</button>
-          </div>
-          <a class="mobile-black-button" href="equipment.html">Ver Listado</a>
-        </section>
-
-        <section class="mobile-copy-block mobile-copy-block-light">
-          <h2>Equipo Fotográfico</h2>
-          <p>
-            Disponemos de cámaras profesionales y semiprofesionales para fotografía y video,
-            ideales para producciones audiovisuales de alta calidad y diferentes tipos de proyectos.
-          </p>
-        </section>
-
-        <figure class="mobile-image-break">
-          <img
-            src="assets/cameras/sony-pxw-z150.jpg"
-            alt="Cámara profesional para producción audiovisual"
-            loading="lazy"
-            decoding="async"
-          />
-        </figure>
-
-        <section class="mobile-services-block">
-          <h2>Servicios</h2>
-          <p>
-            Disponemos de cámaras profesionales y semiprofesionales para fotografía y video,
-            ideales para producciones audiovisuales de alta calidad y diferentes tipos de proyectos.
-          </p>
-          <a class="mobile-white-button" href="services.html">Ver Nuestros Servicios</a>
-        </section>
-
-        <section class="mobile-soft-blue" aria-hidden="true"></section>
-        <section class="mobile-black-tail" aria-hidden="true"></section>
-      </section>
-
-      <section class="hero">
+        </picture>
+        <div class="hero-bg-overlay" aria-hidden="true"></div>
         <div class="container hero-grid">
           <div class="hero-copy">
             <p class="eyebrow">Camera rentals and creative production</p>
             <h1>Professional gear, visual storytelling, and production support in one place.</h1>
             <p class="lead">
-              Ardi Rent & Service LLC is built for photography, video, podcasts, live streaming,
-              and high-end audiovisual production. The business combines equipment rental,
-              creative services, and lead generation into a scalable operation.
+              Professional camera rentals plus photography, video, podcast, and live streaming
+              services across Puerto Rico. Rent the gear you need, or let our team handle the
+              full production for you.
             </p>
 
             <div class="hero-actions">
@@ -228,8 +174,8 @@
                 <span>Photography, video, podcast, livestream support</span>
               </li>
               <li>
-                <strong>Scalable</strong>
-                <span>Built to grow into a booking and commerce system</span>
+                <strong>Flexible rentals</strong>
+                <span>Daily or weekend rates with simple booking</span>
               </li>
             </ul>
           </div>
@@ -298,21 +244,20 @@
       <section class="section" id="vision">
         <div class="container vision-grid">
           <article class="vision-card">
-            <p class="eyebrow">Business vision</p>
-            <h2>A one-stop creative platform for audiovisual work.</h2>
+            <p class="eyebrow">Why Ardi</p>
+            <h2>Everything for your audiovisual project in one place.</h2>
             <p>
-              The strategy is to combine rentals, direct services, and client acquisition in one
-              place. That is the real opportunity behind the brand.
+              Rent professional gear, book creative services, or combine both. One contact, one
+              team, from planning to final delivery.
             </p>
           </article>
 
           <article class="vision-card vision-card-accent">
-            <p class="eyebrow">Growth path</p>
-            <h2>Ready to evolve into a booking and commerce system.</h2>
+            <p class="eyebrow">How it works</p>
+            <h2>Book your gear in three simple steps.</h2>
             <p>
-              The pitch references Shopify as the base for reservations, deposits, and lead
-              generation. This website can act as the public front door while the backend grows
-              into a stronger sales system.
+              Tell us your date, location, and type of production. We confirm availability the
+              same day and coordinate pickup or on-site delivery anywhere on the island.
             </p>
           </article>
         </div>

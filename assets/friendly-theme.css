@@ -715,3 +715,94 @@ h1 {
     content: "© Ardi Rent & Service LLC. Camera rentals, production services, and visual storytelling.";
   }
 }
+
+/* ===== Unified responsive hero with underwater photo (2026-07-08) ===== */
+.hero-photo {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-photo .hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-photo .hero-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.hero-photo .hero-bg-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(4, 22, 30, 0.72) 0%,
+    rgba(4, 22, 30, 0.55) 45%,
+    rgba(4, 22, 30, 0.78) 100%
+  );
+}
+
+.hero-photo .hero-grid {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-photo .hero-copy h1,
+.hero-photo .hero-copy .lead,
+.hero-photo .hero-copy .eyebrow {
+  color: #fff;
+}
+
+.hero-photo .stats li strong {
+  color: #fff;
+}
+
+.hero-photo .stats li span {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Tablet y móvil horizontal */
+@media (max-width: 880px) {
+  .hero-photo .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* Móvil vertical */
+@media (max-width: 640px) {
+  .hero-photo {
+    min-height: 82svh;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 2rem;
+  }
+
+  .hero-photo .hero-copy h1 {
+    font-size: clamp(1.6rem, 7vw, 2.2rem);
+  }
+
+  .hero-photo .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-photo .hero-actions .button {
+    text-align: center;
+  }
+
+  .hero-photo .stats {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .hero-photo .hero-card {
+    display: none;
+  }
+}
