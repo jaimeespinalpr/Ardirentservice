@@ -753,10 +753,22 @@ h1 {
   z-index: 2;
 }
 
+.hero-photo .hero-copy {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
 .hero-photo .hero-copy h1,
 .hero-photo .hero-copy .lead,
 .hero-photo .hero-copy .eyebrow {
   color: #fff;
+}
+
+.hero-photo .stats li {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: none;
 }
 
 .hero-photo .stats li strong {
