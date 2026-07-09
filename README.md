@@ -15,6 +15,15 @@ Push to `main` auto-deploys via GitHub Actions:
 - Static site → `ardirentservice.com` (public_html/)
 - PHP checkout → `pay.ardirentservice.com` (pay/)
 
+## Commit versioning
+
+This repo keeps a sequential commit version for the web:
+- Baseline: `V1`
+- Next commit: `V2`
+- Then: `V3`, `V4`, and so on
+
+See [`COMMIT_VERSIONING.md`](COMMIT_VERSIONING.md) for the policy.
+
 ## GitHub Secrets required
 
 - `HOSTINGER_SSH_HOST`

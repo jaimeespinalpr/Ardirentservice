@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+version_file="${repo_root}/WEB_VERSION"
+
+if [[ ! -f "${version_file}" ]]; then
+  echo "WEB_VERSION file is missing" >&2
+  exit 1
+fi
+
+current_version="$(tr -d '[:space:]' < "${version_file}")"
+if [[ ! "${current_version}" =~ ^[0-9]+$ ]]; then
+  echo "WEB_VERSION must contain a numeric version" >&2
+  exit 1
+fi
+
+next_version="$((current_version + 1))"
+printf '%s\n' "${next_version}" > "${version_file}"
+git add "${version_file}"

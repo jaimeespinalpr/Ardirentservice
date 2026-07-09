@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+msg_file="$1"
+repo_root="$(git rev-parse --show-toplevel)"
+version_file="${repo_root}/WEB_VERSION"
+version="$(tr -d '[:space:]' < "${version_file}")"
+
+if [[ ! "${version}" =~ ^[0-9]+$ ]]; then
+  echo "WEB_VERSION must contain a numeric version" >&2
+  exit 1
+fi
+
+first_line="$(head -n 1 "${msg_file}" || true)"
+if [[ "${first_line}" =~ ^V[0-9]+([[:space:]]*[:\-][[:space:]]*|[[:space:]]+) ]]; then
+  exit 0
+fi
+
+printf 'V%s: %s\n' "${version}" "${first_line}" > "${msg_file}"
