@@ -117,6 +117,8 @@ jobs:
             --include 'rentals_confirm.php' \
             --include 'rentals_admin.php' \
             --include 'prints_checkout.php' \
+            --include 'data/' \
+            --include 'data/prints_metadata.json' \
             --include 'lead.php' \
             --exclude '*' \
             -e "ssh -i ~/.ssh/id_ed25519 -p ${HOSTINGER_SSH_PORT:-65002} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
