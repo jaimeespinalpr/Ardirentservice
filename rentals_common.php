@@ -166,104 +166,27 @@ function rental_send_admin_email(array $reservation, array $items): bool
     return $allSent;
 }
 
-function rental_build_admin_email_message(array $reservation, array $items): array
+function rental_email_date(string $date): string
 {
-    $reservationId = (int) ($reservation['id'] ?? 0);
-    $name = rental_clean_text($reservation['customer_name'] ?? 'Unknown');
-    $customerEmail = rental_clean_text($reservation['customer_email'] ?? '');
-    $phone = rental_clean_text($reservation['customer_phone'] ?? '');
-    $startDate = rental_clean_text($reservation['start_date'] ?? '');
-    $endDate = rental_clean_text($reservation['end_date'] ?? '');
-    $total = rental_format_money((int) ($reservation['total_amount_cents'] ?? 0), (string) ($reservation['currency'] ?? CURRENCY));
-    $titles = array_values(array_filter(array_map(
-        static fn(array $item): string => rental_clean_text($item['title'] ?? $item['item_title'] ?? ''),
-        $items
-    )));
-    $subject = 'New paid rental' . ($reservationId > 0 ? ' #' . $reservationId : '') . ' - Ardi Rent & Service';
-    $plain = "New paid equipment rental" . ($reservationId > 0 ? " #{$reservationId}" : '') . "\n\n"
-        . "Customer: {$name}\nEmail: {$customerEmail}\nPhone: " . ($phone !== '' ? $phone : 'Not provided') . "\n"
-        . "Dates: {$startDate} to {$endDate}\nEquipment: " . ($titles !== [] ? implode(', ', $titles) : 'Rental equipment') . "\n"
-        . "Total paid: {$total}\n";
-    return [
-        'subject' => $subject,
-        'headers' => [
-            'MIME-Version: 1.0',
-            'From: ' . rental_email_from(),
-            'Reply-To: ' . ($customerEmail !== '' ? $customerEmail : rental_email_reply_to()),
-            'Content-Type: text/plain; charset=UTF-8',
-        ],
-        'body' => $plain,
-        'html' => '<pre>' . htmlspecialchars($plain, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</pre>',
-        'plain' => $plain,
-    ];
+    if ($date === '') {
+        return '';
+    }
+    try {
+        return (new DateTimeImmutable($date))->format('M j, Y');
+    } catch (Throwable) {
+        return rental_clean_text($date);
+    }
 }
 
-function rental_build_customer_email_message(array $reservation, array $items): array
+function rental_finalize_email_message(string $subject, string $html, string $plain, string $replyTo): array
 {
-    $customerName = rental_clean_text($reservation['customer_name'] ?? '');
-    $safeName = htmlspecialchars($customerName !== '' ? $customerName : 'there', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    $startDate = htmlspecialchars((string) ($reservation['start_date'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    $endDate = htmlspecialchars((string) ($reservation['end_date'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    $total = rental_format_money((int) ($reservation['total_amount_cents'] ?? 0), (string) ($reservation['currency'] ?? CURRENCY));
-    $logoUrl = rental_public_url('assets/logos/logo-black-square.png');
-
-    $itemRows = '';
-    foreach ($items as $item) {
-        $title = htmlspecialchars((string) ($item['title'] ?? $item['item_title'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        if ($title === '') {
-            continue;
-        }
-        $itemRows .= '<li style="margin:6px 0">' . $title . '</li>';
-    }
-    if ($itemRows === '') {
-        $itemRows = '<li style="margin:6px 0">Rental equipment</li>';
-    }
-
-    $subject = 'Thank you for your rental - Ardi Rent & Service';
-    $html = '<!doctype html><html><body style="margin:0;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif;color:#111">'
-        . '<div style="max-width:640px;margin:0 auto;padding:24px">'
-        . '<div style="background:#fff;border-radius:18px;padding:26px;border:1px solid #e6e6e6">'
-        . '<div style="text-align:center;margin-bottom:20px">'
-        . '<img src="' . htmlspecialchars($logoUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" alt="Ardi Rent & Service" width="96" height="96" style="border-radius:18px;display:inline-block">'
-        . '<h1 style="margin:14px 0 0;font-size:24px;line-height:1.25">Thank you for your rental</h1>'
-        . '</div>'
-        . '<p style="font-size:16px;line-height:1.55;margin:0 0 14px">Hi ' . $safeName . ',</p>'
-        . '<p style="font-size:16px;line-height:1.55;margin:0 0 18px">Thank you for renting with <strong>Ardi Rent & Service</strong>. Your order has been received and your selected equipment is reserved for the dates below.</p>'
-        . '<div style="background:#f7f7f7;border-radius:14px;padding:16px;margin:18px 0">'
-        . '<p style="margin:0 0 8px"><strong>Rental dates:</strong> ' . $startDate . ' to ' . $endDate . '</p>'
-        . '<p style="margin:0"><strong>Total paid:</strong> ' . htmlspecialchars($total, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>'
-        . '</div>'
-        . '<h2 style="font-size:18px;margin:22px 0 8px">Items reserved</h2>'
-        . '<ul style="padding-left:20px;margin:0 0 18px;color:#202124;line-height:1.55">' . $itemRows . '</ul>'
-        . rental_delivery_policy_html()
-        . '<h2 style="font-size:18px;margin:22px 0 8px">Pickup instructions</h2>'
-        . '<p style="font-size:15px;line-height:1.55;margin:0">Please review the pickup and delivery details below. Bring a valid ID and your order confirmation when receiving or returning the equipment.</p>'
-        . rental_pickup_details_html()
-        . '<p style="font-size:15px;line-height:1.55;margin:22px 0 0">If you have any questions before pickup, reply to this email and we will help you.</p>'
-        . '<p style="font-size:15px;line-height:1.55;margin:18px 0 0">- Ardi Rent & Service</p>'
-        . '</div></div></body></html>';
-
-    $plainItems = implode(', ', array_filter(array_map(
-        static fn(array $item): string => (string) ($item['title'] ?? $item['item_title'] ?? ''),
-        $items
-    )));
-    $plain = "Thank you for renting with Ardi Rent & Service.\n\n"
-        . "Rental dates: {$startDate} to {$endDate}\n"
-        . "Items: " . ($plainItems !== '' ? $plainItems : 'Rental equipment') . "\n"
-        . "Total paid: {$total}\n\n"
-        . rental_delivery_policy_plain()
-        . "\nPickup instructions:\n"
-        . strip_tags(str_replace(['</li>', '<br>', '<br/>', '<br />'], "\n", rental_pickup_details_html()))
-        . "\n\nReply to this email if you have questions.\n";
-
     $boundary = 'ardi_' . bin2hex(random_bytes(12));
     $headers = [
         'MIME-Version: 1.0',
         'From: ' . rental_email_from(),
-        'Reply-To: ' . rental_email_reply_to(),
+        'Reply-To: ' . $replyTo,
         'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
     ];
-
     $body = '--' . $boundary . "\r\n"
         . "Content-Type: text/plain; charset=UTF-8\r\n\r\n"
         . $plain . "\r\n"
@@ -279,6 +202,142 @@ function rental_build_customer_email_message(array $reservation, array $items): 
         'html' => $html,
         'plain' => $plain,
     ];
+}
+
+function rental_build_branded_email_html(
+    array $reservation,
+    array $items,
+    string $eyebrow,
+    string $headline,
+    string $intro,
+    bool $admin = false
+): string {
+    $reservationId = (int) ($reservation['id'] ?? 0);
+    $confirmation = $reservationId > 0 ? '#' . $reservationId : 'Confirmed';
+    $name = rental_clean_text($reservation['customer_name'] ?? '');
+    $email = rental_clean_text($reservation['customer_email'] ?? '');
+    $phone = rental_clean_text($reservation['customer_phone'] ?? '');
+    $startDate = rental_email_date((string) ($reservation['start_date'] ?? ''));
+    $endDate = rental_email_date((string) ($reservation['end_date'] ?? ''));
+    $total = rental_format_money(
+        (int) ($reservation['total_amount_cents'] ?? 0),
+        (string) ($reservation['currency'] ?? CURRENCY)
+    );
+    $logoUrl = rental_public_url('assets/logos/logo-black-square.png');
+    $e = static fn(string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+    $itemRows = '';
+    foreach ($items as $item) {
+        $title = rental_clean_text($item['title'] ?? $item['item_title'] ?? '');
+        if ($title === '') {
+            continue;
+        }
+        $itemRows .= '<tr><td style="border-top:1px solid #e5e5e5;padding:14px 0;font-size:15px">'
+            . $e($title)
+            . '</td><td align="right" style="border-top:1px solid #e5e5e5;padding:14px 0;color:#666;font-size:13px">Reserved</td></tr>';
+    }
+    if ($itemRows === '') {
+        $itemRows = '<tr><td style="border-top:1px solid #e5e5e5;padding:14px 0;font-size:15px">Rental equipment</td>'
+            . '<td align="right" style="border-top:1px solid #e5e5e5;padding:14px 0;color:#666;font-size:13px">Reserved</td></tr>';
+    }
+
+    $customerDetails = '';
+    if ($admin) {
+        $customerDetails = '<tr><td style="padding:8px 20px;color:#686868;font-size:14px">Customer</td>'
+            . '<td align="right" style="padding:8px 20px;font-size:14px;font-weight:bold">' . $e($name !== '' ? $name : 'Not provided') . '</td></tr>'
+            . '<tr><td style="padding:8px 20px;color:#686868;font-size:14px">Email</td>'
+            . '<td align="right" style="padding:8px 20px;font-size:14px;font-weight:bold">' . $e($email !== '' ? $email : 'Not provided') . '</td></tr>'
+            . '<tr><td style="padding:8px 20px;color:#686868;font-size:14px">Phone</td>'
+            . '<td align="right" style="padding:8px 20px;font-size:14px;font-weight:bold">' . $e($phone !== '' ? $phone : 'Not provided') . '</td></tr>';
+    }
+
+    return '<!doctype html><html><body style="margin:0;background:#ededed;font-family:Arial,Helvetica,sans-serif;color:#111">'
+        . '<div style="display:none;max-height:0;overflow:hidden;color:transparent">' . $e($intro) . '</div>'
+        . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#ededed"><tr>'
+        . '<td align="center" style="padding:32px 12px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:640px;background:#fff;border-radius:22px;overflow:hidden">'
+        . '<tr><td align="center" style="background:#050505;padding:30px 24px 28px">'
+        . '<img src="' . $e($logoUrl) . '" width="92" alt="Ardi Rent &amp; Service" style="display:block;width:92px;max-width:92px;background:#fff;border-radius:18px;padding:7px">'
+        . '<p style="margin:18px 0 0;color:#cfcfcf;font-size:11px;letter-spacing:2.4px;text-transform:uppercase">' . $e($eyebrow) . '</p></td></tr>'
+        . '<tr><td style="padding:34px 34px 10px">'
+        . '<p style="margin:0;color:#151515;font-size:13px;font-weight:bold;letter-spacing:1.2px;text-transform:uppercase">&#10003; Rental confirmed</p>'
+        . '<h1 style="margin:24px 0 12px;font-size:31px;line-height:1.15;letter-spacing:-.7px">' . $e($headline) . '</h1>'
+        . '<p style="margin:0;color:#4e4e4e;font-size:16px;line-height:1.65">' . $e($intro) . '</p></td></tr>'
+        . '<tr><td style="padding:18px 34px 0"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f4f4f4;border:1px solid #dedede;border-radius:16px">'
+        . '<tr><td colspan="2" style="padding:18px 20px 10px;font-size:12px;color:#666;letter-spacing:1.2px;text-transform:uppercase">Reservation summary</td></tr>'
+        . $customerDetails
+        . '<tr><td style="padding:8px 20px;color:#686868;font-size:14px">Confirmation</td><td align="right" style="padding:8px 20px;font-size:14px;font-weight:bold">' . $e($confirmation) . '</td></tr>'
+        . '<tr><td style="padding:8px 20px;color:#686868;font-size:14px">Rental dates</td><td align="right" style="padding:8px 20px;font-size:14px;font-weight:bold">' . $e($startDate . ' – ' . $endDate) . '</td></tr>'
+        . '<tr><td style="padding:8px 20px 20px;color:#686868;font-size:14px">Total paid</td><td align="right" style="padding:8px 20px 20px;font-size:18px;font-weight:bold">' . $e($total) . '</td></tr>'
+        . '</table></td></tr>'
+        . '<tr><td style="padding:30px 34px 0"><h2 style="margin:0 0 14px;font-size:18px">Equipment reserved</h2>'
+        . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">' . $itemRows . '</table></td></tr>'
+        . '<tr><td style="padding:30px 34px 0"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#0b0b0b;border-radius:16px;color:#fff">'
+        . '<tr><td style="padding:22px 22px 8px;font-size:18px;font-weight:bold">Pickup &amp; return</td></tr>'
+        . '<tr><td style="padding:0 22px 22px;color:#d0d0d0;font-size:14px;line-height:1.65">'
+        . '<strong style="color:#fff">Location:</strong> ' . $e(rental_env('RENTAL_PICKUP_ADDRESS', 'Park Boulevard condominium')) . '<br>'
+        . '<strong style="color:#fff">Bring:</strong> A valid ID and this confirmation<br>'
+        . '<strong style="color:#fff">Need help?</strong> Reply to this email or contact Ardi Rent &amp; Service by WhatsApp.</td></tr></table></td></tr>'
+        . '<tr><td align="center" style="padding:30px 34px 34px">'
+        . '<a href="' . $e(rental_public_site_url()) . '" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:14px 25px;border-radius:999px;font-size:14px;font-weight:bold">Visit Ardi Rent &amp; Service</a>'
+        . '<p style="margin:26px 0 6px;color:#222;font-size:14px;font-weight:bold">Capture the moment. We’ll handle the gear.</p>'
+        . '<p style="margin:0;color:#777;font-size:12px;line-height:1.55">Ardi Rent &amp; Service · Puerto Rico<br>'
+        . ($admin ? 'Administrative rental notification.' : 'This confirmation was sent because a rental was completed using this email.')
+        . '</p></td></tr></table></td></tr></table></body></html>';
+}
+
+function rental_build_admin_email_message(array $reservation, array $items): array
+{
+    $reservationId = (int) ($reservation['id'] ?? 0);
+    $name = rental_clean_text($reservation['customer_name'] ?? 'Customer');
+    $customerEmail = rental_clean_text($reservation['customer_email'] ?? '');
+    $phone = rental_clean_text($reservation['customer_phone'] ?? '');
+    $startDate = rental_email_date((string) ($reservation['start_date'] ?? ''));
+    $endDate = rental_email_date((string) ($reservation['end_date'] ?? ''));
+    $total = rental_format_money((int) ($reservation['total_amount_cents'] ?? 0), (string) ($reservation['currency'] ?? CURRENCY));
+    $titles = array_values(array_filter(array_map(
+        static fn(array $item): string => rental_clean_text($item['title'] ?? $item['item_title'] ?? ''),
+        $items
+    )));
+    $subject = 'New paid rental' . ($reservationId > 0 ? ' #' . $reservationId : '') . ' - Ardi Rent & Service';
+    $headline = 'New rental from ' . ($name !== '' ? $name : 'a customer');
+    $intro = 'A paid equipment rental has been confirmed. Everything you need to prepare the order is included below.';
+    $html = rental_build_branded_email_html($reservation, $items, 'New paid rental', $headline, $intro, true);
+    $plain = "New paid equipment rental" . ($reservationId > 0 ? " #{$reservationId}" : '') . "\n\n"
+        . "Customer: {$name}\nEmail: {$customerEmail}\nPhone: " . ($phone !== '' ? $phone : 'Not provided') . "\n"
+        . "Dates: {$startDate} to {$endDate}\nEquipment: " . ($titles !== [] ? implode(', ', $titles) : 'Rental equipment') . "\n"
+        . "Total paid: {$total}\n";
+
+    return rental_finalize_email_message(
+        $subject,
+        $html,
+        $plain,
+        $customerEmail !== '' ? $customerEmail : rental_email_reply_to()
+    );
+}
+
+function rental_build_customer_email_message(array $reservation, array $items): array
+{
+    $customerName = rental_clean_text($reservation['customer_name'] ?? '');
+    $startDate = rental_email_date((string) ($reservation['start_date'] ?? ''));
+    $endDate = rental_email_date((string) ($reservation['end_date'] ?? ''));
+    $total = rental_format_money((int) ($reservation['total_amount_cents'] ?? 0), (string) ($reservation['currency'] ?? CURRENCY));
+    $plainItems = implode(', ', array_filter(array_map(
+        static fn(array $item): string => rental_clean_text($item['title'] ?? $item['item_title'] ?? ''),
+        $items
+    )));
+    $subject = 'Your rental is confirmed - Ardi Rent & Service';
+    $headline = 'Thank you' . ($customerName !== '' ? ', ' . $customerName : '') . '!';
+    $intro = 'Your gear is reserved. Now focus on creating something great—we’ll make sure your equipment is ready.';
+    $html = rental_build_branded_email_html($reservation, $items, 'Equipment rental confirmation', $headline, $intro);
+    $plain = "Thank you for renting with Ardi Rent & Service.\n\n"
+        . "Your equipment is reserved.\n"
+        . "Rental dates: {$startDate} to {$endDate}\n"
+        . "Items: " . ($plainItems !== '' ? $plainItems : 'Rental equipment') . "\n"
+        . "Total paid: {$total}\n\n"
+        . rental_delivery_policy_plain()
+        . "\nReply to this email if you have questions.\n";
+
+    return rental_finalize_email_message($subject, $html, $plain, rental_email_reply_to());
 }
 
 function rental_smtp_configured(): bool
