@@ -72,7 +72,11 @@ class _SupabaseAuthHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):  # noqa: N802
         type(self).received = {key.lower(): value for key, value in self.headers.items()}
-        body = json.dumps({"id": "00000000-0000-4000-8000-000000000001", "email": "test@example.invalid"}).encode()
+        body = json.dumps({
+            "id": "00000000-0000-4000-8000-000000000001",
+            "email": "test@example.invalid",
+            "email_confirmed_at": "2026-07-12T00:00:00Z",
+        }).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))

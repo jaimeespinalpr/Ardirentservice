@@ -18,6 +18,7 @@ if ($method === 'GET' && $action === 'config') {
     }
     rental_json([
         'ok' => true,
+        'account_backend' => 'supabase',
         'supabase_url' => $url,
         'supabase_publishable_key' => $publishableKey,
     ]);
