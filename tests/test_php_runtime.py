@@ -94,7 +94,7 @@ def test_bearer_validation_sends_real_headers_to_supabase():
     try:
         code = (
             "require 'supabase_common.php';"
-            "$user=supabase_validate_bearer('jwt-test-value');"
+            "$user=supabase_validate_bearer('Bearer jwt-test-value');"
             "echo json_encode(['id'=>$user['id'] ?? null]);"
         )
         result = php_run(
