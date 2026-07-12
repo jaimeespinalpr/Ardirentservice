@@ -1,11 +1,30 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/accounts_common.php';
+require_once __DIR__ . '/supabase_common.php';
+
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+$action = rental_clean_text($_GET['action'] ?? 'status');
+
+if ($method === 'GET' && $action === 'config') {
+    $backend = strtolower(rental_env('ACCOUNT_BACKEND', 'sqlite'));
+    if ($backend !== 'supabase') {
+        rental_json(['ok' => false, 'error' => 'supabase_not_enabled'], 503);
+    }
+    $url = supabase_base_url();
+    $publishableKey = supabase_publishable_key();
+    if ($url === '' || $publishableKey === '') {
+        rental_json(['ok' => false, 'error' => 'supabase_not_configured'], 503);
+    }
+    rental_json([
+        'ok' => true,
+        'supabase_url' => $url,
+        'supabase_publishable_key' => $publishableKey,
+    ]);
+}
 
 $pdo = rental_db();
 account_prepare_db($pdo);
-$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-$action = rental_clean_text($_GET['action'] ?? 'status');
 
 if ($method === 'GET' && $action === 'status') {
     $user = account_current_user($pdo);

@@ -6,23 +6,26 @@
 .account-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(300px,.75fr);gap:28px;align-items:start}
 .account-card{padding:clamp(24px,4vw,42px);border:1px solid rgba(15,76,92,.14);border-radius:28px;background:rgba(255,255,255,.92);box-shadow:0 24px 70px rgba(15,76,92,.1)}
 .account-card h1,.account-card h2{margin-top:0}
+.account-state{display:grid;gap:16px}
+.account-state[hidden],.account-form[hidden]{display:none}
 .account-form{display:grid;gap:16px}
 .account-form .field{display:grid;gap:7px}
 .account-form input{width:100%;box-sizing:border-box}
 .account-check{display:flex;gap:10px;align-items:flex-start;color:#435158}
 .account-check input{margin-top:4px}
 .account-actions{display:flex;gap:10px;flex-wrap:wrap}
+.account-actions .button{flex:1 1 180px}
 .account-status{min-height:24px;margin:0;font-weight:700}
 .account-status[data-kind="error"]{color:#a12a22}
 .account-status[data-kind="success"]{color:#176b43}
+.account-status[data-kind="info"]{color:#174e46}
 .account-benefit{padding:18px;border-radius:18px;background:#e9f5f2;margin-bottom:14px}
 .account-benefit strong{font-size:1.25rem}
 .account-list{display:grid;gap:12px;padding:0;margin:22px 0 0;list-style:none}
 .account-list li{padding:14px 0;border-bottom:1px solid rgba(15,76,92,.12)}
-.account-tabs{display:flex;gap:8px;margin-bottom:24px}
+.account-tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
 .account-tabs button[aria-selected="true"]{background:#111;color:#fff}
-.account-panel[hidden]{display:none}
-.account-nav-link{display:inline-flex;align-items:center;gap:6px}
+.account-profile-note{font-size:.95rem;color:#516069}
+.account-profile-list{margin-top:8px}
 .rental-account-benefit{margin:12px 0;padding:13px 15px;border-radius:14px;background:#e9f5f2;color:#174e46;font-weight:700}
 @media(max-width:760px){.account-promo{align-items:flex-start;flex-direction:column}.account-grid{grid-template-columns:1fr}.account-shell{padding-top:36px}}
-

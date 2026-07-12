@@ -27,13 +27,16 @@
   <main class="account-shell">
     <div class="container account-grid">
       <section class="account-card">
-        <div data-account-guest-only>
+        <div class="account-state" data-account-panel="guest" hidden>
           <p class="eyebrow" data-i18n-en="Customer account" data-i18n-es="Cuenta de cliente">Customer account</p>
           <h1 data-i18n-en="Create your account" data-i18n-es="Crea tu cuenta">Create your account</h1>
           <p data-i18n-en="Register free and get $5 off your first rental." data-i18n-es="Regístrate gratis y recibe $5 de descuento en tu primer alquiler.">Register free and get $5 off your first rental.</p>
-          <div class="account-tabs"><button class="button button-secondary" type="button" data-account-tab="register" aria-selected="true" data-i18n-en="Create account" data-i18n-es="Crear cuenta">Create account</button><button class="button button-secondary" type="button" data-account-tab="login" aria-selected="false" data-i18n-en="Sign in" data-i18n-es="Iniciar sesión">Sign in</button></div>
-          <form class="account-form" data-account-register data-account-panel="register">
-            <label class="field"><span data-i18n-en="Full name" data-i18n-es="Nombre completo">Full name</span><input name="name" autocomplete="name" maxlength="120" required></label>
+          <div class="account-tabs" role="tablist" aria-label="Account forms">
+            <button class="button button-secondary" type="button" data-account-tab="register" aria-selected="true" data-i18n-en="Create account" data-i18n-es="Crear cuenta">Create account</button>
+            <button class="button button-secondary" type="button" data-account-tab="login" aria-selected="false" data-i18n-en="Sign in" data-i18n-es="Iniciar sesión">Sign in</button>
+          </div>
+          <form class="account-form" data-account-form="register" data-account-panel="register">
+            <label class="field"><span data-i18n-en="Full name" data-i18n-es="Nombre completo">Full name</span><input name="full_name" autocomplete="name" maxlength="120" required></label>
             <label class="field"><span data-i18n-en="Email" data-i18n-es="Correo electrónico">Email</span><input name="email" type="email" autocomplete="email" required></label>
             <label class="field"><span data-i18n-en="Phone number (optional)" data-i18n-es="Número de teléfono (opcional)">Phone number (optional)</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
             <label class="field"><span data-i18n-en="Password (minimum 10 characters)" data-i18n-es="Contraseña (mínimo 10 caracteres)">Password (minimum 10 characters)</span><input name="password" type="password" autocomplete="new-password" minlength="10" required></label>
@@ -41,32 +44,74 @@
             <label class="account-check"><input name="accept_terms" type="checkbox" required><span data-i18n-en="I accept the terms and privacy policy." data-i18n-es="Acepto los términos y la política de privacidad.">I accept the terms and privacy policy.</span></label>
             <button class="button button-primary" type="submit" data-i18n-en="Create account and get $5" data-i18n-es="Crear cuenta y recibir $5">Create account and get $5</button>
           </form>
-          <form class="account-form" data-account-login data-account-panel="login" hidden>
+          <form class="account-form" data-account-form="login" data-account-panel="login" hidden>
             <label class="field"><span data-i18n-en="Email" data-i18n-es="Correo electrónico">Email</span><input name="email" type="email" autocomplete="email" required></label>
             <label class="field"><span data-i18n-en="Password" data-i18n-es="Contraseña">Password</span><input name="password" type="password" autocomplete="current-password" required></label>
             <button class="button button-primary" type="submit" data-i18n-en="Sign in" data-i18n-es="Iniciar sesión">Sign in</button>
+            <button class="button button-secondary" type="button" data-account-forgot-password data-i18n-en="Forgot password?" data-i18n-es="¿Olvidaste tu contraseña?">Forgot password?</button>
           </form>
         </div>
-        <div data-account-auth-only hidden>
+
+        <div class="account-state" data-account-panel="verify" hidden>
+          <p class="eyebrow" data-i18n-en="Verify your email" data-i18n-es="Verifica tu correo">Verify your email</p>
+          <h1 data-i18n-en="Check your inbox" data-i18n-es="Revisa tu bandeja de entrada">Check your inbox</h1>
+          <p data-account-verify-copy data-i18n-en="We sent a verification link. Open the email to finish creating your account, then sign in here." data-i18n-es="Enviamos un enlace de verificación. Abre el correo para terminar de crear tu cuenta y luego inicia sesión aquí.">We sent a verification link. Open the email to finish creating your account, then sign in here.</p>
+          <div class="account-actions">
+            <button class="button button-primary" type="button" data-account-switch-to-login data-i18n-en="Go to sign in" data-i18n-es="Ir a iniciar sesión">Go to sign in</button>
+          </div>
+        </div>
+
+        <div class="account-state" data-account-panel="recovery" hidden>
+          <p class="eyebrow" data-i18n-en="Password recovery" data-i18n-es="Recuperación de contraseña">Password recovery</p>
+          <h1 data-i18n-en="Choose a new password" data-i18n-es="Elige una nueva contraseña">Choose a new password</h1>
+          <p data-account-recovery-copy data-i18n-en="Use the secure link from your email to set a new password and keep your account." data-i18n-es="Usa el enlace seguro de tu correo para establecer una nueva contraseña y conservar tu cuenta.">Use the secure link from your email to set a new password and keep your account.</p>
+          <form class="account-form" data-account-form="recovery">
+            <label class="field"><span data-i18n-en="New password" data-i18n-es="Nueva contraseña">New password</span><input name="password" type="password" minlength="10" autocomplete="new-password" required></label>
+            <button class="button button-primary" type="submit" data-i18n-en="Update password" data-i18n-es="Actualizar contraseña">Update password</button>
+          </form>
+        </div>
+
+        <div class="account-state" data-account-panel="profile" hidden>
           <p class="eyebrow" data-i18n-en="Your account" data-i18n-es="Tu cuenta">Your account</p>
           <h1><span data-i18n-en="Hello," data-i18n-es="Hola,">Hello,</span> <span data-account-name></span></h1>
-          <div class="account-benefit" data-account-benefit></div>
-          <ul class="account-list"><li><strong>Email</strong><br><span data-account-email></span></li><li><strong data-i18n-en="Phone" data-i18n-es="Teléfono">Phone</strong><br><span data-account-phone></span></li></ul>
-          <button class="button button-secondary" type="button" data-account-logout data-i18n-en="Sign out" data-i18n-es="Cerrar sesión">Sign out</button>
+          <div class="account-benefit" data-account-benefit hidden></div>
+          <form class="account-form account-profile" data-account-form="profile">
+            <label class="field"><span data-i18n-en="Full name" data-i18n-es="Nombre completo">Full name</span><input name="full_name" maxlength="120" required></label>
+            <label class="field"><span data-i18n-en="Email" data-i18n-es="Correo electrónico">Email</span><input name="email" type="email" disabled></label>
+            <label class="field"><span data-i18n-en="Phone number" data-i18n-es="Número de teléfono">Phone number</span><input name="phone" type="tel" maxlength="40"></label>
+            <label class="account-check"><input name="marketing_opt_in" type="checkbox"><span data-i18n-en="I want to receive promotions, discounts, and news by email." data-i18n-es="Quiero recibir promociones, descuentos y novedades por email.">I want to receive promotions, discounts, and news by email.</span></label>
+            <div class="account-profile-note" data-account-profile-note></div>
+            <div class="account-actions">
+              <button class="button button-primary" type="submit" data-i18n-en="Save profile" data-i18n-es="Guardar perfil">Save profile</button>
+              <button class="button button-secondary" type="button" data-account-reset-password data-i18n-en="Email password reset" data-i18n-es="Enviar restablecimiento de contraseña">Email password reset</button>
+              <button class="button button-secondary" type="button" data-account-logout data-i18n-en="Sign out" data-i18n-es="Cerrar sesión">Sign out</button>
+            </div>
+          </form>
+          <ul class="account-list account-profile-list">
+            <li><strong data-i18n-en="Email" data-i18n-es="Correo electrónico">Email</strong><br><span data-account-email></span></li>
+            <li><strong data-i18n-en="Phone" data-i18n-es="Teléfono">Phone</strong><br><span data-account-phone></span></li>
+            <li><strong data-i18n-en="Benefit" data-i18n-es="Beneficio">Benefit</strong><br><span data-account-benefit-state></span></li>
+          </ul>
         </div>
+
         <p class="account-status" data-account-status aria-live="polite"></p>
       </section>
+
       <aside class="account-card">
-        <div class="account-benefit"><strong data-i18n-en="$5 welcome discount" data-i18n-es="$5 de descuento de bienvenida">$5 welcome discount</strong><p data-i18n-en="Applied automatically to your first paid rental." data-i18n-es="Aplicado automáticamente a tu primer alquiler pagado.">Applied automatically to your first paid rental.</p></div>
-        <ul class="account-list"><li data-i18n-en="Faster checkout with your saved details" data-i18n-es="Pago más rápido con tus datos guardados">Faster checkout with your saved details</li><li data-i18n-en="Exclusive promotions when you choose to receive them" data-i18n-es="Promociones exclusivas cuando eliges recibirlas">Exclusive promotions when you choose to receive them</li><li data-i18n-en="Your discount is protected and can only be used once" data-i18n-es="Tu descuento está protegido y solo puede usarse una vez">Your discount is protected and can only be used once</li></ul>
+        <div class="account-benefit">
+          <strong data-i18n-en="$5 welcome discount" data-i18n-es="$5 de descuento de bienvenida">$5 welcome discount</strong>
+          <p data-i18n-en="Applied automatically to your first paid rental." data-i18n-es="Aplicado automáticamente a tu primer alquiler pagado.">Applied automatically to your first paid rental.</p>
+        </div>
+        <ul class="account-list">
+          <li data-i18n-en="Faster checkout with your saved details" data-i18n-es="Pago más rápido con tus datos guardados">Faster checkout with your saved details</li>
+          <li data-i18n-en="Exclusive promotions when you choose to receive them" data-i18n-es="Promociones exclusivas cuando eliges recibirlas">Exclusive promotions when you choose to receive them</li>
+          <li data-i18n-en="Your discount is protected and can only be used once" data-i18n-es="Tu descuento está protegido y solo puede usarse una vez">Your discount is protected and can only be used once</li>
+        </ul>
       </aside>
     </div>
   </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="assets/app.js"></script>
-  <script>
-    (()=>{const apply=()=>{const es=document.documentElement.lang==="es";document.querySelectorAll("[data-i18n-en]").forEach(n=>n.textContent=n.getAttribute(es?"data-i18n-es":"data-i18n-en"));};document.querySelectorAll(".lang-button").forEach(b=>b.addEventListener("click",()=>setTimeout(apply,0)));apply();})();
-  </script>
   <script src="assets/account.js"></script>
 </body>
 </html>
-

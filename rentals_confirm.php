@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__ . '/rentals_common.php';
 require_once __DIR__ . '/accounts_common.php';
+require_once __DIR__ . '/supabase_common.php';
 
 $sessionId = rental_clean_text($_GET['session_id'] ?? '');
 if ($sessionId === '') {
@@ -20,17 +21,43 @@ if ($paymentStatus !== 'paid') {
 }
 
 $metadata = is_array($session['metadata'] ?? null) ? $session['metadata'] : [];
+$checkoutIntentId = rental_clean_text((string) ($metadata['checkout_intent_id'] ?? ''));
+if ($checkoutIntentId !== '') {
+    $pdo = rental_db();
+    $finalized = rental_finalize_checkout_intent($pdo, $checkoutIntentId, $session);
+    if (!($finalized['ok'] ?? false)) {
+        rental_redirect(rental_public_url('equipment.html?rental=error'));
+    }
+    rental_deliver_checkout_intent_emails($pdo, $checkoutIntentId);
+    $intent = is_array($finalized['intent'] ?? null) ? $finalized['intent'] : [];
+    $confirmedStart = rental_clean_text((string) ($intent['start_date'] ?? ''));
+    $confirmedEnd = rental_clean_text((string) ($intent['end_date'] ?? ''));
+    rental_redirect(rental_public_url(
+        'equipment.html?rental=confirmed&start=' . rawurlencode($confirmedStart) . '&end=' . rawurlencode($confirmedEnd)
+    ));
+}
+
+// Compatibility path for Stripe sessions created before checkout intents were deployed.
+$accountBackend = rental_clean_text((string) ($metadata['account_backend'] ?? ''));
+$isSupabase = $accountBackend === 'supabase';
+
 $startDate = rental_validate_date(rental_clean_text($metadata['start_date'] ?? ''));
 $endDate = rental_validate_date(rental_clean_text($metadata['end_date'] ?? ''));
-$customerName = rental_clean_text($metadata['customer_name'] ?? '');
-$customerEmail = rental_clean_text($metadata['customer_email'] ?? '');
-$customerPhone = rental_clean_text($metadata['customer_phone'] ?? '');
-$totalAmount = (int) ($metadata['total_amount_cents'] ?? 0);
-$accountId = (int) ($metadata['account_id'] ?? 0);
-$discountCents = max(0, (int) ($metadata['welcome_discount_cents'] ?? 0));
-$discountToken = rental_clean_text($metadata['welcome_discount_token'] ?? '');
+$totalAmount = max(0, (int) ($metadata['total_amount_cents'] ?? 0));
+$discountCents = max(0, (int) ($isSupabase ? ($metadata['discount_cents'] ?? 0) : ($metadata['welcome_discount_cents'] ?? 0)));
 $paidTotal = max(0, $totalAmount - $discountCents);
 $currency = rental_clean_text($metadata['currency'] ?? CURRENCY);
+
+$customerDetails = is_array($session['customer_details'] ?? null) ? $session['customer_details'] : [];
+if ($isSupabase) {
+    $customerName = rental_clean_text((string) ($customerDetails['name'] ?? $metadata['customer_name'] ?? ''));
+    $customerEmail = rental_clean_text((string) ($customerDetails['email'] ?? $session['customer_email'] ?? ''));
+    $customerPhone = rental_clean_text((string) ($customerDetails['phone'] ?? ''));
+} else {
+    $customerName = rental_clean_text($metadata['customer_name'] ?? '');
+    $customerEmail = rental_clean_text($metadata['customer_email'] ?? '');
+    $customerPhone = rental_clean_text($metadata['customer_phone'] ?? '');
+}
 
 $itemIds = json_decode((string) ($metadata['item_ids'] ?? '[]'), true);
 $itemTitles = json_decode((string) ($metadata['item_titles'] ?? '[]'), true);
@@ -72,7 +99,6 @@ if (is_array($itemRates)) {
 }
 
 $pdo = rental_db();
-
 $existsStmt = $pdo->prepare('SELECT id FROM reservations WHERE checkout_session_id = ? LIMIT 1');
 $existsStmt->execute([$sessionId]);
 $existing = $existsStmt->fetch();
@@ -120,9 +146,19 @@ try {
         $insertItem->execute([$reservationId, $itemId, $title, $unitAmount]);
     }
 
-    if ($accountId > 0 && $discountCents === WELCOME_DISCOUNT_CENTS && $discountToken !== '') {
-        if (!account_consume_discount($pdo, $accountId, $discountToken)) {
-            throw new RuntimeException('Welcome discount could not be finalized.');
+    if ($isSupabase) {
+        $supabaseUserId = rental_clean_text((string) ($metadata['supabase_user_id'] ?? ''));
+        $supabaseReservationToken = rental_clean_text((string) ($metadata['supabase_reservation_token'] ?? ''));
+        if ($supabaseUserId !== '' && $supabaseReservationToken !== '') {
+            supabase_consume_welcome_discount($supabaseUserId, $supabaseReservationToken);
+        }
+    } else {
+        $accountId = (int) ($metadata['account_id'] ?? 0);
+        $discountToken = rental_clean_text($metadata['welcome_discount_token'] ?? '');
+        if ($accountId > 0 && $discountCents === WELCOME_DISCOUNT_CENTS && $discountToken !== '') {
+            if (!account_consume_discount($pdo, $accountId, $discountToken)) {
+                throw new RuntimeException('Welcome discount could not be finalized.');
+            }
         }
     }
 

@@ -3192,6 +3192,21 @@ const setupRentalSystem = () => {
   const modePref = (root.getAttribute("data-payment-mode") || "auto").toLowerCase();
   const isCashMode = modePref === "cash" || (modePref === "auto" && isStaticRuntime);
   const dailyRateCents = Number.parseInt(root.getAttribute("data-daily-rate-cents") || "5000", 10) || 5000;
+  const getSupabaseBearer = () => {
+    try {
+      for (const key of Object.keys(localStorage)) {
+        if (!/^sb-.*-auth-token$/.test(key)) continue;
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
+        const parsed = JSON.parse(raw);
+        const token = parsed?.access_token || parsed?.currentSession?.access_token || parsed?.session?.access_token;
+        if (typeof token === "string" && token) return token;
+      }
+    } catch (error) {
+      // No Supabase session available.
+    }
+    return "";
+  };
   const reservationStorageKey = "ardi-rental-cash-reservations-v2";
   const rentalStateStorageKey = "ardi-rental-current-state-v2";
   const legacyReservationKeys = ["ardi-rental-cash-reservations-v1"];
@@ -3977,12 +3992,14 @@ const setupRentalSystem = () => {
         return;
       }
       try {
+        const bearer = getSupabaseBearer();
         const response = await fetch(checkoutEndpoint, {
           method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}),
           },
           body: JSON.stringify({
             start_date: fallbackRange.start,
