@@ -5,15 +5,34 @@ require_once __DIR__ . '/rentals_common.php';
 
 const WELCOME_DISCOUNT_CENTS = 500;
 
+function account_cookie_domain_for_host(string $host): string
+{
+    $host = strtolower(trim($host));
+    if (!preg_match('/^(?<hostname>[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?)(?::(?<port>[0-9]{1,5}))?$/D', $host, $matches)) {
+        return '';
+    }
+
+    if (($matches['port'] ?? '') !== '' && (int) $matches['port'] > 65535) {
+        return '';
+    }
+
+    $hostname = $matches['hostname'];
+    if (filter_var($hostname, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === false) {
+        return '';
+    }
+
+    return $hostname === 'ardirentservice.com' || str_ends_with($hostname, '.ardirentservice.com')
+        ? '.ardirentservice.com'
+        : '';
+}
+
 function account_start_session(): void
 {
     if (session_status() === PHP_SESSION_ACTIVE) {
         return;
     }
     session_name('ardi_account');
-    $cookieDomain = str_ends_with(strtolower((string) ($_SERVER['HTTP_HOST'] ?? '')), 'ardirentservice.com')
-        ? '.ardirentservice.com'
-        : '';
+    $cookieDomain = account_cookie_domain_for_host((string) ($_SERVER['HTTP_HOST'] ?? ''));
     session_set_cookie_params([
         'lifetime' => 60 * 60 * 24 * 30,
         'domain' => $cookieDomain,
