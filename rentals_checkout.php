@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/rentals_common.php';
+require_once __DIR__ . '/accounts_common.php';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     rental_json(['ok' => false, 'error' => 'method_not_allowed'], 405);
@@ -55,6 +56,18 @@ foreach ($items as $item) {
     $totalAmount += ((int) $item['rate_cents']) * $days;
 }
 
+$accountUser = account_current_user($pdo);
+$discountCents = 0;
+$discountToken = '';
+$accountId = 0;
+if ($accountUser !== null && $totalAmount >= WELCOME_DISCOUNT_CENTS) {
+    $accountId = (int) $accountUser['id'];
+    $discountToken = account_reserve_welcome_discount($pdo, $accountId) ?? '';
+    if ($discountToken !== '') {
+        $discountCents = WELCOME_DISCOUNT_CENTS;
+    }
+}
+
 $form = [
     'mode' => 'payment',
     'payment_method_types[0]' => 'card',
@@ -70,8 +83,34 @@ $form = [
     'metadata[item_titles]' => json_encode(array_map(static fn(array $item): string => $item['title'], $items), JSON_UNESCAPED_UNICODE),
     'metadata[item_rates_cents]' => json_encode(array_map(static fn(array $item): int => (int) $item['rate_cents'], $items), JSON_UNESCAPED_UNICODE),
     'metadata[total_amount_cents]' => (string) $totalAmount,
+    'metadata[account_id]' => (string) $accountId,
+    'metadata[welcome_discount_cents]' => (string) $discountCents,
+    'metadata[welcome_discount_token]' => $discountToken,
     'metadata[currency]' => CURRENCY,
 ];
+
+if ($accountId > 0) {
+    $form['client_reference_id'] = 'account-' . $accountId;
+}
+
+if ($discountCents > 0) {
+    $couponId = 'ardi-welcome-5';
+    $coupon = stripe_request('GET', 'coupons/' . rawurlencode($couponId));
+    if (!$coupon['ok']) {
+        $coupon = stripe_request('POST', 'coupons', [
+            'id' => $couponId,
+            'amount_off' => (string) WELCOME_DISCOUNT_CENTS,
+            'currency' => CURRENCY,
+            'duration' => 'once',
+            'name' => 'Ardi account welcome discount',
+        ]);
+    }
+    if (!$coupon['ok']) {
+        account_release_discount($pdo, $accountId, $discountToken);
+        rental_json(['ok' => false, 'error' => 'discount_setup_failed'], 502);
+    }
+    $form['discounts[0][coupon]'] = $couponId;
+}
 
 foreach (array_values($items) as $index => $item) {
     $unitAmount = ((int) $item['rate_cents']) * $days;
@@ -83,16 +122,23 @@ foreach (array_values($items) as $index => $item) {
 
 $stripe = stripe_request('POST', 'checkout/sessions', $form);
 if (!$stripe['ok']) {
+    if ($discountToken !== '') {
+        account_release_discount($pdo, $accountId, $discountToken);
+    }
     rental_json(['ok' => false, 'error' => 'stripe_checkout_failed', 'details' => $stripe['error'] ?? 'unknown'], 502);
 }
 
 $session = $stripe['data'];
 $checkoutUrl = (string) ($session['url'] ?? '');
 if ($checkoutUrl === '') {
+    if ($discountToken !== '') {
+        account_release_discount($pdo, $accountId, $discountToken);
+    }
     rental_json(['ok' => false, 'error' => 'missing_checkout_url'], 502);
 }
 
 rental_json([
     'ok' => true,
     'checkout_url' => $checkoutUrl,
+    'discount_cents' => $discountCents,
 ]);
