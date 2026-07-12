@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/rentals_common.php';
+require_once __DIR__ . '/accounts_common.php';
 
 $sessionId = rental_clean_text($_GET['session_id'] ?? '');
 if ($sessionId === '') {
@@ -25,6 +26,10 @@ $customerName = rental_clean_text($metadata['customer_name'] ?? '');
 $customerEmail = rental_clean_text($metadata['customer_email'] ?? '');
 $customerPhone = rental_clean_text($metadata['customer_phone'] ?? '');
 $totalAmount = (int) ($metadata['total_amount_cents'] ?? 0);
+$accountId = (int) ($metadata['account_id'] ?? 0);
+$discountCents = max(0, (int) ($metadata['welcome_discount_cents'] ?? 0));
+$discountToken = rental_clean_text($metadata['welcome_discount_token'] ?? '');
+$paidTotal = max(0, $totalAmount - $discountCents);
 $currency = rental_clean_text($metadata['currency'] ?? CURRENCY);
 
 $itemIds = json_decode((string) ($metadata['item_ids'] ?? '[]'), true);
@@ -97,7 +102,7 @@ try {
         $customerName !== '' ? $customerName : 'Unknown',
         $customerEmail !== '' ? $customerEmail : 'unknown@example.com',
         $customerPhone,
-        $totalAmount,
+        $paidTotal,
         $currency !== '' ? $currency : CURRENCY,
         'paid',
         'pending',
@@ -115,6 +120,12 @@ try {
         $insertItem->execute([$reservationId, $itemId, $title, $unitAmount]);
     }
 
+    if ($accountId > 0 && $discountCents === WELCOME_DISCOUNT_CENTS && $discountToken !== '') {
+        if (!account_consume_discount($pdo, $accountId, $discountToken)) {
+            throw new RuntimeException('Welcome discount could not be finalized.');
+        }
+    }
+
     $pdo->commit();
 
     $emailReservation = [
@@ -124,7 +135,7 @@ try {
         'customer_phone' => $customerPhone,
         'start_date' => $startDate,
         'end_date' => $endDate,
-        'total_amount_cents' => $totalAmount,
+        'total_amount_cents' => $paidTotal,
         'currency' => $currency !== '' ? $currency : CURRENCY,
     ];
     $emailItems = array_map(
