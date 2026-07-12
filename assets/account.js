@@ -1,5 +1,5 @@
 (() => {
-  const API = "https://pay.ardirentservice.com/accounts_api.php";
+  const API = window.ardiAccountApiUrl(window.location.hostname);
   const spanish = () => document.documentElement.lang === "es";
   let csrf = "";
   let currentUser = null;
