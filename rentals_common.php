@@ -64,6 +64,11 @@ function rental_email_reply_to(): string
     return rental_env('RENTAL_EMAIL_REPLY_TO', 'info@ardirentservice.com');
 }
 
+function rental_admin_email(): string
+{
+    return rental_env('RENTAL_ADMIN_EMAIL', 'ardirentservice@gmail.com');
+}
+
 function rental_pickup_details_html(): string
 {
     $address = rental_env('RENTAL_PICKUP_ADDRESS', 'Park Boulevard condominium');
@@ -124,6 +129,58 @@ function rental_send_customer_email(array $reservation, array $items): bool
         error_log('Ardi rental email failed for ' . $email);
     }
     return $sent;
+}
+
+function rental_send_admin_email(array $reservation, array $items): bool
+{
+    $email = filter_var(rental_admin_email(), FILTER_VALIDATE_EMAIL);
+    if (!$email) {
+        error_log('Ardi rental admin email skipped: invalid admin email');
+        return false;
+    }
+
+    $message = rental_build_admin_email_message($reservation, $items);
+    if (rental_smtp_configured()) {
+        $sent = rental_send_smtp_message($email, $message);
+    } else {
+        $sent = mail($email, $message['subject'], $message['body'], implode("\r\n", $message['headers']));
+    }
+    if (!$sent) {
+        error_log('Ardi rental admin email failed for ' . $email);
+    }
+    return $sent;
+}
+
+function rental_build_admin_email_message(array $reservation, array $items): array
+{
+    $reservationId = (int) ($reservation['id'] ?? 0);
+    $name = rental_clean_text($reservation['customer_name'] ?? 'Unknown');
+    $customerEmail = rental_clean_text($reservation['customer_email'] ?? '');
+    $phone = rental_clean_text($reservation['customer_phone'] ?? '');
+    $startDate = rental_clean_text($reservation['start_date'] ?? '');
+    $endDate = rental_clean_text($reservation['end_date'] ?? '');
+    $total = rental_format_money((int) ($reservation['total_amount_cents'] ?? 0), (string) ($reservation['currency'] ?? CURRENCY));
+    $titles = array_values(array_filter(array_map(
+        static fn(array $item): string => rental_clean_text($item['title'] ?? $item['item_title'] ?? ''),
+        $items
+    )));
+    $subject = 'New paid rental' . ($reservationId > 0 ? ' #' . $reservationId : '') . ' - Ardi Rent & Service';
+    $plain = "New paid equipment rental" . ($reservationId > 0 ? " #{$reservationId}" : '') . "\n\n"
+        . "Customer: {$name}\nEmail: {$customerEmail}\nPhone: " . ($phone !== '' ? $phone : 'Not provided') . "\n"
+        . "Dates: {$startDate} to {$endDate}\nEquipment: " . ($titles !== [] ? implode(', ', $titles) : 'Rental equipment') . "\n"
+        . "Total paid: {$total}\n";
+    return [
+        'subject' => $subject,
+        'headers' => [
+            'MIME-Version: 1.0',
+            'From: ' . rental_email_from(),
+            'Reply-To: ' . ($customerEmail !== '' ? $customerEmail : rental_email_reply_to()),
+            'Content-Type: text/plain; charset=UTF-8',
+        ],
+        'body' => $plain,
+        'html' => '<pre>' . htmlspecialchars($plain, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</pre>',
+        'plain' => $plain,
+    ];
 }
 
 function rental_build_customer_email_message(array $reservation, array $items): array

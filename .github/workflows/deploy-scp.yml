@@ -116,6 +116,7 @@ jobs:
             --include 'rentals_common.php' \
             --include 'rentals_confirm.php' \
             --include 'rentals_admin.php' \
+            --include 'rentals_resend_latest.php' \
             --include 'prints_checkout.php' \
             --include 'data/' \
             --include 'data/prints_metadata.json' \
@@ -132,6 +133,7 @@ jobs:
           ALLOWED_ORIGINS=https://ardirentservice.com,https://www.ardirentservice.com,https://jaimeespinalpr.github.io
           RENTAL_EMAIL_FROM=Ardi Rent & Service <info@ardirentservice.com>
           RENTAL_EMAIL_REPLY_TO=info@ardirentservice.com
+          RENTAL_ADMIN_EMAIL=ardirentservice@gmail.com
           RENTAL_SMTP_HOST=${RENTAL_SMTP_HOST}
           RENTAL_SMTP_PORT=${RENTAL_SMTP_PORT}
           RENTAL_SMTP_USERNAME=${RENTAL_SMTP_USERNAME}

@@ -117,24 +117,26 @@ try {
 
     $pdo->commit();
 
-    rental_send_customer_email(
-        [
-            'customer_name' => $customerName !== '' ? $customerName : 'Unknown',
-            'customer_email' => $customerEmail !== '' ? $customerEmail : 'unknown@example.com',
-            'start_date' => $startDate,
-            'end_date' => $endDate,
-            'total_amount_cents' => $totalAmount,
-            'currency' => $currency !== '' ? $currency : CURRENCY,
+    $emailReservation = [
+        'id' => $reservationId,
+        'customer_name' => $customerName !== '' ? $customerName : 'Unknown',
+        'customer_email' => $customerEmail !== '' ? $customerEmail : 'unknown@example.com',
+        'customer_phone' => $customerPhone,
+        'start_date' => $startDate,
+        'end_date' => $endDate,
+        'total_amount_cents' => $totalAmount,
+        'currency' => $currency !== '' ? $currency : CURRENCY,
+    ];
+    $emailItems = array_map(
+        static fn(string $itemId, int $index): array => [
+            'item_id' => $itemId,
+            'title' => $cleanTitles[$index] ?? $itemId,
         ],
-        array_map(
-            static fn(string $itemId, int $index): array => [
-                'item_id' => $itemId,
-                'title' => $cleanTitles[$index] ?? $itemId,
-            ],
-            $cleanItemIds,
-            array_keys($cleanItemIds)
-        )
+        $cleanItemIds,
+        array_keys($cleanItemIds)
     );
+    rental_send_customer_email($emailReservation, $emailItems);
+    rental_send_admin_email($emailReservation, $emailItems);
 } catch (Throwable $e) {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
