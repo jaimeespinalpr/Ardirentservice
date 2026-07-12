@@ -2,9 +2,24 @@
 declare(strict_types=1);
 require_once __DIR__ . '/rentals_common.php';
 require_once __DIR__ . '/accounts_common.php';
+require_once __DIR__ . '/supabase_common.php';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     rental_json(['ok' => false, 'error' => 'method_not_allowed'], 405);
+}
+
+function rental_release_checkout_discount(PDO $pdo, string $backend, ?array $supabaseUser, int $accountId, string $token): void
+{
+    if ($token === '') {
+        return;
+    }
+    if ($backend === 'supabase' && is_array($supabaseUser) && ($supabaseUser['id'] ?? '') !== '') {
+        supabase_release_welcome_discount((string) $supabaseUser['id'], $token);
+        return;
+    }
+    if ($accountId > 0) {
+        account_release_discount($pdo, $accountId, $token);
+    }
 }
 
 $payload = rental_read_json_body();
@@ -51,22 +66,60 @@ if ($unavailable !== []) {
 }
 
 $days = rental_days_between($startDate, $endDate);
-$totalAmount = 0;
+$subtotalCents = 0;
 foreach ($items as $item) {
-    $totalAmount += ((int) $item['rate_cents']) * $days;
+    $subtotalCents += ((int) $item['rate_cents']) * $days;
 }
 
-$accountUser = account_current_user($pdo);
-$discountCents = 0;
-$discountToken = '';
+$accountBackend = strtolower(rental_clean_text(rental_env('ACCOUNT_BACKEND', 'sqlite')));
+$supabaseUser = null;
+$sqliteAccountUser = null;
 $accountId = 0;
-if ($accountUser !== null && $totalAmount >= WELCOME_DISCOUNT_CENTS) {
-    $accountId = (int) $accountUser['id'];
-    $discountToken = account_reserve_welcome_discount($pdo, $accountId) ?? '';
-    if ($discountToken !== '') {
-        $discountCents = WELCOME_DISCOUNT_CENTS;
+// guest checkout remains available; account_backend === 'supabase' only adds bearer-authenticated account benefits.
+$discountToken = '';
+$discountCents = 0;
+
+if ($accountBackend === 'supabase') {
+    $supabaseUser = supabase_validate_bearer();
+    if (is_array($supabaseUser) && ($supabaseUser['id'] ?? '') !== '' && $subtotalCents >= WELCOME_DISCOUNT_CENTS) {
+        $discountToken = supabase_reserve_welcome_discount((string) $supabaseUser['id']) ?? '';
+        if ($discountToken !== '') {
+            $discountCents = WELCOME_DISCOUNT_CENTS;
+        }
     }
 }
+
+if ($accountBackend !== 'supabase' && $discountToken === '') {
+    $sqliteAccountUser = account_current_user($pdo);
+    if ($sqliteAccountUser !== null && $subtotalCents >= WELCOME_DISCOUNT_CENTS) {
+        $accountId = (int) $sqliteAccountUser['id'];
+        $discountToken = account_reserve_welcome_discount($pdo, $accountId) ?? '';
+        if ($discountToken !== '') {
+            $discountCents = WELCOME_DISCOUNT_CENTS;
+        }
+    }
+}
+
+$intentBackend = $accountBackend === 'supabase' && is_array($supabaseUser) && ($supabaseUser['id'] ?? '') !== ''
+    ? 'supabase'
+    : ($accountId > 0 ? 'sqlite' : 'guest');
+$checkoutIntentId = rental_create_checkout_intent($pdo, [
+    'account_backend' => $intentBackend,
+    'start_date' => $startDate,
+    'end_date' => $endDate,
+    'customer_name' => $customerName,
+    'customer_email' => $customerEmail,
+    'customer_phone' => $customerPhone,
+    'items' => $items,
+    'subtotal_amount_cents' => $subtotalCents,
+    'discount_cents' => $discountCents,
+    'total_amount_cents' => max(0, $subtotalCents - $discountCents),
+    'currency' => CURRENCY,
+    'supabase_user_id' => $intentBackend === 'supabase' ? (string) $supabaseUser['id'] : '',
+    'supabase_reservation_token' => $intentBackend === 'supabase' ? $discountToken : '',
+    'account_id' => $accountId,
+    'sqlite_discount_token' => $intentBackend === 'sqlite' ? $discountToken : '',
+]);
 
 $form = [
     'mode' => 'payment',
@@ -74,24 +127,10 @@ $form = [
     'success_url' => rental_base_url() . '/rentals_confirm.php?session_id={CHECKOUT_SESSION_ID}',
     'cancel_url' => rental_public_url('equipment.html?rental=cancelled'),
     'customer_email' => $customerEmail,
-    'metadata[start_date]' => $startDate,
-    'metadata[end_date]' => $endDate,
-    'metadata[customer_name]' => $customerName,
-    'metadata[customer_email]' => $customerEmail,
-    'metadata[customer_phone]' => $customerPhone,
-    'metadata[item_ids]' => json_encode($itemIds, JSON_UNESCAPED_UNICODE),
-    'metadata[item_titles]' => json_encode(array_map(static fn(array $item): string => $item['title'], $items), JSON_UNESCAPED_UNICODE),
-    'metadata[item_rates_cents]' => json_encode(array_map(static fn(array $item): int => (int) $item['rate_cents'], $items), JSON_UNESCAPED_UNICODE),
-    'metadata[total_amount_cents]' => (string) $totalAmount,
-    'metadata[account_id]' => (string) $accountId,
-    'metadata[welcome_discount_cents]' => (string) $discountCents,
-    'metadata[welcome_discount_token]' => $discountToken,
-    'metadata[currency]' => CURRENCY,
+    'metadata[checkout_intent_id]' => $checkoutIntentId,
+    'metadata[account_backend]' => $intentBackend,
+    'client_reference_id' => $checkoutIntentId,
 ];
-
-if ($accountId > 0) {
-    $form['client_reference_id'] = 'account-' . $accountId;
-}
 
 if ($discountCents > 0) {
     $couponId = 'ardi-welcome-5';
@@ -106,7 +145,7 @@ if ($discountCents > 0) {
         ]);
     }
     if (!$coupon['ok']) {
-        account_release_discount($pdo, $accountId, $discountToken);
+        rental_release_checkout_intent($pdo, $checkoutIntentId, 'discount_setup_failed');
         rental_json(['ok' => false, 'error' => 'discount_setup_failed'], 502);
     }
     $form['discounts[0][coupon]'] = $couponId;
@@ -122,20 +161,18 @@ foreach (array_values($items) as $index => $item) {
 
 $stripe = stripe_request('POST', 'checkout/sessions', $form);
 if (!$stripe['ok']) {
-    if ($discountToken !== '') {
-        account_release_discount($pdo, $accountId, $discountToken);
-    }
+    rental_release_checkout_intent($pdo, $checkoutIntentId, 'stripe_checkout_failed');
     rental_json(['ok' => false, 'error' => 'stripe_checkout_failed', 'details' => $stripe['error'] ?? 'unknown'], 502);
 }
 
 $session = $stripe['data'];
+$checkoutSessionId = rental_clean_text((string) ($session['id'] ?? ''));
 $checkoutUrl = (string) ($session['url'] ?? '');
-if ($checkoutUrl === '') {
-    if ($discountToken !== '') {
-        account_release_discount($pdo, $accountId, $discountToken);
-    }
+if ($checkoutSessionId === '' || $checkoutUrl === '') {
+    rental_release_checkout_intent($pdo, $checkoutIntentId, 'missing_checkout_url');
     rental_json(['ok' => false, 'error' => 'missing_checkout_url'], 502);
 }
+rental_attach_checkout_session($pdo, $checkoutIntentId, $checkoutSessionId, rental_clean_text((string) ($session['payment_status'] ?? 'unpaid')));
 
 rental_json([
     'ok' => true,

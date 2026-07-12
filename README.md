@@ -39,6 +39,10 @@ See [`COMMIT_VERSIONING.md`](COMMIT_VERSIONING.md) for the policy.
 - `RENTAL_SMTP_PASSWORD` - optional SMTP password or app password
 - `RENTAL_SMTP_ENCRYPTION` - optional SMTP encryption, usually `starttls`
 
+## Stripe webhook and account backend
+
+Stripe Checkout completion no longer depends on the browser returning successfully. The signed endpoint is `pay/rentals_webhook.php` (deployed from `rentals_webhook.php`) and handles `checkout.session.completed` plus `checkout.session.expired` idempotently. Configure `STRIPE_WEBHOOK_SECRET` and the Supabase variables by following [`docs/SUPABASE_SETUP.md`](docs/SUPABASE_SETUP.md). Keep Stripe in test mode until the full QA checklist passes.
+
 ## Admin
 
 - Open `https://pay.ardirentservice.com/rentals_admin.php?token=YOUR_TOKEN`

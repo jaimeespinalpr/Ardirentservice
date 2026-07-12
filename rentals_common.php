@@ -475,7 +475,7 @@ function rental_allowed_origins(): array
 {
     $configured = rental_env(
         'ALLOWED_ORIGINS',
-        'https://ardirentservice.com,https://www.ardirentservice.com,https://jaimeespinalpr.github.io'
+        'https://ardirentservice.com,https://www.ardirentservice.com'
     );
 
     return array_values(array_filter(array_map(
@@ -492,7 +492,7 @@ function rental_apply_cors(): void
         header('Access-Control-Allow-Credentials: true');
         header('Vary: Origin');
         header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-        header('Access-Control-Allow-Headers: Content-Type');
+        header('Access-Control-Allow-Headers: Authorization, Content-Type, apikey, x-client-info');
         header('Access-Control-Max-Age: 86400');
     }
 
@@ -550,6 +550,7 @@ function rental_db(): PDO
     $pdo->exec(
         'CREATE TABLE IF NOT EXISTS reservations (
             id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+            checkout_intent_id   TEXT UNIQUE,
             checkout_session_id  TEXT UNIQUE NOT NULL,
             start_date           TEXT NOT NULL,
             end_date             TEXT NOT NULL,
@@ -578,15 +579,511 @@ function rental_db(): PDO
     $columnsStmt = $pdo->query('PRAGMA table_info(reservations)');
     $columns = $columnsStmt ? $columnsStmt->fetchAll() : [];
     $columnNames = array_map(static fn(array $row): string => (string) ($row['name'] ?? ''), $columns);
+    if (!in_array('checkout_intent_id', $columnNames, true)) {
+        $pdo->exec('ALTER TABLE reservations ADD COLUMN checkout_intent_id TEXT');
+    }
     if (!in_array('fulfillment_status', $columnNames, true)) {
         $pdo->exec("ALTER TABLE reservations ADD COLUMN fulfillment_status TEXT NOT NULL DEFAULT 'pending'");
+    }
+
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS checkout_intents (
+            id                         TEXT PRIMARY KEY,
+            account_backend            TEXT NOT NULL,
+            start_date                 TEXT NOT NULL,
+            end_date                   TEXT NOT NULL,
+            customer_name              TEXT NOT NULL,
+            customer_email             TEXT NOT NULL,
+            customer_phone             TEXT,
+            items_json                 TEXT NOT NULL,
+            subtotal_amount_cents      INTEGER NOT NULL,
+            discount_cents             INTEGER NOT NULL DEFAULT 0,
+            total_amount_cents         INTEGER NOT NULL,
+            currency                   TEXT NOT NULL,
+            supabase_user_id           TEXT,
+            supabase_reservation_token TEXT,
+            account_id                 INTEGER,
+            sqlite_discount_token      TEXT,
+            checkout_session_id        TEXT UNIQUE,
+            checkout_session_status    TEXT,
+            reservation_id             INTEGER,
+            status                     TEXT NOT NULL DEFAULT "created",
+            finalized_at               TEXT,
+            released_at                TEXT,
+            release_reason             TEXT,
+            email_sent_at              TEXT,
+            customer_email_sent_at     TEXT,
+            admin_email_sent_at        TEXT,
+            created_at                 TEXT NOT NULL,
+            updated_at                 TEXT NOT NULL
+        )'
+    );
+
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS checkout_webhook_events (
+            event_id             TEXT PRIMARY KEY,
+            event_type           TEXT NOT NULL,
+            checkout_intent_id   TEXT,
+            processed_at         TEXT NOT NULL
+        )'
+    );
+
+    $intentColumnsStmt = $pdo->query('PRAGMA table_info(checkout_intents)');
+    $intentColumns = $intentColumnsStmt ? $intentColumnsStmt->fetchAll() : [];
+    $intentColumnNames = array_map(static fn(array $row): string => (string) ($row['name'] ?? ''), $intentColumns);
+    foreach ([
+        'checkout_session_status' => 'TEXT',
+        'reservation_id' => 'INTEGER',
+        'status' => 'TEXT NOT NULL DEFAULT "created"',
+        'finalized_at' => 'TEXT',
+        'released_at' => 'TEXT',
+        'release_reason' => 'TEXT',
+        'email_sent_at' => 'TEXT',
+        'customer_email_sent_at' => 'TEXT',
+        'admin_email_sent_at' => 'TEXT',
+    ] as $column => $definition) {
+        if (!in_array($column, $intentColumnNames, true)) {
+            $pdo->exec('ALTER TABLE checkout_intents ADD COLUMN ' . $column . ' ' . $definition);
+        }
+    }
+
+    $webhookColumnsStmt = $pdo->query('PRAGMA table_info(checkout_webhook_events)');
+    $webhookColumns = $webhookColumnsStmt ? $webhookColumnsStmt->fetchAll() : [];
+    $webhookColumnNames = array_map(static fn(array $row): string => (string) ($row['name'] ?? ''), $webhookColumns);
+    if (!in_array('checkout_intent_id', $webhookColumnNames, true)) {
+        $pdo->exec('ALTER TABLE checkout_webhook_events ADD COLUMN checkout_intent_id TEXT');
     }
 
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_reservation_dates ON reservations(start_date, end_date, status)');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_reservation_items_item ON reservation_items(item_id)');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_reservation_fulfillment ON reservations(fulfillment_status, created_at)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_reservation_checkout_intent ON reservations(checkout_intent_id)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_checkout_intents_status ON checkout_intents(status, created_at)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_checkout_intents_session ON checkout_intents(checkout_session_id)');
 
     return $pdo;
+}
+
+function rental_checkout_intent_id(): string
+{
+    return bin2hex(random_bytes(16));
+}
+
+function rental_checkout_now(): string
+{
+    return (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format(DateTimeInterface::ATOM);
+}
+
+function rental_checkout_intent_from_row(array $row): array
+{
+    $row['items'] = [];
+    if (isset($row['items_json']) && is_string($row['items_json'])) {
+        $decoded = json_decode($row['items_json'], true);
+        $row['items'] = is_array($decoded) ? $decoded : [];
+    }
+
+    return $row;
+}
+
+function rental_create_checkout_intent(PDO $pdo, array $intent): string
+{
+    $intentId = rental_clean_text((string) ($intent['id'] ?? ''));
+    if ($intentId === '') {
+        $intentId = rental_checkout_intent_id();
+    }
+
+    $itemsJson = json_encode($intent['items'] ?? [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if (!is_string($itemsJson)) {
+        throw new RuntimeException('Unable to encode checkout intent items.');
+    }
+
+    $now = rental_checkout_now();
+    $stmt = $pdo->prepare(
+        'INSERT INTO checkout_intents (
+            id, account_backend, start_date, end_date, customer_name, customer_email, customer_phone,
+            items_json, subtotal_amount_cents, discount_cents, total_amount_cents, currency,
+            supabase_user_id, supabase_reservation_token, account_id, sqlite_discount_token,
+            checkout_session_id, checkout_session_status, reservation_id, status,
+            finalized_at, released_at, release_reason, email_sent_at, created_at, updated_at
+        ) VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )'
+    );
+    $stmt->execute([
+        $intentId,
+        rental_clean_text((string) ($intent['account_backend'] ?? 'sqlite')),
+        rental_clean_text((string) ($intent['start_date'] ?? '')),
+        rental_clean_text((string) ($intent['end_date'] ?? '')),
+        rental_clean_text((string) ($intent['customer_name'] ?? '')),
+        rental_clean_text((string) ($intent['customer_email'] ?? '')),
+        rental_clean_text((string) ($intent['customer_phone'] ?? '')),
+        $itemsJson,
+        max(0, (int) ($intent['subtotal_amount_cents'] ?? 0)),
+        max(0, (int) ($intent['discount_cents'] ?? 0)),
+        max(0, (int) ($intent['total_amount_cents'] ?? 0)),
+        rental_clean_text((string) ($intent['currency'] ?? CURRENCY)),
+        rental_clean_text((string) ($intent['supabase_user_id'] ?? '')),
+        rental_clean_text((string) ($intent['supabase_reservation_token'] ?? '')),
+        (int) ($intent['account_id'] ?? 0),
+        rental_clean_text((string) ($intent['sqlite_discount_token'] ?? '')),
+        rental_clean_text((string) ($intent['checkout_session_id'] ?? '')),
+        rental_clean_text((string) ($intent['checkout_session_status'] ?? '')),
+        (int) ($intent['reservation_id'] ?? 0),
+        rental_clean_text((string) ($intent['status'] ?? 'created')),
+        rental_clean_text((string) ($intent['finalized_at'] ?? '')),
+        rental_clean_text((string) ($intent['released_at'] ?? '')),
+        rental_clean_text((string) ($intent['release_reason'] ?? '')),
+        rental_clean_text((string) ($intent['email_sent_at'] ?? '')),
+        $now,
+        $now,
+    ]);
+
+    return $intentId;
+}
+
+function rental_get_checkout_intent(PDO $pdo, string $intentId): ?array
+{
+    $stmt = $pdo->prepare('SELECT * FROM checkout_intents WHERE id = ? LIMIT 1');
+    $stmt->execute([$intentId]);
+    $row = $stmt->fetch();
+    return is_array($row) ? rental_checkout_intent_from_row($row) : null;
+}
+
+function rental_update_checkout_intent(PDO $pdo, string $intentId, array $fields): bool
+{
+    if ($fields === []) {
+        return false;
+    }
+
+    $assignments = [];
+    $values = [];
+    foreach ($fields as $column => $value) {
+        $assignments[] = $column . ' = ?';
+        if (is_array($value)) {
+            $value = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+        $values[] = is_bool($value) ? (int) $value : (string) $value;
+    }
+
+    $values[] = rental_checkout_now();
+    $values[] = $intentId;
+
+    $stmt = $pdo->prepare('UPDATE checkout_intents SET ' . implode(', ', $assignments) . ', updated_at = ? WHERE id = ?');
+    return $stmt->execute($values);
+}
+
+function rental_attach_checkout_session(PDO $pdo, string $intentId, string $sessionId, string $status = ''): bool
+{
+    $fields = ['checkout_session_id' => $sessionId];
+    if ($status !== '') {
+        $fields['checkout_session_status'] = $status;
+    }
+
+    return rental_update_checkout_intent($pdo, $intentId, $fields);
+}
+
+function rental_record_checkout_webhook_event(PDO $pdo, string $eventId, string $eventType, ?string $intentId = null): bool
+{
+    $stmt = $pdo->prepare(
+        'INSERT INTO checkout_webhook_events (event_id, event_type, checkout_intent_id, processed_at) VALUES (?, ?, ?, ?)'
+    );
+
+    try {
+        return $stmt->execute([$eventId, $eventType, $intentId, rental_checkout_now()]);
+    } catch (PDOException $e) {
+        if ((string) $e->getCode() === '23000' || str_contains(strtolower($e->getMessage()), 'unique')) {
+            return false;
+        }
+        throw $e;
+    }
+}
+
+function rental_verify_stripe_webhook_signature(string $payload, string $header, string $secret, int $tolerance = 300): bool
+{
+    if ($payload === '' || $header === '' || $secret === '') {
+        return false;
+    }
+
+    $timestamp = '';
+    $signatures = [];
+    foreach (explode(',', $header) as $part) {
+        [$key, $value] = array_pad(array_map('trim', explode('=', trim($part), 2)), 2, '');
+        if ($key === 't') {
+            $timestamp = $value;
+        } elseif ($key === 'v1' && $value !== '') {
+            $signatures[] = $value;
+        }
+    }
+
+    if ($timestamp === '' || $signatures === [] || !ctype_digit($timestamp)) {
+        return false;
+    }
+
+    if ($tolerance > 0 && abs(time() - (int) $timestamp) > $tolerance) {
+        return false;
+    }
+
+    $expected = hash_hmac('sha256', $timestamp . '.' . $payload, $secret);
+    foreach ($signatures as $signature) {
+        if (hash_equals($expected, $signature)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function rental_session_discount_was_consumed(?array $state): bool
+{
+    if (!is_array($state)) {
+        return false;
+    }
+
+    return trim((string) ($state['welcome_discount_used_at'] ?? '')) !== '';
+}
+
+function rental_release_checkout_intent(PDO $pdo, string $intentId, string $reason = 'released'): array
+{
+    $intent = rental_get_checkout_intent($pdo, $intentId);
+    if ($intent === null) {
+        return ['ok' => false, 'error' => 'missing_checkout_intent'];
+    }
+
+    $backend = strtolower(rental_clean_text((string) ($intent['account_backend'] ?? 'sqlite')));
+    $discountCents = max(0, (int) ($intent['discount_cents'] ?? 0));
+    if ($backend === 'supabase' && $discountCents > 0) {
+        $userId = rental_clean_text((string) ($intent['supabase_user_id'] ?? ''));
+        $token = rental_clean_text((string) ($intent['supabase_reservation_token'] ?? ''));
+        if ($userId !== '' && $token !== '') {
+            if (!supabase_release_welcome_discount($userId, $token)) {
+                return ['ok' => false, 'error' => 'supabase_discount_release_failed'];
+            }
+        }
+    } elseif ((int) ($intent['account_id'] ?? 0) > 0) {
+        $token = rental_clean_text((string) ($intent['sqlite_discount_token'] ?? ''));
+        if ($token !== '') {
+            if (!account_release_discount($pdo, (int) $intent['account_id'], $token)) {
+                return ['ok' => false, 'error' => 'sqlite_discount_release_failed'];
+            }
+        }
+    }
+
+    rental_update_checkout_intent($pdo, $intentId, [
+        'status' => 'released',
+        'released_at' => rental_checkout_now(),
+        'release_reason' => $reason,
+    ]);
+
+    return ['ok' => true, 'intent' => rental_get_checkout_intent($pdo, $intentId)];
+}
+
+function rental_finalize_checkout_intent(PDO $pdo, string $intentId, array $session): array
+{
+    $intent = rental_get_checkout_intent($pdo, $intentId);
+    if ($intent === null) {
+        return ['ok' => false, 'error' => 'missing_checkout_intent'];
+    }
+
+    $sessionId = rental_clean_text((string) ($session['id'] ?? ''));
+    if ($sessionId === '') {
+        return ['ok' => false, 'error' => 'missing_checkout_session'];
+    }
+
+    $storedSessionId = rental_clean_text((string) ($intent['checkout_session_id'] ?? ''));
+    if ($storedSessionId !== '' && $storedSessionId !== $sessionId) {
+        return ['ok' => false, 'error' => 'checkout_session_mismatch'];
+    }
+
+    $metadata = is_array($session['metadata'] ?? null) ? $session['metadata'] : [];
+    if (rental_clean_text((string) ($metadata['checkout_intent_id'] ?? '')) !== $intentId) {
+        return ['ok' => false, 'error' => 'checkout_intent_mismatch'];
+    }
+    if (strtolower(rental_clean_text((string) ($session['currency'] ?? ''))) !== strtolower((string) ($intent['currency'] ?? CURRENCY))) {
+        return ['ok' => false, 'error' => 'checkout_currency_mismatch'];
+    }
+    if ((int) ($session['amount_total'] ?? -1) !== (int) ($intent['total_amount_cents'] ?? -2)) {
+        return ['ok' => false, 'error' => 'checkout_amount_mismatch'];
+    }
+
+    if (rental_clean_text((string) ($session['payment_status'] ?? '')) !== 'paid') {
+        return ['ok' => false, 'error' => 'checkout_unpaid'];
+    }
+
+    $items = $intent['items'] ?? [];
+    if (!is_array($items) || $items === []) {
+        return ['ok' => false, 'error' => 'missing_checkout_items'];
+    }
+
+    $reservationId = (int) ($intent['reservation_id'] ?? 0);
+    $existingReservation = null;
+    if ($reservationId > 0) {
+        $existingReservation = rental_get_reservation($pdo, $reservationId);
+    }
+    if ($existingReservation === null) {
+        $stmt = $pdo->prepare('SELECT * FROM reservations WHERE checkout_session_id = ? LIMIT 1');
+        $stmt->execute([$sessionId]);
+        $row = $stmt->fetch();
+        $existingReservation = is_array($row) ? $row : null;
+    }
+
+    if ($existingReservation === null) {
+        $pdo->beginTransaction();
+        try {
+            $itemIds = [];
+            foreach ($items as $item) {
+                if (!is_array($item)) {
+                    continue;
+                }
+                $itemId = rental_normalize_item_id((string) ($item['id'] ?? ''));
+                if ($itemId !== null) {
+                    $itemIds[] = $itemId;
+                }
+            }
+
+            $unavailable = rental_find_unavailable_items($pdo, (string) $intent['start_date'], (string) $intent['end_date'], array_values(array_unique($itemIds)));
+            if ($unavailable !== []) {
+                $pdo->rollBack();
+                return ['ok' => false, 'error' => 'items_unavailable'];
+            }
+
+            $insertReservation = $pdo->prepare(
+                'INSERT INTO reservations (
+                    checkout_intent_id, checkout_session_id, start_date, end_date,
+                    customer_name, customer_email, customer_phone, total_amount_cents,
+                    currency, status, fulfillment_status, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            );
+            $insertReservation->execute([
+                $intentId,
+                $sessionId,
+                (string) $intent['start_date'],
+                (string) $intent['end_date'],
+                rental_clean_text((string) ($intent['customer_name'] ?? '')),
+                rental_clean_text((string) ($intent['customer_email'] ?? '')),
+                rental_clean_text((string) ($intent['customer_phone'] ?? '')),
+                max(0, (int) ($intent['total_amount_cents'] ?? 0)),
+                rental_clean_text((string) ($intent['currency'] ?? CURRENCY)) ?: CURRENCY,
+                'paid',
+                'pending',
+                rental_checkout_now(),
+            ]);
+
+            $reservationId = (int) $pdo->lastInsertId();
+            $insertItem = $pdo->prepare('INSERT INTO reservation_items (reservation_id, item_id, item_title, unit_amount_cents) VALUES (?, ?, ?, ?)');
+            foreach ($items as $item) {
+                if (!is_array($item)) {
+                    continue;
+                }
+                $itemId = rental_normalize_item_id((string) ($item['id'] ?? ''));
+                if ($itemId === null) {
+                    continue;
+                }
+                $insertItem->execute([
+                    $reservationId,
+                    $itemId,
+                    rental_clean_text((string) ($item['title'] ?? '')) ?: $itemId,
+                    max(0, (int) ($item['rate_cents'] ?? 0)),
+                ]);
+            }
+
+            rental_update_checkout_intent($pdo, $intentId, [
+                'reservation_id' => $reservationId,
+                'checkout_session_status' => rental_clean_text((string) ($session['payment_status'] ?? '')),
+                'status' => 'reserved',
+            ]);
+
+            $pdo->commit();
+            $intent = rental_get_checkout_intent($pdo, $intentId) ?? $intent;
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            return ['ok' => false, 'error' => 'checkout_finalization_failed'];
+        }
+    }
+
+    $backend = strtolower(rental_clean_text((string) ($intent['account_backend'] ?? 'sqlite')));
+    $discountCents = max(0, (int) ($intent['discount_cents'] ?? 0));
+    if ($backend === 'supabase' && $discountCents > 0) {
+        $userId = rental_clean_text((string) ($intent['supabase_user_id'] ?? ''));
+        $token = rental_clean_text((string) ($intent['supabase_reservation_token'] ?? ''));
+        if ($userId !== '' && $token !== '') {
+            $consumed = supabase_consume_welcome_discount($userId, $token);
+            if (!$consumed) {
+                $serverKey = supabase_server_key();
+                $profileResponse = $serverKey === ''
+                    ? ['ok' => false, 'data' => null]
+                    : supabase_http_request(
+                        'GET',
+                        '/rest/v1/customer_profiles?select=welcome_discount_used_at&id=eq.' . rawurlencode($userId),
+                        ['Authorization: Bearer ' . $serverKey, 'apikey: ' . $serverKey]
+                    );
+                if ($profileResponse['ok'] && is_array($profileResponse['data']) && rental_session_discount_was_consumed($profileResponse['data'][0] ?? null)) {
+                    $consumed = true;
+                }
+            }
+            if (!$consumed) {
+                return ['ok' => false, 'error' => 'supabase_discount_consume_failed'];
+            }
+        }
+    } elseif ((int) ($intent['account_id'] ?? 0) > 0) {
+        $token = rental_clean_text((string) ($intent['sqlite_discount_token'] ?? ''));
+        if ($token !== '' && !account_consume_discount($pdo, (int) $intent['account_id'], $token)) {
+            return ['ok' => false, 'error' => 'sqlite_discount_consume_failed'];
+        }
+    }
+
+    rental_update_checkout_intent($pdo, $intentId, [
+        'status' => 'completed',
+        'checkout_session_status' => rental_clean_text((string) ($session['payment_status'] ?? '')),
+        'finalized_at' => rental_checkout_now(),
+    ]);
+
+    return ['ok' => true, 'status' => 'completed', 'intent' => rental_get_checkout_intent($pdo, $intentId)];
+}
+
+function rental_deliver_checkout_intent_emails(PDO $pdo, string $intentId): bool
+{
+    $intent = rental_get_checkout_intent($pdo, $intentId);
+    $reservationId = (int) ($intent['reservation_id'] ?? 0);
+    $reservation = $reservationId > 0 ? rental_get_reservation($pdo, $reservationId) : null;
+    if (!is_array($reservation)) {
+        return false;
+    }
+
+    $items = is_array($reservation['items'] ?? null) ? $reservation['items'] : [];
+    $deliverOnce = static function (string $column, callable $send) use ($pdo, $intentId): bool {
+        $claim = rental_checkout_now();
+        $stmt = $pdo->prepare(
+            "UPDATE checkout_intents SET {$column} = ?, updated_at = ?
+             WHERE id = ? AND status = 'completed' AND ({$column} IS NULL OR {$column} = '')"
+        );
+        $stmt->execute([$claim, $claim, $intentId]);
+        if ($stmt->rowCount() === 0) {
+            return true;
+        }
+        if ($send()) {
+            return true;
+        }
+        rental_update_checkout_intent($pdo, $intentId, [$column => '']);
+        return false;
+    };
+
+    $customerSent = $deliverOnce(
+        'customer_email_sent_at',
+        static fn(): bool => rental_send_customer_email($reservation, $items)
+    );
+    $adminSent = $deliverOnce(
+        'admin_email_sent_at',
+        static fn(): bool => rental_send_admin_email($reservation, $items)
+    );
+
+    if ($customerSent && $adminSent) {
+        rental_update_checkout_intent($pdo, $intentId, ['email_sent_at' => rental_checkout_now()]);
+        return true;
+    }
+
+    return false;
 }
 
 function rental_read_json_body(): array
