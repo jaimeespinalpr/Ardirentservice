@@ -1,5 +1,5 @@
 (() => {
-  const API = "accounts_api.php";
+  const API = "https://pay.ardirentservice.com/accounts_api.php";
   const spanish = () => document.documentElement.lang === "es";
   let csrf = "";
   let currentUser = null;
@@ -42,7 +42,7 @@
 
   const status = async () => {
     try {
-      const response = await fetch(API + "?action=status", {headers:{Accept:"application/json"}});
+      const response = await fetch(API + "?action=status", {credentials:"include", headers:{Accept:"application/json"}});
       const data = await response.json();
       csrf = data.csrf_token || "";
       currentUser = data.authenticated ? data.user : null;
@@ -56,6 +56,7 @@
   const post = async (action, payload = {}) => {
     const response = await fetch(API + "?action=" + encodeURIComponent(action), {
       method: "POST",
+      credentials: "include",
       headers: {"Content-Type":"application/json", Accept:"application/json"},
       body: JSON.stringify({...payload, csrf_token: csrf}),
     });

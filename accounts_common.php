@@ -11,8 +11,12 @@ function account_start_session(): void
         return;
     }
     session_name('ardi_account');
+    $cookieDomain = str_ends_with(strtolower((string) ($_SERVER['HTTP_HOST'] ?? '')), 'ardirentservice.com')
+        ? '.ardirentservice.com'
+        : '';
     session_set_cookie_params([
         'lifetime' => 60 * 60 * 24 * 30,
+        'domain' => $cookieDomain,
         'path' => '/',
         'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
         'httponly' => true,
