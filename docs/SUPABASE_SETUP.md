@@ -102,5 +102,6 @@ If Supabase must be disabled temporarily:
 3. Remove or revoke the Supabase secret key in Supabase if you need to rotate access.
 4. Leave the Auth settings in place until the rollback is validated.
 5. Redeploy so Hostinger receives the reverted `.env`.
+6. Verify that `account.html` redirects to `account-legacy.html` and that legacy login/register works only while `ACCOUNT_BACKEND=sqlite`.
 
-Rollback is config-only. Do not delete the migration or attempt to move password hashes back into SQLite.
+Rollback is config-only. The legacy UI files remain deployed for this controlled path, but legacy account API actions return `410 legacy_accounts_disabled` whenever `ACCOUNT_BACKEND=supabase`. Do not delete the migration or attempt to move password hashes back into SQLite.

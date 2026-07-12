@@ -612,6 +612,8 @@ function rental_db(): PDO
             released_at                TEXT,
             release_reason             TEXT,
             email_sent_at              TEXT,
+            customer_email_sent_at     TEXT,
+            admin_email_sent_at        TEXT,
             created_at                 TEXT NOT NULL,
             updated_at                 TEXT NOT NULL
         )'
@@ -637,6 +639,8 @@ function rental_db(): PDO
         'released_at' => 'TEXT',
         'release_reason' => 'TEXT',
         'email_sent_at' => 'TEXT',
+        'customer_email_sent_at' => 'TEXT',
+        'admin_email_sent_at' => 'TEXT',
     ] as $column => $definition) {
         if (!in_array($column, $intentColumnNames, true)) {
             $pdo->exec('ALTER TABLE checkout_intents ADD COLUMN ' . $column . ' ' . $definition);
@@ -1040,33 +1044,46 @@ function rental_finalize_checkout_intent(PDO $pdo, string $intentId, array $sess
 
 function rental_deliver_checkout_intent_emails(PDO $pdo, string $intentId): bool
 {
-    $claim = rental_checkout_now();
-    $stmt = $pdo->prepare(
-        "UPDATE checkout_intents SET email_sent_at = ?, updated_at = ?
-         WHERE id = ? AND status = 'completed' AND (email_sent_at IS NULL OR email_sent_at = '')"
-    );
-    $stmt->execute([$claim, $claim, $intentId]);
-    if ($stmt->rowCount() === 0) {
-        return true;
-    }
-
     $intent = rental_get_checkout_intent($pdo, $intentId);
     $reservationId = (int) ($intent['reservation_id'] ?? 0);
     $reservation = $reservationId > 0 ? rental_get_reservation($pdo, $reservationId) : null;
     if (!is_array($reservation)) {
-        rental_update_checkout_intent($pdo, $intentId, ['email_sent_at' => '']);
         return false;
     }
 
     $items = is_array($reservation['items'] ?? null) ? $reservation['items'] : [];
-    $customerSent = rental_send_customer_email($reservation, $items);
-    $adminSent = rental_send_admin_email($reservation, $items);
-    if (!$customerSent || !$adminSent) {
-        rental_update_checkout_intent($pdo, $intentId, ['email_sent_at' => '']);
+    $deliverOnce = static function (string $column, callable $send) use ($pdo, $intentId): bool {
+        $claim = rental_checkout_now();
+        $stmt = $pdo->prepare(
+            "UPDATE checkout_intents SET {$column} = ?, updated_at = ?
+             WHERE id = ? AND status = 'completed' AND ({$column} IS NULL OR {$column} = '')"
+        );
+        $stmt->execute([$claim, $claim, $intentId]);
+        if ($stmt->rowCount() === 0) {
+            return true;
+        }
+        if ($send()) {
+            return true;
+        }
+        rental_update_checkout_intent($pdo, $intentId, [$column => '']);
         return false;
+    };
+
+    $customerSent = $deliverOnce(
+        'customer_email_sent_at',
+        static fn(): bool => rental_send_customer_email($reservation, $items)
+    );
+    $adminSent = $deliverOnce(
+        'admin_email_sent_at',
+        static fn(): bool => rental_send_admin_email($reservation, $items)
+    );
+
+    if ($customerSent && $adminSent) {
+        rental_update_checkout_intent($pdo, $intentId, ['email_sent_at' => rental_checkout_now()]);
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 function rental_read_json_body(): array

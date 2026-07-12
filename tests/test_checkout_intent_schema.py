@@ -20,6 +20,8 @@ def test_checkout_intent_schema_preserves_local_context_and_idempotency():
     assert "finalized_at text" in code
     assert "released_at text" in code
     assert "email_sent_at text" in code
+    assert "customer_email_sent_at text" in code
+    assert "admin_email_sent_at text" in code
     assert "create table if not exists checkout_webhook_events" in code
     assert "event_id text primary key" in code
     assert "webhook processing" not in code

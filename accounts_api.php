@@ -9,7 +9,7 @@ $action = rental_clean_text($_GET['action'] ?? 'status');
 if ($method === 'GET' && $action === 'config') {
     $backend = strtolower(rental_env('ACCOUNT_BACKEND', 'sqlite'));
     if ($backend !== 'supabase') {
-        rental_json(['ok' => false, 'error' => 'supabase_not_enabled'], 503);
+        rental_json(['ok' => true, 'account_backend' => 'sqlite']);
     }
     $url = supabase_base_url();
     $publishableKey = supabase_publishable_key();
@@ -22,6 +22,10 @@ if ($method === 'GET' && $action === 'config') {
         'supabase_url' => $url,
         'supabase_publishable_key' => $publishableKey,
     ]);
+}
+
+if (strtolower(rental_env('ACCOUNT_BACKEND', 'sqlite')) === 'supabase') {
+    rental_json(['ok' => false, 'error' => 'legacy_accounts_disabled'], 410);
 }
 
 $pdo = rental_db();

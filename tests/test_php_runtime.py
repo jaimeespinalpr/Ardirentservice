@@ -67,6 +67,28 @@ def test_config_endpoint_executes_without_opening_sqlite_or_returning_secrets():
     assert "must-never" not in result.stdout
 
 
+def test_config_endpoint_preserves_explicit_sqlite_fallback():
+    code = (
+        "$_SERVER['REQUEST_METHOD']='GET';"
+        "$_GET['action']='config';"
+        "include 'accounts_api.php';"
+    )
+    result = php_run(code, {"ACCOUNT_BACKEND": "sqlite"})
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout) == {"ok": True, "account_backend": "sqlite"}
+
+
+def test_legacy_account_actions_are_disabled_in_supabase_mode():
+    code = (
+        "$_SERVER['REQUEST_METHOD']='GET';"
+        "$_GET['action']='status';"
+        "include 'accounts_api.php';"
+    )
+    result = php_run(code, {"ACCOUNT_BACKEND": "supabase"})
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout) == {"ok": False, "error": "legacy_accounts_disabled"}
+
+
 class _SupabaseAuthHandler(BaseHTTPRequestHandler):
     received: dict[str, str] = {}
 

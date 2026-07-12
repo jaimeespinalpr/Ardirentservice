@@ -1,6 +1,7 @@
 (() => {
   const API = "https://pay.ardirentservice.com/accounts_api.php";
   const ACCOUNT_URL = new URL("account.html", window.location.href).toString();
+  const LEGACY_ACCOUNT_URL = new URL("account-legacy.html", window.location.href).toString();
   const RECOVERY_HASH = "type=recovery";
   const panels = ["guest", "verify", "recovery", "profile"];
   const text = {
@@ -211,6 +212,10 @@
     if (state.supabase) return state.supabase;
     const response = await fetch(`${API}?action=config`, { credentials: "include", headers: { Accept: "application/json" } });
     const config = await response.json();
+    if (config.account_backend === "sqlite") {
+      window.location.replace(LEGACY_ACCOUNT_URL);
+      return null;
+    }
     state.csrf = config.csrf_token || "";
     if (!response.ok || !config.supabase_url || !config.supabase_publishable_key || !window.supabase?.createClient) {
       throw new Error("config_failed");
@@ -404,6 +409,7 @@
   const loadInitialState = async () => {
     try {
       await ensureSupabase();
+      if (!state.supabase) return;
       const { data } = await state.supabase.auth.getSession();
       state.currentUser = data.session?.user || null;
       state.recovering = recoveryFromUrl();

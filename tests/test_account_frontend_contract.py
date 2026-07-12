@@ -39,6 +39,17 @@ def test_account_client_bootstraps_supabase_public_config_and_persistent_session
     assert "customer_profiles" in js
     assert "welcome_discount_used_at" in js and "welcome_discount_reserved_at" in js
     assert "recoveryFromUrl" in js
+    assert "account-legacy.html" in js
+    assert 'config.account_backend === "sqlite"' in js
+
+
+def test_legacy_sqlite_account_ui_remains_available_for_rollback():
+    legacy_html = read(ROOT / "account-legacy.html")
+    legacy_js = read(ROOT / "assets" / "account-legacy.js")
+    assert 'assets/account-legacy.js' in legacy_html
+    assert "action=status" in legacy_js
+    assert 'post("register"' in legacy_js
+    assert 'post("login"' in legacy_js
 
 
 def test_auth_copy_covers_terms_validation_and_es_en_error_states():
