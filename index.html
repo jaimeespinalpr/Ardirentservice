@@ -53,6 +53,7 @@
     />
     <link rel="stylesheet" href="assets/styles.css?v=20260506-restore-state" />
     <link rel="stylesheet" href="assets/friendly-theme.css?v=20260708-vision-fix" />
+    <link rel="stylesheet" href="assets/account.css?v=20260712-account" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -99,6 +100,7 @@
           <a href="prints.html">Prints</a>
           <a data-nav-link="production" href="production.html">Production</a>
           <a data-nav-link="contact" href="contact.html">Contact</a>
+          <a class="account-nav-link" href="account.html" data-account-nav>Account</a>
           <a href="production.html#project-brief" class="nav-mobile-cta">Request a quote</a>
         </nav>
 
@@ -132,6 +134,11 @@
         </div>
       </div>
     </header>
+    <div class="container account-promo" role="region" aria-label="Account welcome offer">
+      <div><strong data-account-promo-title>Create an account and get $5 off</strong><p data-account-promo-text>Your welcome discount is applied automatically to your first rental.</p></div>
+      <a class="button" href="account.html" data-account-promo-button>Create account</a>
+    </div>
+
 
     <main id="top">
       <section class="hero hero-photo">
@@ -284,5 +291,6 @@
     </footer>
 
     <script src="assets/app.js?v=20260708-vision-fix" defer></script>
+    <script src="assets/account.js?v=20260712-account"></script>
   </body>
 </html>
