@@ -134,6 +134,7 @@ jobs:
           RENTAL_EMAIL_FROM=Ardi Rent & Service <info@ardirentservice.com>
           RENTAL_EMAIL_REPLY_TO=info@ardirentservice.com
           RENTAL_ADMIN_EMAIL=ardirentservice@gmail.com
+          RENTAL_ADMIN_EMAILS=ardirentservice@gmail.com,jaimeespinalpr@gmail.com
           RENTAL_SMTP_HOST=${RENTAL_SMTP_HOST}
           RENTAL_SMTP_PORT=${RENTAL_SMTP_PORT}
           RENTAL_SMTP_USERNAME=${RENTAL_SMTP_USERNAME}

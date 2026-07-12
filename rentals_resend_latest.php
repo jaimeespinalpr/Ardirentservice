@@ -27,10 +27,10 @@ $customerSent = rental_send_customer_email($reservation, $items);
 $adminSent = rental_send_admin_email($reservation, $items);
 
 printf(
-    "reservation_id=%d customer_sent=%s admin_sent=%s admin_recipient=%s\n",
+    "reservation_id=%d customer_sent=%s admin_sent=%s admin_recipients=%s\n",
     (int) $reservation['id'],
     $customerSent ? 'yes' : 'no',
     $adminSent ? 'yes' : 'no',
-    rental_admin_email()
+    implode(',', rental_admin_emails())
 );
 exit($customerSent && $adminSent ? 0 : 1);

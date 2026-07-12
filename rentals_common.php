@@ -69,6 +69,19 @@ function rental_admin_email(): string
     return rental_env('RENTAL_ADMIN_EMAIL', 'ardirentservice@gmail.com');
 }
 
+function rental_admin_emails(): array
+{
+    $configured = rental_env(
+        'RENTAL_ADMIN_EMAILS',
+        rental_admin_email() . ',jaimeespinalpr@gmail.com'
+    );
+    $emails = array_filter(array_map(
+        static fn(string $email): string => filter_var(trim($email), FILTER_VALIDATE_EMAIL) ?: '',
+        explode(',', $configured)
+    ));
+    return array_values(array_unique($emails));
+}
+
 function rental_pickup_details_html(): string
 {
     $address = rental_env('RENTAL_PICKUP_ADDRESS', 'Park Boulevard condominium');
@@ -133,22 +146,24 @@ function rental_send_customer_email(array $reservation, array $items): bool
 
 function rental_send_admin_email(array $reservation, array $items): bool
 {
-    $email = filter_var(rental_admin_email(), FILTER_VALIDATE_EMAIL);
-    if (!$email) {
-        error_log('Ardi rental admin email skipped: invalid admin email');
+    $emails = rental_admin_emails();
+    if ($emails === []) {
+        error_log('Ardi rental admin email skipped: no valid admin emails');
         return false;
     }
 
     $message = rental_build_admin_email_message($reservation, $items);
-    if (rental_smtp_configured()) {
-        $sent = rental_send_smtp_message($email, $message);
-    } else {
-        $sent = mail($email, $message['subject'], $message['body'], implode("\r\n", $message['headers']));
+    $allSent = true;
+    foreach ($emails as $email) {
+        $sent = rental_smtp_configured()
+            ? rental_send_smtp_message($email, $message)
+            : mail($email, $message['subject'], $message['body'], implode("\r\n", $message['headers']));
+        if (!$sent) {
+            error_log('Ardi rental admin email failed for ' . $email);
+            $allSent = false;
+        }
     }
-    if (!$sent) {
-        error_log('Ardi rental admin email failed for ' . $email);
-    }
-    return $sent;
+    return $allSent;
 }
 
 function rental_build_admin_email_message(array $reservation, array $items): array
