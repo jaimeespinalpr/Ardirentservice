@@ -30,8 +30,8 @@ if (!is_array($reservation)) {
 }
 
 $now = (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format(DateTimeInterface::ATOM);
-$title = 'Return check saved';
-$body = 'The reservation was updated.';
+$title = 'Senal recibida';
+$body = 'La reservacion fue actualizada.';
 $sentReview = false;
 
 if ($action === 'returned_ok') {
@@ -41,23 +41,23 @@ if ($action === 'returned_ok') {
         if ($sentReview) {
             $stmt = $pdo->prepare('UPDATE reservations SET fulfillment_status = ?, return_checked_at = ?, review_requested_at = ? WHERE id = ?');
             $stmt->execute(['completed', $now, $now, $reservationId]);
-            $body = 'Everything was marked OK and the Google Review request was sent to the customer.';
+            $body = 'Todo fue marcado como correcto y el correo de agradecimiento con invitacion al review fue enviado al cliente.';
         } else {
             $stmt = $pdo->prepare('UPDATE reservations SET fulfillment_status = ?, return_checked_at = ? WHERE id = ?');
             $stmt->execute(['completed', $now, $reservationId]);
-            $title = 'Review email failed';
-            $body = 'The return was marked OK, but the review request email could not be sent. Check SMTP settings.';
+            $title = 'No se pudo enviar el correo';
+            $body = 'La devolucion fue marcada como correcta, pero el correo de review no se pudo enviar. Revisa la configuracion SMTP o el GOOGLE_REVIEW_URL.';
         }
     } else {
         $stmt = $pdo->prepare('UPDATE reservations SET fulfillment_status = ?, return_checked_at = COALESCE(return_checked_at, ?) WHERE id = ?');
         $stmt->execute(['completed', $now, $reservationId]);
-        $body = 'This customer already received the Google Review request. No duplicate email was sent.';
+        $body = 'Este cliente ya recibio el correo de review. No se envio un duplicado.';
     }
 } else {
     $stmt = $pdo->prepare('UPDATE reservations SET fulfillment_status = ?, return_checked_at = ? WHERE id = ?');
     $stmt->execute(['delivered', $now, $reservationId]);
-    $title = 'Return marked with a problem';
-    $body = 'The customer was not contacted for a Google Review. Follow up with the customer before closing this rental.';
+    $title = 'Problema registrado';
+    $body = 'No se le envio el correo de review al cliente. Dale seguimiento antes de cerrar este alquiler.';
 }
 
 $adminUrl = rental_pay_site_url() . '/rentals_admin.php?' . http_build_query([
@@ -85,7 +85,7 @@ function return_h(string $value): string
       <h1 style="margin:0 0 12px;font-size:36px;line-height:1.08"><?php echo return_h($title); ?></h1>
       <p style="margin:0 0 18px;color:#6a6259;font-size:17px;line-height:1.6"><?php echo return_h($body); ?></p>
       <p style="margin:0 0 24px"><strong>Reservation:</strong> #<?php echo (int) $reservationId; ?></p>
-      <a href="<?php echo return_h($adminUrl); ?>" style="display:inline-block;background:#1e1a17;color:#fff;text-decoration:none;padding:13px 20px;border-radius:999px;font-weight:bold">Back to admin</a>
+      <a href="<?php echo return_h($adminUrl); ?>" style="display:inline-block;background:#1e1a17;color:#fff;text-decoration:none;padding:13px 20px;border-radius:999px;font-weight:bold">Volver al admin</a>
     </section>
   </main>
 </body>

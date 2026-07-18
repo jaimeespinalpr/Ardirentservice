@@ -438,13 +438,13 @@ function rental_build_return_inspection_email_message(array $reservation, array 
     }
     $itemList .= '</ul>';
 
-    $subject = 'Check returned rental' . ($reservationId > 0 ? ' #' . $reservationId : '') . ' - Ardi Rent & Service';
+    $subject = 'Revisar devolución' . ($reservationId > 0 ? ' #' . $reservationId : '') . ' - Ardi Rent & Service';
     $html = '<!doctype html><html><body style="margin:0;background:#ededed;font-family:Arial,Helvetica,sans-serif;color:#111">'
         . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#ededed"><tr><td align="center" style="padding:32px 12px">'
         . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:640px;background:#fff;border-radius:22px;overflow:hidden">'
-        . '<tr><td style="background:#050505;color:#fff;padding:28px 30px"><p style="margin:0;color:#cfcfcf;font-size:12px;letter-spacing:2px;text-transform:uppercase">Returned equipment check</p>'
-        . '<h1 style="margin:14px 0 0;font-size:30px;line-height:1.15">Please confirm the returned gear</h1></td></tr>'
-        . '<tr><td style="padding:30px"><p style="margin:0 0 16px;color:#444;font-size:16px;line-height:1.6">The rental has been marked completed. Check that all items were returned and that everything is in good condition. If everything is OK, click the button and the customer will automatically receive the Google Review request.</p>'
+        . '<tr><td style="background:#050505;color:#fff;padding:28px 30px"><p style="margin:0;color:#cfcfcf;font-size:12px;letter-spacing:2px;text-transform:uppercase">Revision interna</p>'
+        . '<h1 style="margin:14px 0 0;font-size:30px;line-height:1.15">Confirma si la devolucion esta bien</h1></td></tr>'
+        . '<tr><td style="padding:30px"><p style="margin:0 0 16px;color:#444;font-size:16px;line-height:1.6">Revisa que todos los articulos fueron entregados y que el equipo esta en buen estado. Si todo esta bien, presiona el boton verde. Esa senal interna enviara automaticamente un correo de agradecimiento al cliente invitandolo a dejar un review en Google.</p>'
         . '<div style="background:#f4f4f4;border:1px solid #dedede;border-radius:16px;padding:18px;margin:0 0 18px">'
         . '<p style="margin:0 0 8px"><strong>Reservation:</strong> #' . $e((string) $reservationId) . '</p>'
         . '<p style="margin:0 0 8px"><strong>Customer:</strong> ' . $e($name) . '</p>'
@@ -454,16 +454,16 @@ function rental_build_return_inspection_email_message(array $reservation, array 
         . $itemList
         . '</div>'
         . '<p style="margin:26px 0 0">'
-        . '<a href="' . $e($goodUrl) . '" style="display:inline-block;background:#1f7a45;color:#fff;text-decoration:none;padding:14px 22px;border-radius:999px;font-weight:bold;margin:0 8px 10px 0">Everything is OK - send review request</a>'
-        . '<a href="' . $e($problemUrl) . '" style="display:inline-block;background:#9a2d20;color:#fff;text-decoration:none;padding:14px 22px;border-radius:999px;font-weight:bold;margin:0 0 10px">There is a problem</a>'
+        . '<a href="' . $e($goodUrl) . '" style="display:inline-block;background:#1f7a45;color:#fff;text-decoration:none;padding:14px 22px;border-radius:999px;font-weight:bold;margin:0 8px 10px 0">Todo esta bien</a>'
+        . '<a href="' . $e($problemUrl) . '" style="display:inline-block;background:#9a2d20;color:#fff;text-decoration:none;padding:14px 22px;border-radius:999px;font-weight:bold;margin:0 0 10px">Reportar problema</a>'
         . '</p>'
-        . '<p style="margin:20px 0 0;color:#777;font-size:12px;line-height:1.5">Only use the green button after confirming the equipment is complete and in good condition.</p>'
+        . '<p style="margin:20px 0 0;color:#777;font-size:12px;line-height:1.5">Usa el boton verde solamente cuando la devolucion este completa y el equipo este bien.</p>'
         . '</td></tr></table></td></tr></table></body></html>';
-    $plain = "Returned rental check" . ($reservationId > 0 ? " #{$reservationId}" : '') . "\n\n"
+    $plain = "Revision interna de devolucion" . ($reservationId > 0 ? " #{$reservationId}" : '') . "\n\n"
         . "Customer: {$name}\nEmail: {$customerEmail}\nPhone: " . ($phone !== '' ? $phone : 'Not provided') . "\n"
         . "Dates: {$startDate} to {$endDate}\nItems: " . implode(', ', $titles !== [] ? $titles : ['Rental equipment']) . "\n\n"
-        . "Everything OK - send review request: {$goodUrl}\n"
-        . "There is a problem: {$problemUrl}\n";
+        . "Todo esta bien: {$goodUrl}\n"
+        . "Reportar problema: {$problemUrl}\n";
 
     return rental_finalize_email_message($subject, $html, $plain, rental_email_reply_to());
 }
@@ -473,20 +473,20 @@ function rental_build_google_review_request_email_message(array $reservation, ar
     $customerName = rental_clean_text($reservation['customer_name'] ?? '');
     $reviewUrl = rental_google_review_url();
     $e = static fn(string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    $subject = 'How was your Ardi Rent & Service experience?';
-    $headline = 'Thank you' . ($customerName !== '' ? ', ' . $customerName : '') . '!';
+    $subject = 'Gracias por alquilar con Ardi Rent & Service';
+    $headline = 'Gracias' . ($customerName !== '' ? ', ' . $customerName : '') . '!';
     $html = '<!doctype html><html><body style="margin:0;background:#ededed;font-family:Arial,Helvetica,sans-serif;color:#111">'
         . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#ededed"><tr><td align="center" style="padding:32px 12px">'
         . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#fff;border-radius:22px;overflow:hidden">'
         . '<tr><td style="background:#050505;color:#fff;padding:30px"><p style="margin:0;color:#cfcfcf;font-size:12px;letter-spacing:2px;text-transform:uppercase">Ardi Rent &amp; Service</p>'
         . '<h1 style="margin:14px 0 0;font-size:31px;line-height:1.15">' . $e($headline) . '</h1></td></tr>'
-        . '<tr><td style="padding:32px"><p style="margin:0 0 18px;color:#444;font-size:16px;line-height:1.65">We hope the rental helped you capture exactly what you needed. If everything went well, your review helps other creators trust Ardi Rent &amp; Service.</p>'
-        . '<p style="margin:26px 0"><a href="' . $e($reviewUrl) . '" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:15px 24px;border-radius:999px;font-weight:bold">Leave a Google Review</a></p>'
-        . '<p style="margin:0;color:#777;font-size:13px;line-height:1.55">It only takes a minute. Thank you for supporting a Puerto Rico creative rental business.</p>'
+        . '<tr><td style="padding:32px"><p style="margin:0 0 18px;color:#444;font-size:16px;line-height:1.65">Gracias por confiar en Ardi Rent &amp; Service. Esperamos que el equipo te haya ayudado a crear exactamente lo que necesitabas. Si tu experiencia fue buena, tu review ayuda a que otros creadores puedan confiar en nosotros.</p>'
+        . '<p style="margin:26px 0"><a href="' . $e($reviewUrl) . '" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:15px 24px;border-radius:999px;font-weight:bold">Dejar un review en Google</a></p>'
+        . '<p style="margin:0;color:#777;font-size:13px;line-height:1.55">Solo toma un minuto. Gracias por apoyar un negocio creativo de Puerto Rico.</p>'
         . '</td></tr></table></td></tr></table></body></html>';
-    $plain = "Thank you for renting with Ardi Rent & Service.\n\n"
-        . "If everything went well, please leave us a Google Review here:\n{$reviewUrl}\n\n"
-        . "Thank you for supporting Ardi Rent & Service.\n";
+    $plain = "Gracias por alquilar con Ardi Rent & Service.\n\n"
+        . "Si tu experiencia fue buena, puedes dejarnos un review en Google aqui:\n{$reviewUrl}\n\n"
+        . "Gracias por apoyar Ardi Rent & Service.\n";
 
     return rental_finalize_email_message($subject, $html, $plain, rental_email_reply_to());
 }
