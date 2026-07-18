@@ -38,6 +38,8 @@ See [`COMMIT_VERSIONING.md`](COMMIT_VERSIONING.md) for the policy.
 - `RENTAL_SMTP_USERNAME` - optional SMTP username, usually the full mailbox address
 - `RENTAL_SMTP_PASSWORD` - optional SMTP password or app password
 - `RENTAL_SMTP_ENCRYPTION` - optional SMTP encryption, usually `starttls`
+- `RENTAL_RETURN_REVIEW_EMAILS` - optional comma-separated emails that receive the returned-equipment inspection message
+- `GOOGLE_REVIEW_URL` - direct Google review link sent to customers after a returned rental is approved
 
 ## Admin
 
@@ -45,3 +47,4 @@ See [`COMMIT_VERSIONING.md`](COMMIT_VERSIONING.md) for the policy.
 - The page lists reservations stored in `data/rentals.sqlite`
 - Use the preview panel to see the exact customer confirmation email body
 - Use the fulfillment dropdown to mark orders as `pending`, `confirmed`, `ready`, `delivered`, `completed`, or `cancelled`
+- Marking a reservation `completed` sends the returned-equipment inspection email. If the reviewer clicks “Everything is OK,” the customer receives the Google Review request automatically.

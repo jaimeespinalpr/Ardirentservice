@@ -103,6 +103,8 @@ jobs:
           RENTAL_SMTP_USERNAME: ${{ secrets.RENTAL_SMTP_USERNAME }}
           RENTAL_SMTP_PASSWORD: ${{ secrets.RENTAL_SMTP_PASSWORD }}
           RENTAL_SMTP_ENCRYPTION: ${{ secrets.RENTAL_SMTP_ENCRYPTION }}
+          RENTAL_RETURN_REVIEW_EMAILS: ${{ secrets.RENTAL_RETURN_REVIEW_EMAILS }}
+          GOOGLE_REVIEW_URL: ${{ secrets.GOOGLE_REVIEW_URL }}
         run: |
           set -euo pipefail
           PAY_PATH="/home/u467534899/domains/ardirentservice.com/public_html/pay/"
@@ -117,6 +119,7 @@ jobs:
             --include 'rentals_common.php' \
             --include 'rentals_confirm.php' \
             --include 'rentals_admin.php' \
+            --include 'rentals_return.php' \
             --include 'rentals_resend_latest.php' \
             --include 'accounts_common.php' \
             --include 'accounts_api.php' \
@@ -139,6 +142,8 @@ jobs:
           RENTAL_EMAIL_REPLY_TO=info@ardirentservice.com
           RENTAL_ADMIN_EMAIL=ardirentservice@gmail.com
           RENTAL_ADMIN_EMAILS=ardirentservice@gmail.com,jaimeespinalpr@gmail.com
+          RENTAL_RETURN_REVIEW_EMAILS=${RENTAL_RETURN_REVIEW_EMAILS}
+          GOOGLE_REVIEW_URL=${GOOGLE_REVIEW_URL}
           RENTAL_SMTP_HOST=${RENTAL_SMTP_HOST}
           RENTAL_SMTP_PORT=${RENTAL_SMTP_PORT}
           RENTAL_SMTP_USERNAME=${RENTAL_SMTP_USERNAME}

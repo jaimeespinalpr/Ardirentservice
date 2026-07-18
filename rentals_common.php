@@ -82,6 +82,37 @@ function rental_admin_emails(): array
     return array_values(array_unique($emails));
 }
 
+function rental_return_review_emails(): array
+{
+    $configured = rental_env('RENTAL_RETURN_REVIEW_EMAILS', implode(',', rental_admin_emails()));
+    $emails = array_filter(array_map(
+        static fn(string $email): string => filter_var(trim($email), FILTER_VALIDATE_EMAIL) ?: '',
+        explode(',', $configured)
+    ));
+    return array_values(array_unique($emails));
+}
+
+function rental_google_review_url(): string
+{
+    return rental_env('GOOGLE_REVIEW_URL', 'https://g.page/r/CUSTOMER_REVIEW_LINK/review');
+}
+
+function rental_pay_site_url(): string
+{
+    return rtrim(rental_env('PAY_SITE_URL', rental_base_url()), '/');
+}
+
+function rental_admin_action_url(int $reservationId, string $action): string
+{
+    $token = rental_env('RENTAL_ADMIN_TOKEN', '');
+    $query = http_build_query([
+        'reservation_id' => $reservationId,
+        'action' => $action,
+        'token' => $token,
+    ]);
+    return rental_pay_site_url() . '/rentals_return.php?' . $query;
+}
+
 function rental_pickup_details_html(): string
 {
     $address = rental_env('RENTAL_PICKUP_ADDRESS', 'Park Boulevard condominium');
@@ -164,6 +195,46 @@ function rental_send_admin_email(array $reservation, array $items): bool
         }
     }
     return $allSent;
+}
+
+function rental_send_return_inspection_email(array $reservation, array $items): bool
+{
+    $emails = rental_return_review_emails();
+    if ($emails === []) {
+        error_log('Ardi rental return inspection email skipped: no valid recipients');
+        return false;
+    }
+
+    $message = rental_build_return_inspection_email_message($reservation, $items);
+    $allSent = true;
+    foreach ($emails as $email) {
+        $sent = rental_smtp_configured()
+            ? rental_send_smtp_message($email, $message)
+            : mail($email, $message['subject'], $message['body'], implode("\r\n", $message['headers']));
+        if (!$sent) {
+            error_log('Ardi rental return inspection email failed for ' . $email);
+            $allSent = false;
+        }
+    }
+    return $allSent;
+}
+
+function rental_send_google_review_request_email(array $reservation, array $items): bool
+{
+    $email = filter_var((string) ($reservation['customer_email'] ?? ''), FILTER_VALIDATE_EMAIL);
+    if (!$email) {
+        error_log('Ardi review request skipped: invalid customer email');
+        return false;
+    }
+
+    $message = rental_build_google_review_request_email_message($reservation, $items);
+    $sent = rental_smtp_configured()
+        ? rental_send_smtp_message($email, $message)
+        : mail($email, $message['subject'], $message['body'], implode("\r\n", $message['headers']));
+    if (!$sent) {
+        error_log('Ardi review request email failed for ' . $email);
+    }
+    return $sent;
 }
 
 function rental_email_date(string $date): string
@@ -336,6 +407,81 @@ function rental_build_customer_email_message(array $reservation, array $items): 
         . "Total paid: {$total}\n\n"
         . rental_delivery_policy_plain()
         . "\nReply to this email if you have questions.\n";
+
+    return rental_finalize_email_message($subject, $html, $plain, rental_email_reply_to());
+}
+
+function rental_build_return_inspection_email_message(array $reservation, array $items): array
+{
+    $reservationId = (int) ($reservation['id'] ?? 0);
+    $name = rental_clean_text($reservation['customer_name'] ?? 'Customer');
+    $customerEmail = rental_clean_text($reservation['customer_email'] ?? '');
+    $phone = rental_clean_text($reservation['customer_phone'] ?? '');
+    $startDate = rental_email_date((string) ($reservation['start_date'] ?? ''));
+    $endDate = rental_email_date((string) ($reservation['end_date'] ?? ''));
+    $titles = array_values(array_filter(array_map(
+        static fn(array $item): string => rental_clean_text($item['title'] ?? $item['item_title'] ?? ''),
+        $items
+    )));
+    $goodUrl = $reservationId > 0 ? rental_admin_action_url($reservationId, 'returned_ok') : '';
+    $problemUrl = $reservationId > 0 ? rental_admin_action_url($reservationId, 'returned_problem') : '';
+    $e = static fn(string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+    $itemList = '<ul style="padding-left:20px;margin:10px 0;color:#202124;line-height:1.6">';
+    foreach ($titles !== [] ? $titles : ['Rental equipment'] as $title) {
+        $itemList .= '<li>' . $e($title) . '</li>';
+    }
+    $itemList .= '</ul>';
+
+    $subject = 'Check returned rental' . ($reservationId > 0 ? ' #' . $reservationId : '') . ' - Ardi Rent & Service';
+    $html = '<!doctype html><html><body style="margin:0;background:#ededed;font-family:Arial,Helvetica,sans-serif;color:#111">'
+        . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#ededed"><tr><td align="center" style="padding:32px 12px">'
+        . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:640px;background:#fff;border-radius:22px;overflow:hidden">'
+        . '<tr><td style="background:#050505;color:#fff;padding:28px 30px"><p style="margin:0;color:#cfcfcf;font-size:12px;letter-spacing:2px;text-transform:uppercase">Returned equipment check</p>'
+        . '<h1 style="margin:14px 0 0;font-size:30px;line-height:1.15">Please confirm the returned gear</h1></td></tr>'
+        . '<tr><td style="padding:30px"><p style="margin:0 0 16px;color:#444;font-size:16px;line-height:1.6">The rental has been marked completed. Check that all items were returned and that everything is in good condition. If everything is OK, click the button and the customer will automatically receive the Google Review request.</p>'
+        . '<div style="background:#f4f4f4;border:1px solid #dedede;border-radius:16px;padding:18px;margin:0 0 18px">'
+        . '<p style="margin:0 0 8px"><strong>Reservation:</strong> #' . $e((string) $reservationId) . '</p>'
+        . '<p style="margin:0 0 8px"><strong>Customer:</strong> ' . $e($name) . '</p>'
+        . '<p style="margin:0 0 8px"><strong>Email:</strong> ' . $e($customerEmail !== '' ? $customerEmail : 'Not provided') . '</p>'
+        . '<p style="margin:0 0 8px"><strong>Phone:</strong> ' . $e($phone !== '' ? $phone : 'Not provided') . '</p>'
+        . '<p style="margin:0"><strong>Rental dates:</strong> ' . $e($startDate . ' to ' . $endDate) . '</p>'
+        . $itemList
+        . '</div>'
+        . '<p style="margin:26px 0 0">'
+        . '<a href="' . $e($goodUrl) . '" style="display:inline-block;background:#1f7a45;color:#fff;text-decoration:none;padding:14px 22px;border-radius:999px;font-weight:bold;margin:0 8px 10px 0">Everything is OK - send review request</a>'
+        . '<a href="' . $e($problemUrl) . '" style="display:inline-block;background:#9a2d20;color:#fff;text-decoration:none;padding:14px 22px;border-radius:999px;font-weight:bold;margin:0 0 10px">There is a problem</a>'
+        . '</p>'
+        . '<p style="margin:20px 0 0;color:#777;font-size:12px;line-height:1.5">Only use the green button after confirming the equipment is complete and in good condition.</p>'
+        . '</td></tr></table></td></tr></table></body></html>';
+    $plain = "Returned rental check" . ($reservationId > 0 ? " #{$reservationId}" : '') . "\n\n"
+        . "Customer: {$name}\nEmail: {$customerEmail}\nPhone: " . ($phone !== '' ? $phone : 'Not provided') . "\n"
+        . "Dates: {$startDate} to {$endDate}\nItems: " . implode(', ', $titles !== [] ? $titles : ['Rental equipment']) . "\n\n"
+        . "Everything OK - send review request: {$goodUrl}\n"
+        . "There is a problem: {$problemUrl}\n";
+
+    return rental_finalize_email_message($subject, $html, $plain, rental_email_reply_to());
+}
+
+function rental_build_google_review_request_email_message(array $reservation, array $items): array
+{
+    $customerName = rental_clean_text($reservation['customer_name'] ?? '');
+    $reviewUrl = rental_google_review_url();
+    $e = static fn(string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $subject = 'How was your Ardi Rent & Service experience?';
+    $headline = 'Thank you' . ($customerName !== '' ? ', ' . $customerName : '') . '!';
+    $html = '<!doctype html><html><body style="margin:0;background:#ededed;font-family:Arial,Helvetica,sans-serif;color:#111">'
+        . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#ededed"><tr><td align="center" style="padding:32px 12px">'
+        . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#fff;border-radius:22px;overflow:hidden">'
+        . '<tr><td style="background:#050505;color:#fff;padding:30px"><p style="margin:0;color:#cfcfcf;font-size:12px;letter-spacing:2px;text-transform:uppercase">Ardi Rent &amp; Service</p>'
+        . '<h1 style="margin:14px 0 0;font-size:31px;line-height:1.15">' . $e($headline) . '</h1></td></tr>'
+        . '<tr><td style="padding:32px"><p style="margin:0 0 18px;color:#444;font-size:16px;line-height:1.65">We hope the rental helped you capture exactly what you needed. If everything went well, your review helps other creators trust Ardi Rent &amp; Service.</p>'
+        . '<p style="margin:26px 0"><a href="' . $e($reviewUrl) . '" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:15px 24px;border-radius:999px;font-weight:bold">Leave a Google Review</a></p>'
+        . '<p style="margin:0;color:#777;font-size:13px;line-height:1.55">It only takes a minute. Thank you for supporting a Puerto Rico creative rental business.</p>'
+        . '</td></tr></table></td></tr></table></body></html>';
+    $plain = "Thank you for renting with Ardi Rent & Service.\n\n"
+        . "If everything went well, please leave us a Google Review here:\n{$reviewUrl}\n\n"
+        . "Thank you for supporting Ardi Rent & Service.\n";
 
     return rental_finalize_email_message($subject, $html, $plain, rental_email_reply_to());
 }
@@ -560,6 +706,8 @@ function rental_db(): PDO
             currency             TEXT NOT NULL,
             status               TEXT NOT NULL,
             fulfillment_status   TEXT NOT NULL DEFAULT "pending",
+            return_checked_at    TEXT,
+            review_requested_at  TEXT,
             created_at           TEXT NOT NULL
         )'
     );
@@ -580,6 +728,12 @@ function rental_db(): PDO
     $columnNames = array_map(static fn(array $row): string => (string) ($row['name'] ?? ''), $columns);
     if (!in_array('fulfillment_status', $columnNames, true)) {
         $pdo->exec("ALTER TABLE reservations ADD COLUMN fulfillment_status TEXT NOT NULL DEFAULT 'pending'");
+    }
+    if (!in_array('return_checked_at', $columnNames, true)) {
+        $pdo->exec('ALTER TABLE reservations ADD COLUMN return_checked_at TEXT');
+    }
+    if (!in_array('review_requested_at', $columnNames, true)) {
+        $pdo->exec('ALTER TABLE reservations ADD COLUMN review_requested_at TEXT');
     }
 
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_reservation_dates ON reservations(start_date, end_date, status)');

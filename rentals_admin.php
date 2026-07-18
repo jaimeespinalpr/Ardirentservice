@@ -39,6 +39,14 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         if (rental_update_reservation_fulfillment_status($pdo, $reservationId, $status)) {
             $message = 'Reservation updated.';
             $messageType = 'success';
+            if ($status === 'completed') {
+                $completedReservation = rental_get_reservation($pdo, $reservationId);
+                if (is_array($completedReservation)) {
+                    $items = is_array($completedReservation['items'] ?? null) ? $completedReservation['items'] : [];
+                    rental_send_return_inspection_email($completedReservation, $items);
+                    $message = 'Reservation completed. Return inspection email sent.';
+                }
+            }
         } else {
             $message = 'Could not update that reservation.';
             $messageType = 'error';
@@ -351,6 +359,12 @@ function h(string $value): string
                   <td>
                     <span class="badge success">Paid: <?php echo h((string) $reservation['status']); ?></span>
                     <span class="badge <?php echo (string) $reservation['fulfillment_status'] === 'pending' ? 'pending' : ''; ?>">Fulfillment: <?php echo h((string) $reservation['fulfillment_status']); ?></span>
+                    <?php if (!empty($reservation['return_checked_at'])): ?>
+                      <span class="badge success">Return checked</span>
+                    <?php endif; ?>
+                    <?php if (!empty($reservation['review_requested_at'])): ?>
+                      <span class="badge success">Review requested</span>
+                    <?php endif; ?>
                   </td>
                   <td>
                     <a href="?<?php echo $providedToken !== '' ? 'token=' . rawurlencode($providedToken) . '&' : ''; ?>reservation_id=<?php echo (int) $reservation['id']; ?>">Preview email</a>
