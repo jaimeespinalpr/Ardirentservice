@@ -94,7 +94,7 @@ function rental_return_review_emails(): array
 
 function rental_google_review_url(): string
 {
-    return rental_env('GOOGLE_REVIEW_URL', 'https://g.page/r/CUSTOMER_REVIEW_LINK/review');
+    return rental_env('GOOGLE_REVIEW_URL');
 }
 
 function rental_pay_site_url(): string
@@ -221,6 +221,11 @@ function rental_send_return_inspection_email(array $reservation, array $items): 
 
 function rental_send_google_review_request_email(array $reservation, array $items): bool
 {
+    if (rental_google_review_url() === '') {
+        error_log('Ardi review request skipped: GOOGLE_REVIEW_URL is not configured');
+        return false;
+    }
+
     $email = filter_var((string) ($reservation['customer_email'] ?? ''), FILTER_VALIDATE_EMAIL);
     if (!$email) {
         error_log('Ardi review request skipped: invalid customer email');
