@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Validate deployment secrets
         env:
           HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
@@ -62,6 +65,9 @@ jobs:
           set -euo pipefail
 
           PAY_PATH="/home/u467534899/domains/ardirentservice.com/public_html/pay/"
+
+          scp -i ~/.ssh/id_ed25519 -P "${HOSTINGER_SSH_PORT:-65002}" \
+            rentals_common.php rentals_return.php "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${PAY_PATH}"
 
           cat > send_return_review_test.php <<'PHP'
           <?php
