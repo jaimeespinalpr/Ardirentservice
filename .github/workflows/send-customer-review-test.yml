@@ -1,0 +1,117 @@
+name: Send Customer Review Test
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      email:
+        description: Recipient email address
+        required: true
+        type: string
+        default: jaimeespinalpr@gmail.com
+
+jobs:
+  send:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[send-customer-review-test]')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate deployment secrets
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+        run: |
+          set -euo pipefail
+
+          missing=()
+          [[ -n "${HOSTINGER_SSH_HOST}" ]] || missing+=("HOSTINGER_SSH_HOST")
+          [[ -n "${HOSTINGER_SSH_PORT}" ]] || missing+=("HOSTINGER_SSH_PORT")
+          [[ -n "${HOSTINGER_SSH_USER}" ]] || missing+=("HOSTINGER_SSH_USER")
+          [[ -n "${HOSTINGER_SSH_KEY}" ]] || missing+=("HOSTINGER_SSH_KEY")
+
+          if (( ${#missing[@]} > 0 )); then
+            echo "Missing GitHub secrets: ${missing[*]}"
+            exit 1
+          fi
+
+      - name: Prepare SSH
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${HOSTINGER_SSH_KEY}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${HOSTINGER_SSH_PORT:-65002}" -H "${HOSTINGER_SSH_HOST}" >> ~/.ssh/known_hosts
+
+      - name: Send customer review sample
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          RECIPIENT_EMAIL: ${{ github.event.inputs.email || 'jaimeespinalpr@gmail.com' }}
+        run: |
+          set -euo pipefail
+
+          PAY_PATH="/home/u467534899/domains/ardirentservice.com/public_html/pay/"
+
+          scp -i ~/.ssh/id_ed25519 -P "${HOSTINGER_SSH_PORT:-65002}" \
+            rentals_common.php "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${PAY_PATH}"
+
+          cat > send_customer_review_test.php <<'PHP'
+          <?php
+          declare(strict_types=1);
+
+          require_once __DIR__ . '/rentals_common.php';
+
+          $email = filter_var($argv[1] ?? '', FILTER_VALIDATE_EMAIL);
+          if (!$email) {
+              fwrite(STDERR, "Invalid recipient email\n");
+              exit(2);
+          }
+
+          if (rental_google_review_url() === '') {
+              putenv('GOOGLE_REVIEW_URL=https://www.ardirentservice.com');
+          }
+
+          $reservation = [
+              'id' => 9999,
+              'customer_name' => 'Jaime',
+              'customer_email' => $email,
+              'customer_phone' => '(787) 555-0199',
+              'start_date' => (new DateTimeImmutable('-1 day'))->format('Y-m-d'),
+              'end_date' => (new DateTimeImmutable('-1 day'))->format('Y-m-d'),
+              'total_amount_cents' => 7500,
+              'currency' => CURRENCY,
+          ];
+          $items = [
+              ['item_id' => 'sony-a7-v', 'item_title' => 'Sony A7 V'],
+              ['item_id' => 'gopro-hero13-black', 'item_title' => 'GoPro HERO13 Black'],
+          ];
+
+          $sent = rental_send_google_review_request_email($reservation, $items);
+          if (!$sent) {
+              fwrite(STDERR, "Customer review sample email failed\n");
+              exit(1);
+          }
+
+          echo "Customer review sample sent to {$email}\n";
+          PHP
+
+          scp -i ~/.ssh/id_ed25519 -P "${HOSTINGER_SSH_PORT:-65002}" \
+            send_customer_review_test.php "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${PAY_PATH}send_customer_review_test.php"
+
+          ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" \
+            "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" \
+            "cd '${PAY_PATH}' && php send_customer_review_test.php '${RECIPIENT_EMAIL}' && rm -f send_customer_review_test.php"
