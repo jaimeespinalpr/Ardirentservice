@@ -9,7 +9,7 @@ def test_every_public_html_uses_consent_tracker_and_no_unconditional_ga():
     assert len(HTML) == 10
     for path in HTML:
         text = path.read_text(encoding='utf-8')
-        assert 'assets/visitor-analytics.js?v=20260727-v19' in text, path.name
+        assert 'assets/visitor-analytics.js?v=20260727-v21' in text, path.name
         assert '<script async src="https://www.googletagmanager.com/gtag/js' not in text, path.name
 
 
@@ -31,3 +31,33 @@ def test_tracker_never_reads_form_values_or_fingerprints():
         assert token not in text, token
     assert 'localStorage' in text
     assert 'consent' in text.lower()
+    assert 'target.textContent' not in text
+    assert "closest('form')" in text
+    assert 'page_location: `${window.location.origin}${Core.canonicalPage(window.location.href)}`' in text
+    assert "page_referrer: ''" in text
+    assert 'allow_google_signals: false' in text
+    assert 'allow_ad_personalization_signals: false' in text
+
+
+def test_endpoint_uses_dedicated_analytics_database():
+    source = (ROOT / 'visitor_analytics.php').read_text(encoding='utf-8')
+    assert '$pdo = visitor_db();' in source
+    assert '$pdo = rental_db();' not in source
+    assert 'rental_db()' not in source
+    assert 'visitor_drop_legacy_tables' not in source
+    assert 'rental_allowed_origins()' not in source
+    assert 'visitor_allowed_origins()' in source
+    common = (ROOT / 'visitor_analytics_common.php').read_text(encoding='utf-8')
+    assert "return ['https://ardirentservice.com', 'https://www.ardirentservice.com'];" in common
+    assert 'Access-Control-Allow-Credentials' not in source
+    assert 'jaimeespinalpr.github.io' not in source
+
+
+def test_legacy_cleanup_runs_only_as_cli_deployment_migration():
+    workflow = (ROOT / '.github/workflows/deploy-scp.yml').read_text(encoding='utf-8')
+    migration = (ROOT / 'visitor_analytics_migrate.php').read_text(encoding='utf-8')
+    assert "--include 'visitor_analytics_migrate.php'" in workflow
+    assert 'php visitor_analytics_migrate.php' in workflow
+    assert "PHP_SAPI !== 'cli'" in migration
+    assert "is_file(__DIR__ . '/data/rentals.sqlite')" in migration
+    assert 'visitor_drop_legacy_tables(rental_db())' in migration

@@ -653,7 +653,9 @@ function rental_apply_cors(): void
     }
 }
 
-rental_apply_cors();
+if (!defined('RENTAL_SKIP_AUTO_CORS')) {
+    rental_apply_cors();
+}
 
 function rental_item_rate_cents(string $itemId): int
 {

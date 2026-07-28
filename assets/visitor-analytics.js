@@ -7,7 +7,7 @@
   const API_URL = 'https://pay.ardirentservice.com/visitor_analytics.php?action=event';
   const GA_ID = 'G-CL6G607YCV';
   const CONSENT_KEY = 'ardi_analytics_consent_v1';
-  const SESSION_KEY = 'ardi_anonymous_session_v1';
+  const SESSION_KEY = 'ardi_visitor_session_v2';
   const TAB_KEY = 'ardi_anonymous_tab_v1';
   const CONSENT_VERSION = '2026-07-27-v1';
   const SESSION_TTL_MS = 15 * 60 * 1000;
@@ -103,7 +103,14 @@
     window.dataLayer = window.dataLayer || [];
     window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
     window.gtag('js', new Date());
-    window.gtag('config', GA_ID, { anonymize_ip: true });
+    window.gtag('config', GA_ID, {
+      anonymize_ip: true,
+      allow_google_signals: false,
+      allow_ad_personalization_signals: false,
+      cookie_expires: 604800,
+      page_location: `${window.location.origin}${Core.canonicalPage(window.location.href)}`,
+      page_referrer: '',
+    });
     const script = document.createElement('script');
     script.async = true;
     script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA_ID)}`;
@@ -201,8 +208,13 @@
     if (!tracking) return;
     const target = event.target instanceof Element ? event.target.closest('a,button,[role="button"]') : null;
     if (!target || target.closest('.ardi-consent') || target.classList.contains('ardi-privacy-settings')) return;
+    if (target.closest('form') || target.closest('input,textarea,select,[contenteditable="true"]')) return;
     const type = target.matches('a') ? 'link' : 'button';
-    const label = Core.sanitizeClickLabel(target.getAttribute('aria-label') || target.textContent || '');
+    const label = Core.safeClickDescriptor({
+      kind: type,
+      href: type === 'link' ? target.getAttribute('href') : '',
+      action: target.getAttribute('data-analytics-action') || '',
+    });
     if (label) send('click', { target_type: type, target_label: label });
   }, { passive: true });
 

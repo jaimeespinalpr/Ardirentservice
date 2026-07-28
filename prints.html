@@ -75,7 +75,7 @@
     renderSizes();renderTable();updatePrice();fetch("data/prints_metadata.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).then(data=>{state.prints=data.prints||[];state.categories=data.categories||[];renderCollections();const initial=state.prints.find(p=>p.featuredRank===1)||state.prints[0];if(initial)selectPrint(initial);applyLanguage(state.lang)}).catch(e=>{qs("[data-collection-sections]").innerHTML="<p>No pudimos cargar la colección. Recarga la página.</p>";console.error(e)});
   })();
   </script>
-    <script src="assets/visitor-analytics-core.js?v=20260727-v19" defer></script>
-    <script src="assets/visitor-analytics.js?v=20260727-v19" defer></script>
+    <script src="assets/visitor-analytics-core.js?v=20260727-v21" defer></script>
+    <script src="assets/visitor-analytics.js?v=20260727-v21" defer></script>
   </body>
 </html>

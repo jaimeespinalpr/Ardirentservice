@@ -1,10 +1,24 @@
 <?php
 declare(strict_types=1);
+define('RENTAL_SKIP_AUTO_CORS', true);
 require_once __DIR__ . '/rentals_common.php';
 require_once __DIR__ . '/visitor_analytics_common.php';
 
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
+
+$origin = isset($_SERVER['HTTP_ORIGIN']) ? rtrim((string) $_SERVER['HTTP_ORIGIN'], '/') : '';
+if (in_array($origin, visitor_allowed_origins(), true)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+    header('Vary: Origin');
+    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type');
+    header('Access-Control-Max-Age: 86400');
+}
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $action = strtolower(rental_clean_text($_GET['action'] ?? 'event'));
@@ -26,13 +40,13 @@ function visitor_require_monitor_auth(): void
 function visitor_require_public_origin(): void
 {
     $origin = rtrim((string) ($_SERVER['HTTP_ORIGIN'] ?? ''), '/');
-    if ($origin === '' || !in_array($origin, rental_allowed_origins(), true)) {
+    if ($origin === '' || !in_array($origin, visitor_allowed_origins(), true)) {
         rental_json(['ok' => false, 'error' => 'origin_not_allowed'], 403);
     }
 }
 
 try {
-    $pdo = rental_db();
+    $pdo = visitor_db();
     visitor_prepare_db($pdo);
 
     if ($method === 'GET' && $action === 'pending') {
@@ -59,7 +73,12 @@ try {
     $result = visitor_record_event($pdo, rental_read_json_body(), $now);
     rental_json(['ok' => true] + $result, 202);
 } catch (InvalidArgumentException $error) {
-    rental_json(['ok' => false, 'error' => $error->getMessage()], 422);
+    $status = match ($error->getMessage()) {
+        'rate_limited' => 429,
+        'unknown_session' => 409,
+        default => 422,
+    };
+    rental_json(['ok' => false, 'error' => $error->getMessage()], $status);
 } catch (Throwable $error) {
     error_log('Visitor analytics endpoint failed: ' . $error->getMessage());
     rental_json(['ok' => false, 'error' => 'server_error'], 500);

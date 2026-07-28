@@ -126,6 +126,7 @@ jobs:
             --include 'accounts_api.php' \
             --include 'visitor_analytics.php' \
             --include 'visitor_analytics_common.php' \
+            --include 'visitor_analytics_migrate.php' \
             --include 'prints_checkout.php' \
             --include 'data/' \
             --include 'data/prints_metadata.json' \
@@ -164,4 +165,4 @@ jobs:
 
           ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
             "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" \
-            "chmod 600 '${PAY_PATH}.env'"
+            "chmod 600 '${PAY_PATH}.env' && cd '${PAY_PATH}' && php visitor_analytics_migrate.php"

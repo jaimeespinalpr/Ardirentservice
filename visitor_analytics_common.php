@@ -4,6 +4,37 @@ declare(strict_types=1);
 const VISITOR_CONSENT_VERSION = '2026-07-27-v1';
 const VISITOR_IDLE_SECONDS = 900;
 const VISITOR_RETENTION_SECONDS = 604800;
+const VISITOR_EVENTS_PER_MINUTE = 300;
+const VISITOR_STARTS_PER_MINUTE = 10;
+const VISITOR_ALLOWED_ACTIONS = [
+    'request-quote', 'rent-now', 'contact', 'book-now', 'view-equipment', 'checkout',
+];
+
+function visitor_allowed_origins(): array
+{
+    return ['https://ardirentservice.com', 'https://www.ardirentservice.com'];
+}
+
+function visitor_db_path(): string
+{
+    return __DIR__ . '/data/visitor_analytics.sqlite';
+}
+
+function visitor_db(): PDO
+{
+    static $pdo = null;
+    if ($pdo instanceof PDO) {
+        return $pdo;
+    }
+
+    $pdo = new PDO('sqlite:' . visitor_db_path());
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    $pdo->exec('PRAGMA foreign_keys = ON');
+    $pdo->exec('PRAGMA busy_timeout = 5000');
+    @chmod(visitor_db_path(), 0600);
+    return $pdo;
+}
 
 function visitor_clean_page(mixed $value): string
 {
@@ -24,7 +55,15 @@ function visitor_clean_page(mixed $value): string
     if ($path === '' || $path[0] !== '/' || strlen($path) > 180 || !preg_match('#^/[A-Za-z0-9_./-]*$#', $path)) {
         return '/';
     }
-    return preg_replace('#/{2,}#', '/', $path) ?: '/';
+    $path = preg_replace('#/{2,}#', '/', $path) ?: '/';
+    if ($path === '/index.html') {
+        return '/';
+    }
+    $allowed = [
+        '/', '/about.html', '/account.html', '/case-study.html', '/contact.html',
+        '/equipment.html', '/lenses.html', '/prints.html', '/production.html', '/services.html',
+    ];
+    return in_array($path, $allowed, true) ? $path : '/other';
 }
 
 function visitor_clean_uuid(mixed $value): ?string
@@ -46,10 +85,41 @@ function visitor_clean_active_ms(mixed $value): int
 
 function visitor_clean_click_label(mixed $value): string
 {
-    $text = trim(preg_replace('/\s+/u', ' ', strip_tags((string) $value)) ?? '');
-    $text = preg_replace('/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/iu', '[redacted]', $text) ?? '';
-    $text = preg_replace('/(?:\+?\d[\d\s().-]{7,}\d)/u', '[redacted]', $text) ?? '';
-    return mb_substr($text, 0, 80, 'UTF-8');
+    $label = strtolower(trim((string) $value));
+    if (in_array($label, ['button', 'external-link'], true)) {
+        return $label;
+    }
+    if (str_starts_with($label, 'link:')) {
+        return 'link:' . visitor_clean_page(substr($label, 5));
+    }
+    if (str_starts_with($label, 'action:') && in_array(substr($label, 7), VISITOR_ALLOWED_ACTIONS, true)) {
+        return $label;
+    }
+    return '';
+}
+
+function visitor_increment_rate_bucket(PDO $pdo, string $bucket, int $expiresAt): int
+{
+    $stmt = $pdo->prepare(
+        'INSERT INTO visitor_rate_limits (bucket, event_count, expires_at) VALUES (?, 1, ?)
+         ON CONFLICT(bucket) DO UPDATE SET event_count = visitor_rate_limits.event_count + 1'
+    );
+    $stmt->execute([$bucket, $expiresAt]);
+    $stmt = $pdo->prepare('SELECT event_count FROM visitor_rate_limits WHERE bucket = ?');
+    $stmt->execute([$bucket]);
+    return (int) $stmt->fetchColumn();
+}
+
+function visitor_enforce_rate_limit(PDO $pdo, string $eventType, int $now): void
+{
+    $minute = intdiv($now, 60);
+    $expiresAt = ($minute + 2) * 60;
+    if (visitor_increment_rate_bucket($pdo, "events:{$minute}", $expiresAt) > VISITOR_EVENTS_PER_MINUTE) {
+        throw new InvalidArgumentException('rate_limited');
+    }
+    if ($eventType === 'start' && visitor_increment_rate_bucket($pdo, "starts:{$minute}", $expiresAt) > VISITOR_STARTS_PER_MINUTE) {
+        throw new InvalidArgumentException('rate_limited');
+    }
 }
 
 function visitor_clean_target_type(mixed $value): string
@@ -124,8 +194,44 @@ function visitor_prepare_db(PDO $pdo): void
             FOREIGN KEY (session_id) REFERENCES visitor_sessions(session_id) ON DELETE CASCADE
         )'
     );
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS visitor_rate_limits (
+            bucket TEXT PRIMARY KEY,
+            event_count INTEGER NOT NULL,
+            expires_at INTEGER NOT NULL
+        )'
+    );
+
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_visitor_pending_start ON visitor_sessions(start_notified_at, started_at)');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_visitor_pending_summary ON visitor_sessions(summary_notified_at, last_seen_at)');
+}
+
+function visitor_drop_legacy_tables(PDO $legacyPdo): void
+{
+    $stmt = $legacyPdo->query(
+        "SELECT COUNT(*) FROM sqlite_master
+         WHERE type = 'table' AND name IN ('visitor_sessions', 'visitor_pages', 'visitor_clicks', 'visitor_rate_limits', 'visitor_meta')"
+    );
+    $tableCount = (int) $stmt->fetchColumn();
+    $stmt->closeCursor();
+    if ($tableCount === 0) {
+        return;
+    }
+
+    $legacyPdo->beginTransaction();
+    try {
+        $legacyPdo->exec('DROP TABLE IF EXISTS visitor_clicks');
+        $legacyPdo->exec('DROP TABLE IF EXISTS visitor_pages');
+        $legacyPdo->exec('DROP TABLE IF EXISTS visitor_rate_limits');
+        $legacyPdo->exec('DROP TABLE IF EXISTS visitor_meta');
+        $legacyPdo->exec('DROP TABLE IF EXISTS visitor_sessions');
+        $legacyPdo->commit();
+    } catch (Throwable $error) {
+        if ($legacyPdo->inTransaction()) {
+            $legacyPdo->rollBack();
+        }
+        throw $error;
+    }
 }
 
 function visitor_record_event(PDO $pdo, array $payload, int $now): array
@@ -146,6 +252,14 @@ function visitor_record_event(PDO $pdo, array $payload, int $now): array
 
     $pdo->beginTransaction();
     try {
+        visitor_enforce_rate_limit($pdo, $eventType, $now);
+        if ($eventType !== 'start') {
+            $stmt = $pdo->prepare('SELECT 1 FROM visitor_sessions WHERE session_id = ?');
+            $stmt->execute([$sessionId]);
+            if ($stmt->fetchColumn() === false) {
+                throw new InvalidArgumentException('unknown_session');
+            }
+        }
         $stmt = $pdo->prepare(
             'INSERT INTO visitor_sessions (session_id, consent_version, locale, started_at, last_seen_at)
              VALUES (?, ?, ?, ?, ?)
@@ -196,6 +310,7 @@ function visitor_record_event(PDO $pdo, array $payload, int $now): array
 function visitor_pending_notifications(PDO $pdo, int $now): array
 {
     $pdo->prepare('DELETE FROM visitor_sessions WHERE last_seen_at < ?')->execute([$now - VISITOR_RETENTION_SECONDS]);
+    $pdo->prepare('DELETE FROM visitor_rate_limits WHERE expires_at < ?')->execute([$now]);
 
     $startsStmt = $pdo->prepare(
         'SELECT session_id, locale, started_at FROM visitor_sessions

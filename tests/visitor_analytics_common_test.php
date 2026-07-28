@@ -10,17 +10,21 @@ function expect_same(mixed $expected, mixed $actual, string $label): void {
 }
 
 expect_same('/equipment.html', visitor_clean_page('/equipment.html?email=secret@example.com#checkout'), 'query stripped');
-expect_same('/', visitor_clean_page('https://evil.example/path'), 'foreign URL rejected');
+expect_same('/', visitor_clean_page('https://evil.example/private?email=x'), 'external host rejected');
+expect_same('/about.html', visitor_clean_page('/about.html?email=x'), 'query stripped');
+expect_same('/other', visitor_clean_page('/customer/Jaime-Espinal?email=x'), 'unknown path is bucketed');
 expect_same(null, visitor_clean_uuid('not-a-uuid'), 'invalid UUID rejected');
 expect_same('123e4567-e89b-42d3-a456-426614174000', visitor_clean_uuid('123e4567-e89b-42d3-a456-426614174000'), 'UUID accepted');
 expect_same(30000, visitor_clean_active_ms(90000), 'active delta capped');
 expect_same(0, visitor_clean_active_ms(-100), 'negative active delta rejected');
 
 $label = visitor_clean_click_label('Email secret@example.com or call +1 (939) 555-1212');
-if (str_contains($label, 'secret@example.com') || str_contains($label, '939')) {
-    fwrite(STDERR, "click label leaked contact information\n");
-    exit(1);
-}
+expect_same('', $label, 'free-text click label rejected');
+expect_same('link:/equipment.html', visitor_clean_click_label('link:/equipment.html'), 'canonical link descriptor accepted');
+expect_same('action:request-quote', visitor_clean_click_label('action:request-quote'), 'static action descriptor accepted');
+expect_same('', visitor_clean_click_label('action:jaime-customer-123'), 'arbitrary action descriptor rejected');
+expect_same('', visitor_clean_click_label('Jaime Espinal'), 'name-like free text rejected');
+expect_same('visitor_analytics.sqlite', basename(visitor_db_path()), 'analytics uses a dedicated database file');
 
 $summary = visitor_build_summary([
     ['page_path' => '/about.html', 'active_ms' => 61000, 'views' => 1],
@@ -61,7 +65,7 @@ visitor_record_event($pdo, [
     'tab_id' => $tabId,
     'page_path' => '/equipment.html',
     'target_type' => 'button',
-    'target_label' => 'Rent now',
+    'target_label' => 'action:rent-now',
     'consent_version' => VISITOR_CONSENT_VERSION,
 ], $now + 2);
 $pendingNow = visitor_pending_notifications($pdo, $now + 2);
@@ -71,11 +75,47 @@ $pendingIdle = visitor_pending_notifications($pdo, $now + VISITOR_IDLE_SECONDS +
 expect_same(1, count($pendingIdle['summaries']), 'idle session has one summary');
 expect_same(30000, $pendingIdle['summaries'][0]['total_active_ms'], 'heartbeat delta is capped');
 expect_same('/equipment.html', $pendingIdle['summaries'][0]['pages'][0]['page_path'], 'summary includes page');
-expect_same('Rent now', $pendingIdle['summaries'][0]['clicks'][0]['target_label'], 'summary includes click');
+expect_same('action:rent-now', $pendingIdle['summaries'][0]['clicks'][0]['target_label'], 'summary includes safe click descriptor');
 visitor_ack_notifications($pdo, ['kind' => 'start', 'session_ids' => [$sessionId]], $now + 3);
 visitor_ack_notifications($pdo, ['kind' => 'summary', 'session_ids' => [$sessionId]], $now + VISITOR_IDLE_SECONDS + 3);
 $pendingAcked = visitor_pending_notifications($pdo, $now + VISITOR_IDLE_SECONDS + 4);
 expect_same(0, count($pendingAcked['starts']), 'acknowledged start is not repeated');
 expect_same(0, count($pendingAcked['summaries']), 'acknowledged summary is not repeated');
+
+$ratePdo = new PDO('sqlite::memory:');
+$ratePdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+visitor_prepare_db($ratePdo);
+for ($index = 0; $index < VISITOR_STARTS_PER_MINUTE; $index++) {
+    $suffix = str_pad((string) ($index + 10), 12, '0', STR_PAD_LEFT);
+    visitor_record_event($ratePdo, [
+        'event_type' => 'start',
+        'session_id' => "123e4567-e89b-42d3-a456-{$suffix}",
+        'tab_id' => $tabId,
+        'page_path' => '/',
+        'consent_version' => VISITOR_CONSENT_VERSION,
+    ], $now);
+}
+$rateLimited = false;
+try {
+    visitor_record_event($ratePdo, [
+        'event_type' => 'start',
+        'session_id' => '123e4567-e89b-42d3-a456-999999999999',
+        'tab_id' => $tabId,
+        'page_path' => '/',
+        'consent_version' => VISITOR_CONSENT_VERSION,
+    ], $now);
+} catch (InvalidArgumentException $error) {
+    $rateLimited = $error->getMessage() === 'rate_limited';
+}
+expect_same(true, $rateLimited, 'start events are rate limited without storing IP addresses');
+
+$legacyPdo = new PDO('sqlite::memory:');
+$legacyPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+visitor_prepare_db($legacyPdo);
+visitor_drop_legacy_tables($legacyPdo);
+$legacyTables = (int) $legacyPdo->query(
+    "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name LIKE 'visitor_%'"
+)->fetchColumn();
+expect_same(0, $legacyTables, 'legacy analytics tables are removed from the rental database');
 
 fwrite(STDOUT, "visitor-analytics PHP tests passed\n");
