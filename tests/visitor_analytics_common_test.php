@@ -32,4 +32,50 @@ expect_same(181000, $summary['total_active_ms'], 'total duration summed');
 expect_same(2, count($summary['pages']), 'pages preserved');
 expect_same(1, count($summary['clicks']), 'clicks preserved');
 
+$pdo = new PDO('sqlite::memory:');
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+visitor_prepare_db($pdo);
+$now = time();
+$sessionId = '123e4567-e89b-42d3-a456-426614174000';
+$tabId = '123e4567-e89b-42d3-a456-426614174001';
+visitor_record_event($pdo, [
+    'event_type' => 'start',
+    'session_id' => $sessionId,
+    'tab_id' => $tabId,
+    'page_path' => '/equipment.html',
+    'active_ms' => 0,
+    'locale' => 'es-PR',
+    'consent_version' => VISITOR_CONSENT_VERSION,
+], $now);
+visitor_record_event($pdo, [
+    'event_type' => 'heartbeat',
+    'session_id' => $sessionId,
+    'tab_id' => $tabId,
+    'page_path' => '/equipment.html',
+    'active_ms' => 65000,
+    'consent_version' => VISITOR_CONSENT_VERSION,
+], $now + 1);
+visitor_record_event($pdo, [
+    'event_type' => 'click',
+    'session_id' => $sessionId,
+    'tab_id' => $tabId,
+    'page_path' => '/equipment.html',
+    'target_type' => 'button',
+    'target_label' => 'Rent now',
+    'consent_version' => VISITOR_CONSENT_VERSION,
+], $now + 2);
+$pendingNow = visitor_pending_notifications($pdo, $now + 2);
+expect_same(1, count($pendingNow['starts']), 'new session has one start notification');
+expect_same(0, count($pendingNow['summaries']), 'active session has no early summary');
+$pendingIdle = visitor_pending_notifications($pdo, $now + VISITOR_IDLE_SECONDS + 3);
+expect_same(1, count($pendingIdle['summaries']), 'idle session has one summary');
+expect_same(30000, $pendingIdle['summaries'][0]['total_active_ms'], 'heartbeat delta is capped');
+expect_same('/equipment.html', $pendingIdle['summaries'][0]['pages'][0]['page_path'], 'summary includes page');
+expect_same('Rent now', $pendingIdle['summaries'][0]['clicks'][0]['target_label'], 'summary includes click');
+visitor_ack_notifications($pdo, ['kind' => 'start', 'session_ids' => [$sessionId]], $now + 3);
+visitor_ack_notifications($pdo, ['kind' => 'summary', 'session_ids' => [$sessionId]], $now + VISITOR_IDLE_SECONDS + 3);
+$pendingAcked = visitor_pending_notifications($pdo, $now + VISITOR_IDLE_SECONDS + 4);
+expect_same(0, count($pendingAcked['starts']), 'acknowledged start is not repeated');
+expect_same(0, count($pendingAcked['summaries']), 'acknowledged summary is not repeated');
+
 fwrite(STDOUT, "visitor-analytics PHP tests passed\n");
