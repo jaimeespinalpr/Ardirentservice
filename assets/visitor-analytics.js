@@ -184,11 +184,11 @@
     const panel = document.createElement('aside');
     panel.className = 'ardi-consent';
     panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-label', spanish ? 'Preferencias de analítica' : 'Analytics preferences');
+    panel.setAttribute('aria-label', spanish ? 'Preferencias de privacidad' : 'Privacy preferences');
     const message = spanish
-      ? 'Con tu permiso usamos analítica anónima para medir páginas, tiempo visible y clics en botones o enlaces. Nunca guardamos lo que escribes en formularios, contraseñas, pagos ni información personal.'
-      : 'With your permission, we use anonymous analytics to measure pages, visible time, and clicks on buttons or links. We never store form entries, passwords, payment data, or personal information.';
-    panel.innerHTML = `<p>${message}</p><div class="ardi-consent-actions"><button type="button" data-accept>${spanish ? 'Aceptar analítica' : 'Accept analytics'}</button><button type="button" data-reject>${spanish ? 'Rechazar' : 'Decline'}</button></div>`;
+      ? 'Con tu permiso recopilamos mediciones anónimas y limitadas sobre las páginas visitadas, el tiempo visible y las interacciones con botones o enlaces. No guardamos lo que escribes, contraseñas, datos de pago ni información personal.'
+      : 'With your permission, we collect limited anonymous measurements about pages visited, visible time, and interactions with buttons or links. We do not store what you type, passwords, payment data, or personal information.';
+    panel.innerHTML = `<p>${message}</p><div class="ardi-consent-actions"><button type="button" data-accept>${spanish ? 'Permitir medición' : 'Allow measurement'}</button><button type="button" data-reject>${spanish ? 'No permitir' : 'Do not allow'}</button></div>`;
     panel.querySelector('[data-accept]').addEventListener('click', () => {
       localStorage.setItem(CONSENT_KEY, 'accepted');
       panel.remove();
