@@ -12,8 +12,12 @@ if [[ ! "${version}" =~ ^[0-9]+$ ]]; then
 fi
 
 first_line="$(head -n 1 "${msg_file}" || true)"
-if [[ "${first_line}" =~ ^V[0-9]+([[:space:]]*[:\-][[:space:]]*|[[:space:]]+) ]]; then
-  exit 0
+
+# The pre-commit hook is the source of truth. Normalize any manually supplied
+# version prefix so commit history and WEB_VERSION cannot drift apart.
+subject="${first_line}"
+if [[ "${first_line}" =~ ^V[0-9]+([[:space:]]*[:\-][[:space:]]*|[[:space:]]+)(.*)$ ]]; then
+  subject="${BASH_REMATCH[2]}"
 fi
 
-printf 'V%s: %s\n' "${version}" "${first_line}" > "${msg_file}"
+printf 'V%s: %s\n' "${version}" "${subject}" > "${msg_file}"
