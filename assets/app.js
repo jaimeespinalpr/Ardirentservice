@@ -1285,30 +1285,10 @@ const applyCopy = (lang) => {
   const copy = translations[lang] || translations.en;
 
   document.documentElement.lang = lang;
-  document.title = copy.title;
 
-  const description = document.querySelector('meta[name="description"]');
-  if (description) {
-    description.content = copy.description;
-  }
-  const ogDescription = document.querySelector('meta[property="og:description"]');
-  if (ogDescription) {
-    ogDescription.content = copy.description;
-  }
-  const twitterDescription = document.querySelector('meta[name="twitter:description"]');
-  if (twitterDescription) {
-    twitterDescription.content = copy.description;
-  }
-  const localBusinessSchema = document.querySelector('script[type="application/ld+json"]');
-  if (localBusinessSchema) {
-    try {
-      const schemaData = JSON.parse(localBusinessSchema.textContent || "{}");
-      schemaData.description = copy.description;
-      localBusinessSchema.textContent = JSON.stringify(schemaData, null, 2);
-    } catch (error) {
-      // Ignore malformed schema to avoid blocking UI translations.
-    }
-  }
+  // Keep each page's static title, description, social metadata, and JSON-LD intact.
+  // Those values are page-specific SEO signals; replacing them with the generic
+  // translation copy made every route look identical after JavaScript loaded.
 
   setTexts(
     [
