@@ -426,6 +426,28 @@ const translations = {
       accentText:
         "Tell us your date, location, and type of production. We confirm availability the same day and coordinate pickup or on-site delivery anywhere on the island.",
     },
+    faq: {
+      eyebrow: "FAQ",
+      title: "Quick answers before you request a quote.",
+      text: "Use these notes to move faster when you already know what you need.",
+      cards: [
+        {
+          eyebrow: "Rental only",
+          title: "Can I rent equipment without booking production?",
+          text: "Yes. You can rent equipment on its own or combine it with production services.",
+        },
+        {
+          eyebrow: "Response time",
+          title: "How fast do you reply?",
+          text: "We reply the same day with availability and next steps.",
+        },
+        {
+          eyebrow: "Logistics",
+          title: "Can pickup or on-site delivery be coordinated?",
+          text: "Yes. Pickup or on-site delivery can be coordinated when the booking is confirmed.",
+        },
+      ],
+    },
     contact: {
       eyebrow: "Contact",
       title: "Prefer WhatsApp or email?",
@@ -1100,17 +1122,39 @@ const translations = {
     vision: {
       eyebrow: "Por qué Ardi",
       title: "Todo para tu proyecto audiovisual en un solo lugar.",
-      text: "Renta equipo profesional, contrata servicios creativos o combina ambos. Un solo contacto y un solo equipo, desde la planificación hasta la entrega final.",
+      text: "Renta equipo profesional, reserva servicios creativos o combina ambos. Un contacto, un equipo, desde la planificación hasta la entrega final.",
       accentEyebrow: "Cómo funciona",
-      accentTitle: "Reserva tu equipo en tres pasos sencillos.",
+      accentTitle: "Reserva tu equipo en tres pasos simples.",
       accentText:
         "Cuéntanos tu fecha, lugar y tipo de producción. Confirmamos disponibilidad el mismo día y coordinamos recogido o entrega en cualquier punto de la isla.",
+    },
+    faq: {
+      eyebrow: "Preguntas frecuentes",
+      title: "Respuestas rápidas antes de pedir una cotización.",
+      text: "Usa estas notas para avanzar más rápido cuando ya sabes lo que necesitas.",
+      cards: [
+        {
+          eyebrow: "Solo alquiler",
+          title: "¿Puedo rentar equipo sin contratar producción?",
+          text: "Sí. Puedes rentar equipo por separado o combinarlo con servicios de producción.",
+        },
+        {
+          eyebrow: "Tiempo de respuesta",
+          title: "¿Qué tan rápido responden?",
+          text: "Respondemos el mismo día con disponibilidad y próximos pasos.",
+        },
+        {
+          eyebrow: "Logística",
+          title: "¿Se puede coordinar recogido o entrega en locación?",
+          text: "Sí. El recogido o la entrega en locación se pueden coordinar cuando confirmamos la reserva.",
+        },
+      ],
     },
     contact: {
       eyebrow: "Contacto",
       title: "¿Prefieres WhatsApp o correo?",
       lead:
-        "Cuéntanos tu fecha, lugar y el equipo o servicio que necesitas. Respondemos el mismo día con disponibilidad y cotización.",
+        "Cuéntanos tu fecha, lugar y el equipo o servicio que necesitas. Respondemos el mismo día con disponibilidad y una cotización.",
       quick: "Acciones rápidas",
       whatsapp: "WhatsApp 939-366-1442",
       email: "ardirentservice@gmail.com",
@@ -1508,6 +1552,21 @@ const applyCopy = (lang) => {
     const span = item.querySelector("span");
     if (strong) strong.textContent = title;
     if (span) span.textContent = text;
+  });
+
+  setText("#faq .section-heading .eyebrow", copy.faq.eyebrow);
+  setText("#faq .section-heading h2", copy.faq.title);
+  setSectionDescription("#faq .section-heading", copy.faq.text);
+  const faqCards = document.querySelectorAll("#faq .faq-card");
+  faqCards.forEach((item, index) => {
+    const card = copy.faq.cards[index];
+    if (!card) return;
+    const eyebrow = item.querySelector(".eyebrow");
+    const title = item.querySelector("h3");
+    const text = item.querySelector("p:not(.eyebrow)");
+    if (eyebrow) eyebrow.textContent = card.eyebrow;
+    if (title) title.textContent = card.title;
+    if (text) text.textContent = card.text;
   });
 
   const projectForm = document.querySelector("#project-brief");
