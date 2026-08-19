@@ -81,6 +81,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate Stripe production configuration
+        run: |
+          set -euo pipefail
+          mode="$(printf '%s' "${STRIPE_MODE}" | tr '[:upper:]' '[:lower:]' | xargs)"
+          [[ "${GITHUB_REF_NAME}" == "main" && "${mode}" == "live" ]] || {
+            echo "The main branch requires STRIPE_MODE=live for official checkout."
+            exit 1
+          }
+          case "${mode}" in
+            live)
+              [[ "${STRIPE_SECRET_KEY}" == sk_live_* ]] || { echo "STRIPE_MODE=live requires an sk_live_ key"; exit 1; }
+              ;;
+            test)
+              [[ "${STRIPE_SECRET_KEY}" == sk_test_* ]] || { echo "STRIPE_MODE=test requires an sk_test_ key"; exit 1; }
+              ;;
+            *)
+              echo "STRIPE_MODE must be exactly live or test"
+              exit 1
+              ;;
+          esac
+          echo "Stripe configuration validated for ${mode} mode (secret redacted)."
+
       - name: Prepare SSH
         if: env.STRIPE_SECRET_KEY != '' && env.STRIPE_MODE != ''
         env:
