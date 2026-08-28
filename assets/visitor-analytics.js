@@ -153,61 +153,11 @@
     sessionStorage.removeItem(TAB_KEY);
   }
 
-  function addStyles() {
-    if (document.getElementById('ardi-consent-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'ardi-consent-styles';
-    style.textContent = `
-      .ardi-consent{position:fixed;z-index:99999;left:16px;right:16px;bottom:16px;max-width:760px;margin:auto;background:#fff;color:#151515;border:1px solid #d9d9d9;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:16px;font:14px/1.45 system-ui,sans-serif}
-      .ardi-consent p{margin:0 0 12px}.ardi-consent-actions{display:flex;gap:8px;flex-wrap:wrap}
-      .ardi-consent button,.ardi-privacy-settings{border:1px solid #222;border-radius:6px;padding:9px 14px;background:#fff;color:#111;cursor:pointer;font:600 13px/1 system-ui,sans-serif}
-      .ardi-consent button[data-accept]{background:#111;color:#fff}.ardi-privacy-settings{margin:10px 0;padding:7px 10px}
-      @media(max-width:520px){.ardi-consent{left:10px;right:10px;bottom:10px}.ardi-consent-actions button{flex:1}}
-    `;
-    document.head.appendChild(style);
-  }
-
-  function settingsButton() {
-    if (document.querySelector('.ardi-privacy-settings')) return;
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'ardi-privacy-settings';
-    button.textContent = 'Privacidad / Privacy';
-    button.addEventListener('click', showConsent);
-    const footer = document.querySelector('footer');
-    (footer || document.body).appendChild(button);
-  }
-
-  function showConsent() {
-    document.querySelector('.ardi-consent')?.remove();
-    const spanish = String(document.documentElement.lang || '').toLowerCase().startsWith('es');
-    const panel = document.createElement('aside');
-    panel.className = 'ardi-consent';
-    panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-label', spanish ? 'Preferencias de privacidad' : 'Privacy preferences');
-    const message = spanish
-      ? 'Con tu permiso recopilamos mediciones anónimas y limitadas sobre las páginas visitadas, el tiempo visible y las interacciones con botones o enlaces. No guardamos lo que escribes, contraseñas, datos de pago ni información personal.'
-      : 'With your permission, we collect limited anonymous measurements about pages visited, visible time, and interactions with buttons or links. We do not store what you type, passwords, payment data, or personal information.';
-    panel.innerHTML = `<p>${message}</p><div class="ardi-consent-actions"><button type="button" data-accept>${spanish ? 'Permitir medición' : 'Allow measurement'}</button><button type="button" data-reject>${spanish ? 'No permitir' : 'Do not allow'}</button></div>`;
-    panel.querySelector('[data-accept]').addEventListener('click', () => {
-      localStorage.setItem(CONSENT_KEY, 'accepted');
-      panel.remove();
-      startTracking();
-      settingsButton();
-    });
-    panel.querySelector('[data-reject]').addEventListener('click', () => {
-      localStorage.setItem(CONSENT_KEY, 'denied');
-      stopTracking();
-      panel.remove();
-      settingsButton();
-    });
-    document.body.appendChild(panel);
-  }
 
   document.addEventListener('click', (event) => {
     if (!tracking) return;
     const target = event.target instanceof Element ? event.target.closest('a,button,[role="button"]') : null;
-    if (!target || target.closest('.ardi-consent') || target.classList.contains('ardi-privacy-settings')) return;
+    if (!target) return;
     if (target.closest('form') || target.closest('input,textarea,select,[contenteditable="true"]')) return;
     const type = target.matches('a') ? 'link' : 'button';
     const label = Core.safeClickDescriptor({
@@ -230,14 +180,8 @@
   });
   window.addEventListener('pagehide', flushActive);
 
-  addStyles();
   const consent = localStorage.getItem(CONSENT_KEY);
   if (consent === 'accepted') {
     startTracking();
-    settingsButton();
-  } else if (consent === 'denied') {
-    settingsButton();
-  } else {
-    showConsent();
   }
 })();

@@ -9,16 +9,18 @@ def test_every_public_html_uses_consent_tracker_and_no_unconditional_ga():
     assert len(HTML) == 10
     for path in HTML:
         text = path.read_text(encoding='utf-8')
-        assert 'assets/visitor-analytics.js?v=20260727-v22' in text, path.name
+        assert 'assets/visitor-analytics.js?v=20260827-v30' in text, path.name
         assert '<script async src="https://www.googletagmanager.com/gtag/js' not in text, path.name
 
 
-def test_consent_dialog_uses_plain_privacy_language_without_analytics_branding():
+def test_consent_dialog_is_removed_from_every_public_asset():
     text = (ROOT / 'assets/visitor-analytics.js').read_text(encoding='utf-8')
-    assert "'Preferencias de privacidad'" in text
-    assert "'Privacy preferences'" in text
-    assert "'Permitir medición'" in text
-    assert "'Allow measurement'" in text
+    for removed_copy in [
+        'Preferencias de privacidad', 'Privacy preferences',
+        'Permitir medición', 'Allow measurement', 'No permitir', 'Do not allow',
+        'ardi-consent', 'ardi-privacy-settings',
+    ]:
+        assert removed_copy not in text
     for visible_copy in [
         'Preferencias de analítica', 'Analytics preferences',
         'Aceptar analítica', 'Accept analytics',
