@@ -2,9 +2,11 @@
 """Poll privacy-safe visitor events and emit Telegram-ready notifications."""
 from __future__ import annotations
 
+import http.client
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 from datetime import datetime
@@ -14,6 +16,18 @@ from typing import Any
 ENDPOINT = "https://pay.ardirentservice.com/visitor_analytics.php"
 TOKEN_FILE = Path(__file__).with_name(".visitor_analytics_token")
 TIMEOUT_SECONDS = 20
+RETRY_DELAYS_SECONDS = (1, 3, 8)
+
+
+def is_retryable_error(error: BaseException) -> bool:
+    """Retry transport failures and temporary upstream errors, not auth/client errors."""
+    if isinstance(error, (http.client.RemoteDisconnected, ConnectionResetError, TimeoutError)):
+        return True
+    if isinstance(error, urllib.error.HTTPError):
+        return error.code == 429 or 500 <= error.code < 600
+    if isinstance(error, urllib.error.URLError):
+        return isinstance(error.reason, (ConnectionError, TimeoutError, OSError))
+    return False
 
 
 def format_duration(milliseconds: int) -> str:
@@ -97,11 +111,21 @@ def request_json(token: str, url: str, payload: dict[str, Any] | None = None) ->
             "User-Agent": "ArdiVisitorMonitor/1.0",
         },
     )
-    with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
-        result = json.load(response)
-    if not isinstance(result, dict) or not result.get("ok"):
-        raise RuntimeError("Visitor analytics endpoint returned an invalid response")
-    return result
+    last_error: BaseException | None = None
+    for attempt in range(len(RETRY_DELAYS_SECONDS) + 1):
+        try:
+            with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
+                result = json.load(response)
+            if not isinstance(result, dict) or not result.get("ok"):
+                raise RuntimeError("Visitor analytics endpoint returned an invalid response")
+            return result
+        except (OSError, ValueError, RuntimeError, http.client.HTTPException, urllib.error.URLError) as error:
+            last_error = error
+            if attempt >= len(RETRY_DELAYS_SECONDS) or not is_retryable_error(error):
+                raise
+            time.sleep(RETRY_DELAYS_SECONDS[attempt])
+    assert last_error is not None
+    raise last_error
 
 
 def ack(token: str, kind: str, session_ids: list[str]) -> None:
@@ -127,7 +151,7 @@ def run() -> list[str]:
 def main() -> int:
     try:
         messages = run()
-    except (OSError, ValueError, RuntimeError, urllib.error.URLError) as error:
+    except (OSError, ValueError, RuntimeError, http.client.HTTPException, urllib.error.URLError) as error:
         print(f"Error del monitor de visitas: {error}", file=sys.stderr)
         return 1
     if messages:
