@@ -70,12 +70,13 @@ jobs:
             --exclude '.githooks/' \
             --exclude '.pytest_cache/' \
             --exclude 'README.md' \
+            --exclude '*.md' \
             --exclude 'COMMIT_VERSIONING.md' \
             --exclude 'WEB_VERSION' \
             --exclude '.DS_Store' \
             --exclude 'deploy-trigger.txt' \
             --exclude '*.php' \
-            --exclude 'data/' \
+            --exclude '/data/' \
             --exclude 'tests/' \
             --exclude 'scripts/' \
             --exclude 'backups/' \
@@ -91,7 +92,7 @@ jobs:
           # Remove backend/source artifacts left by older broad deployments.
           ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" \
             "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" \
-            "rm -f '${STATIC_PATH}'*.php && rm -rf '${STATIC_PATH}data' '${STATIC_PATH}tests' '${STATIC_PATH}scripts' '${STATIC_PATH}backups' '${STATIC_PATH}docs' '${STATIC_PATH}process' '${STATIC_PATH}.githooks' '${STATIC_PATH}.pytest_cache'"
+            "rm -f '${STATIC_PATH}'*.php '${STATIC_PATH}README.md' '${STATIC_PATH}SECURITY.md' '${STATIC_PATH}COMMIT_VERSIONING.md' '${STATIC_PATH}WEB_VERSION' '${STATIC_PATH}deploy-trigger.txt' && rm -rf '${STATIC_PATH}data' '${STATIC_PATH}tests' '${STATIC_PATH}scripts' '${STATIC_PATH}backups' '${STATIC_PATH}docs' '${STATIC_PATH}process' '${STATIC_PATH}.githooks' '${STATIC_PATH}.pytest_cache'"
 
   deploy-pay-backend:
     runs-on: ubuntu-latest

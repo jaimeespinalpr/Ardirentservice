@@ -45,7 +45,7 @@ def test_public_deploy_is_separated_from_backend_and_development_files():
     workflow = source(".github/workflows/deploy-scp.yml")
     for exclusion in [
         "--exclude '*.php'",
-        "--exclude 'data/'",
+        "--exclude '/data/'",
         "--exclude 'tests/'",
         "--exclude 'scripts/'",
         "--exclude 'backups/'",
@@ -54,6 +54,8 @@ def test_public_deploy_is_separated_from_backend_and_development_files():
     ]:
         assert exclusion in workflow
     assert "deploy/pay/.htaccess" in workflow
+    assert "--exclude '*.md'" in workflow
+    assert "'${STATIC_PATH}README.md'" in workflow
     assert "RENTAL_ADMIN_TOKEN=${RENTAL_ADMIN_TOKEN}" in workflow
     assert "HOSTINGER_SSH_KNOWN_HOSTS" in workflow
     assert "StrictHostKeyChecking=no" not in workflow
