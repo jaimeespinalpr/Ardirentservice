@@ -7,7 +7,7 @@
 ## Estado actual verificado
 - Fuente de fotos: `assets/prints/*.jpg`
 - Total actual: **184** imágenes
-- Data usada por la página: `data/prints_metadata.json`
+- Data pública usada por la página: `assets/data/prints_metadata.json`
 - Render actual: `prints.html` (fetch de metadata y render por categorías)
 
 ---
@@ -85,7 +85,7 @@ Criterio “Mejores 25”:
 - Marcar en metadata con `isTop25: true`
 
 ### T5) Actualización de metadata
-- Reescribir `data/prints_metadata.json` con:
+- Reescribir `assets/data/prints_metadata.json` con:
   - `category` normalizada (3 grupos)
   - `displayTitle` final por foto
   - `isTop25` por foto
@@ -141,7 +141,7 @@ Criterio “Mejores 25”:
 ---
 
 ## Entregables
-1. `data/prints_metadata.json` reorganizado
+1. `assets/data/prints_metadata.json` reorganizado
 2. `prints.html` con separación “Mejores 25” y “Todas”
 3. Ajustes CSS para UX
 4. Reporte final de clasificación y conteos

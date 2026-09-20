@@ -37,6 +37,51 @@ function rental_env(string $key, string $default = ''): string
     return is_string($value) && $value !== '' ? $value : $default;
 }
 
+function rental_normalize_host(string $host): string
+{
+    $host = strtolower(trim($host));
+    if ($host === '') {
+        return '';
+    }
+    if (str_starts_with($host, '[')) {
+        $closing = strpos($host, ']');
+        if ($closing === false) {
+            return '';
+        }
+        $address = substr($host, 1, $closing - 1);
+        $port = substr($host, $closing + 1);
+        if ($port !== '' && !preg_match('/^:\d{1,5}$/', $port)) {
+            return '';
+        }
+        return filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) ? $address : '';
+    }
+    $host = preg_replace('/:\d{1,5}$/', '', $host) ?? '';
+    if ($host === 'localhost' || filter_var($host, FILTER_VALIDATE_IP)) {
+        return $host;
+    }
+    if (strlen($host) > 253 || !preg_match('/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)*[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/', $host)) {
+        return '';
+    }
+    return $host;
+}
+
+function rental_is_production_host(string $host): bool
+{
+    $host = rental_normalize_host($host);
+    return $host === 'ardirentservice.com' || str_ends_with($host, '.ardirentservice.com');
+}
+
+function rental_send_security_headers(string $contentSecurityPolicy = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"): void
+{
+    header('Cache-Control: no-store, max-age=0');
+    header('Pragma: no-cache');
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: DENY');
+    header('Referrer-Policy: no-referrer');
+    header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
+    header('Content-Security-Policy: ' . $contentSecurityPolicy);
+}
+
 function rental_public_site_url(): string
 {
     return rtrim(rental_env('PUBLIC_SITE_URL', 'https://www.ardirentservice.com'), '/');
@@ -99,18 +144,37 @@ function rental_google_review_url(): string
 
 function rental_pay_site_url(): string
 {
-    return rtrim(rental_env('PAY_SITE_URL', rental_base_url()), '/');
+    return rtrim(rental_env('PAY_SITE_URL', 'https://pay.ardirentservice.com'), '/');
 }
 
 function rental_admin_action_url(int $reservationId, string $action): string
 {
-    $token = rental_env('RENTAL_ADMIN_TOKEN', '');
+    $expires = time() + (7 * 24 * 60 * 60);
     $query = http_build_query([
         'reservation_id' => $reservationId,
         'action' => $action,
-        'token' => $token,
+        'expires' => $expires,
+        'signature' => rental_sign_return_action($reservationId, $action, $expires),
     ]);
     return rental_pay_site_url() . '/rentals_return.php?' . $query;
+}
+
+function rental_sign_return_action(int $reservationId, string $action, int $expires): string
+{
+    $secret = rental_env('RENTAL_ADMIN_TOKEN');
+    if ($secret === '' || $reservationId <= 0 || !in_array($action, ['returned_ok', 'returned_problem'], true)) {
+        return '';
+    }
+    return hash_hmac('sha256', "return\n{$reservationId}\n{$action}\n{$expires}", $secret);
+}
+
+function rental_verify_return_action(int $reservationId, string $action, int $expires, string $signature): bool
+{
+    if ($expires < time() || $expires > time() + (8 * 24 * 60 * 60) || !preg_match('/^[a-f0-9]{64}$/', $signature)) {
+        return false;
+    }
+    $expected = rental_sign_return_action($reservationId, $action, $expires);
+    return $expected !== '' && hash_equals($expected, $signature);
 }
 
 function rental_pickup_details_html(): string
@@ -750,15 +814,29 @@ function rental_db(): PDO
     return $pdo;
 }
 
-function rental_read_json_body(): array
+function rental_read_json_body(int $maxBytes = 16384): array
 {
+    $contentLength = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
+    if ($contentLength > $maxBytes) {
+        rental_json(['ok' => false, 'error' => 'payload_too_large'], 413);
+    }
     $raw = file_get_contents('php://input');
     if (!is_string($raw) || $raw === '') {
         return [];
     }
+    if (strlen($raw) > $maxBytes) {
+        rental_json(['ok' => false, 'error' => 'payload_too_large'], 413);
+    }
 
     $data = json_decode($raw, true);
     return is_array($data) ? $data : [];
+}
+
+function rental_checkout_session_matches(array $session, int $expectedAmountCents, string $expectedCurrency): bool
+{
+    return ($session['payment_status'] ?? '') === 'paid'
+        && (int) ($session['amount_total'] ?? -1) === $expectedAmountCents
+        && strtolower((string) ($session['currency'] ?? '')) === strtolower($expectedCurrency);
 }
 
 function rental_clean_text(mixed $value): string
@@ -923,6 +1001,8 @@ function stripe_request(string $method, string $path, array $form = []): array
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Authorization: Bearer ' . $secret,
     ]);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
     if (strtoupper($method) === 'POST') {
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($form));

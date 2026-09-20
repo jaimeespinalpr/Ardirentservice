@@ -1,27 +1,37 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/rentals_common.php';
+require_once __DIR__ . '/admin_auth.php';
 
-$adminToken = rental_env('RENTAL_ADMIN_TOKEN', '');
-$host = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
-$isLocalHost = in_array($host, ['localhost', '127.0.0.1', '::1'], true) || str_contains($host, '.local');
-$providedToken = rental_clean_text($_GET['token'] ?? $_POST['token'] ?? '');
+rental_send_security_headers("default-src 'self'; style-src 'unsafe-inline'; img-src 'self' data: https:; frame-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
 
-if ($adminToken !== '') {
-    if (!hash_equals($adminToken, $providedToken)) {
-        http_response_code(403);
-        echo '<!doctype html><html><head><meta charset="utf-8"><title>Ardi Admin</title></head><body style="font-family:Arial,sans-serif;padding:32px">'
-            . '<h1>Access denied</h1>'
-            . '<p>This page is protected. Set <code>RENTAL_ADMIN_TOKEN</code> on the server and pass it as <code>?token=...</code>.</p>'
-            . '</body></html>';
-        exit;
+$loginError = '';
+$requestedAction = rental_clean_text($_POST['action'] ?? '');
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && $requestedAction === 'login') {
+    admin_require_csrf();
+    if (admin_attempt_login((string) ($_POST['admin_token'] ?? ''))) {
+        rental_redirect(rental_pay_site_url() . '/rentals_admin.php');
     }
-} elseif (!$isLocalHost) {
-    http_response_code(403);
-    echo '<!doctype html><html><head><meta charset="utf-8"><title>Ardi Admin</title></head><body style="font-family:Arial,sans-serif;padding:32px">'
-        . '<h1>Admin token not configured</h1>'
-        . '<p>Set <code>RENTAL_ADMIN_TOKEN</code> to protect this page before exposing it publicly.</p>'
-        . '</body></html>';
+    $loginError = 'Access denied.';
+}
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && $requestedAction === 'logout') {
+    admin_require_csrf();
+    admin_logout();
+    rental_redirect(rental_pay_site_url() . '/rentals_admin.php');
+}
+
+if (!admin_require_authenticated()) {
+    $configured = rental_env('RENTAL_ADMIN_TOKEN') !== '';
+    http_response_code($configured ? 401 : 503);
+    ?>
+    <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Ardi Admin Login</title><style>body{margin:0;background:#f5f2eb;color:#1e1a17;font-family:Arial,sans-serif}.login{max-width:440px;margin:10vh auto;padding:28px;background:#fffaf2;border:1px solid #d8cec2;border-radius:18px}label{display:block;margin:18px 0 8px;font-weight:700}input,button{box-sizing:border-box;width:100%;padding:12px;border:1px solid #b9aa9b;border-radius:10px;font:inherit}button{margin-top:14px;background:#1e1a17;color:#fff;cursor:pointer}.error{color:#9a2d20}</style></head>
+    <body><main class="login"><h1>Ardi Admin</h1>
+    <?php if (!$configured): ?><p class="error">Administrative access is disabled because the server token is not configured.</p>
+    <?php else: ?><p>Enter the administrative access token. It will be exchanged for a secure, short-lived session and will not remain in the URL.</p>
+    <?php if ($loginError !== ''): ?><p class="error"><?php echo htmlspecialchars($loginError, ENT_QUOTES, 'UTF-8'); ?></p><?php endif; ?>
+    <form method="post"><input type="hidden" name="action" value="login"><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(admin_csrf_token(), ENT_QUOTES, 'UTF-8'); ?>"><label for="admin-token">Access token</label><input id="admin-token" type="password" name="admin_token" required autocomplete="current-password"><button type="submit">Sign in</button></form>
+    <?php endif; ?></main></body></html>
+    <?php
     exit;
 }
 
@@ -31,6 +41,7 @@ $message = '';
 $messageType = 'info';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    admin_require_csrf();
     $action = rental_clean_text($_POST['action'] ?? '');
     $reservationId = (int) ($_POST['reservation_id'] ?? 0);
     $status = rental_clean_text($_POST['fulfillment_status'] ?? '');
@@ -290,10 +301,11 @@ function h(string $value): string
     <div class="layout">
       <section class="panel">
         <div class="toolbar">
-          <a href="?<?php echo $providedToken !== '' ? 'token=' . rawurlencode($providedToken) . '&' : ''; ?>status=">All</a>
+          <a href="?status=">All</a>
           <?php foreach ($validStatuses as $status): ?>
-            <a href="?<?php echo $providedToken !== '' ? 'token=' . rawurlencode($providedToken) . '&' : ''; ?>status=<?php echo rawurlencode($status); ?>"><?php echo h(ucfirst($status)); ?></a>
+            <a href="?status=<?php echo rawurlencode($status); ?>"><?php echo h(ucfirst($status)); ?></a>
           <?php endforeach; ?>
+          <form method="post"><input type="hidden" name="action" value="logout"><input type="hidden" name="csrf_token" value="<?php echo h(admin_csrf_token()); ?>"><button type="submit">Sign out</button></form>
         </div>
 
         <?php if ($message !== ''): ?>
@@ -367,9 +379,9 @@ function h(string $value): string
                     <?php endif; ?>
                   </td>
                   <td>
-                    <a href="?<?php echo $providedToken !== '' ? 'token=' . rawurlencode($providedToken) . '&' : ''; ?>reservation_id=<?php echo (int) $reservation['id']; ?>">Preview email</a>
+                    <a href="?reservation_id=<?php echo (int) $reservation['id']; ?>">Preview email</a>
                     <form method="post" class="status-form">
-                      <input type="hidden" name="token" value="<?php echo h($providedToken); ?>">
+                      <input type="hidden" name="csrf_token" value="<?php echo h(admin_csrf_token()); ?>">
                       <input type="hidden" name="action" value="update_status">
                       <input type="hidden" name="reservation_id" value="<?php echo (int) $reservation['id']; ?>">
                       <select name="fulfillment_status">

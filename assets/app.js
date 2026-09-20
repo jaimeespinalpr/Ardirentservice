@@ -2848,7 +2848,7 @@ const setupInstagramCarousel = () => {
 
   if (!track || !prev || !next || !dotsWrap) return;
 
-  const feedUrl = "data/instagram_latest.json";
+  const feedUrl = "assets/data/instagram_latest.json";
   let slides = [];
   let dots = [];
   let activeIndex = 0;

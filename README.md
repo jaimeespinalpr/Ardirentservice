@@ -43,8 +43,17 @@ See [`COMMIT_VERSIONING.md`](COMMIT_VERSIONING.md) for the policy.
 
 ## Admin
 
-- Open `https://pay.ardirentservice.com/rentals_admin.php?token=YOUR_TOKEN`
+- Open `https://pay.ardirentservice.com/rentals_admin.php`
+- Enter `RENTAL_ADMIN_TOKEN` in the login form. The token is exchanged for a short-lived, HTTP-only session and is never kept in the URL.
 - The page lists reservations stored in `data/rentals.sqlite`
 - Use the preview panel to see the exact customer confirmation email body
 - Use the fulfillment dropdown to mark orders as `pending`, `confirmed`, `ready`, `delivered`, `completed`, or `cancelled`
 - Marking a reservation `completed` sends the returned-equipment inspection email. If the reviewer clicks “Everything is OK,” the customer receives the Google Review request automatically.
+
+## Security boundaries
+
+- Public static assets live at the site root; PHP and runtime data deploy only to `pay.ardirentservice.com`.
+- Browser-readable JSON lives under `assets/data/`. The backend `data/` directory is denied by Apache and reserved for SQLite.
+- Administrative state changes require an authenticated session plus CSRF validation.
+- Return-inspection email links use short-lived, action-scoped HMAC signatures. Opening a link only shows a confirmation page; the state change requires an explicit `POST`.
+- Paid rental confirmation binds Stripe's paid status, amount, and currency to a server-side recalculation before writing a reservation.

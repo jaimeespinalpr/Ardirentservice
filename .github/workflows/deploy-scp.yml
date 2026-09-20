@@ -37,6 +37,9 @@ jobs:
       - name: Prepare SSH
         env:
           HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_KNOWN_HOSTS: ${{ secrets.HOSTINGER_SSH_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
 
@@ -44,6 +47,12 @@ jobs:
           chmod 700 ~/.ssh
           printf '%s\n' "${HOSTINGER_SSH_KEY}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+          if [[ -n "${HOSTINGER_SSH_KNOWN_HOSTS}" ]]; then
+            printf '%s\n' "${HOSTINGER_SSH_KNOWN_HOSTS}" > ~/.ssh/known_hosts
+          else
+            ssh-keyscan -p "${HOSTINGER_SSH_PORT:-65002}" -H "${HOSTINGER_SSH_HOST}" > ~/.ssh/known_hosts
+          fi
+          chmod 600 ~/.ssh/known_hosts
 
       - name: Sync static website to Hostinger public_html
         env:
@@ -58,17 +67,31 @@ jobs:
           rsync -az --delete \
             --exclude '.git/' \
             --exclude '.github/' \
+            --exclude '.githooks/' \
+            --exclude '.pytest_cache/' \
             --exclude 'README.md' \
+            --exclude 'COMMIT_VERSIONING.md' \
+            --exclude 'WEB_VERSION' \
             --exclude '.DS_Store' \
             --exclude 'deploy-trigger.txt' \
-            --exclude 'rentals_*.php' \
-            --exclude 'accounts_*.php' \
-            --exclude 'lead.php' \
+            --exclude '*.php' \
+            --exclude 'data/' \
+            --exclude 'tests/' \
+            --exclude 'scripts/' \
+            --exclude 'backups/' \
+            --exclude 'docs/' \
+            --exclude 'process/' \
+            --exclude 'deploy/' \
             --exclude 'pay/' \
             --exclude '.env' \
             --exclude '.env.pay' \
-            -e "ssh -i ~/.ssh/id_ed25519 -p ${HOSTINGER_SSH_PORT:-65002} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            -e "ssh -i ~/.ssh/id_ed25519 -p ${HOSTINGER_SSH_PORT:-65002}" \
             ./ "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${STATIC_PATH}"
+
+          # Remove backend/source artifacts left by older broad deployments.
+          ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" \
+            "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" \
+            "rm -f '${STATIC_PATH}'*.php && rm -rf '${STATIC_PATH}data' '${STATIC_PATH}tests' '${STATIC_PATH}scripts' '${STATIC_PATH}backups' '${STATIC_PATH}docs' '${STATIC_PATH}process' '${STATIC_PATH}.githooks' '${STATIC_PATH}.pytest_cache'"
 
   deploy-pay-backend:
     runs-on: ubuntu-latest
@@ -107,12 +130,21 @@ jobs:
         if: env.STRIPE_SECRET_KEY != '' && env.STRIPE_MODE != ''
         env:
           HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_KNOWN_HOSTS: ${{ secrets.HOSTINGER_SSH_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           printf '%s\n' "${HOSTINGER_SSH_KEY}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+          if [[ -n "${HOSTINGER_SSH_KNOWN_HOSTS}" ]]; then
+            printf '%s\n' "${HOSTINGER_SSH_KNOWN_HOSTS}" > ~/.ssh/known_hosts
+          else
+            ssh-keyscan -p "${HOSTINGER_SSH_PORT:-65002}" -H "${HOSTINGER_SSH_HOST}" > ~/.ssh/known_hosts
+          fi
+          chmod 600 ~/.ssh/known_hosts
 
       - name: Sync PHP checkout to pay folder
         if: env.STRIPE_SECRET_KEY != '' && env.STRIPE_MODE != ''
@@ -128,13 +160,15 @@ jobs:
           RENTAL_RETURN_REVIEW_EMAILS: ${{ secrets.RENTAL_RETURN_REVIEW_EMAILS }}
           GOOGLE_REVIEW_URL: ${{ secrets.GOOGLE_REVIEW_URL }}
           VISITOR_ANALYTICS_TOKEN: ${{ secrets.VISITOR_ANALYTICS_TOKEN }}
+          RENTAL_ADMIN_TOKEN: ${{ secrets.RENTAL_ADMIN_TOKEN }}
         run: |
           set -euo pipefail
           PAY_PATH="/home/u467534899/domains/ardirentservice.com/public_html/pay/"
+          [[ -n "${RENTAL_ADMIN_TOKEN}" ]] || { echo "Missing GitHub secret: RENTAL_ADMIN_TOKEN"; exit 1; }
 
-          ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" \
             "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" \
-            "mkdir -p '${PAY_PATH}data' && chmod 755 '${PAY_PATH}data'"
+            "mkdir -p '${PAY_PATH}data' '${PAY_PATH}assets/data' && chmod 755 '${PAY_PATH}data' '${PAY_PATH}assets' '${PAY_PATH}assets/data'"
 
           rsync -az \
             --include 'rentals_availability.php' \
@@ -144,18 +178,21 @@ jobs:
             --include 'rentals_admin.php' \
             --include 'rentals_return.php' \
             --include 'rentals_resend_latest.php' \
+            --include 'admin_auth.php' \
             --include 'accounts_common.php' \
             --include 'accounts_api.php' \
             --include 'visitor_analytics.php' \
             --include 'visitor_analytics_common.php' \
             --include 'visitor_analytics_migrate.php' \
             --include 'prints_checkout.php' \
+            --include 'assets/' \
+            --include 'assets/data/' \
+            --include 'assets/data/prints_metadata.json' \
             --include 'data/' \
-            --include 'data/prints_metadata.json' \
             --include 'data/.htaccess' \
             --include 'lead.php' \
             --exclude '*' \
-            -e "ssh -i ~/.ssh/id_ed25519 -p ${HOSTINGER_SSH_PORT:-65002} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            -e "ssh -i ~/.ssh/id_ed25519 -p ${HOSTINGER_SSH_PORT:-65002}" \
             ./ "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${PAY_PATH}"
 
           cat > .env.pay <<EOF
@@ -171,6 +208,7 @@ jobs:
           RENTAL_RETURN_REVIEW_EMAILS=${RENTAL_RETURN_REVIEW_EMAILS}
           GOOGLE_REVIEW_URL=${GOOGLE_REVIEW_URL}
           VISITOR_ANALYTICS_TOKEN=${VISITOR_ANALYTICS_TOKEN}
+          RENTAL_ADMIN_TOKEN=${RENTAL_ADMIN_TOKEN}
           RENTAL_SMTP_HOST=${RENTAL_SMTP_HOST}
           RENTAL_SMTP_PORT=${RENTAL_SMTP_PORT}
           RENTAL_SMTP_USERNAME=${RENTAL_SMTP_USERNAME}
@@ -182,9 +220,12 @@ jobs:
           RENTAL_PICKUP_NOTES=Deliveries and pickups are handled at Park Boulevard. Bring a valid ID and your order confirmation.
           EOF
 
-          scp -i ~/.ssh/id_ed25519 -P "${HOSTINGER_SSH_PORT:-65002}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          scp -i ~/.ssh/id_ed25519 -P "${HOSTINGER_SSH_PORT:-65002}" \
             .env.pay "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${PAY_PATH}.env"
 
-          ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          scp -i ~/.ssh/id_ed25519 -P "${HOSTINGER_SSH_PORT:-65002}" \
+            deploy/pay/.htaccess "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${PAY_PATH}.htaccess"
+
+          ssh -i ~/.ssh/id_ed25519 -p "${HOSTINGER_SSH_PORT:-65002}" \
             "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" \
             "chmod 600 '${PAY_PATH}.env' && cd '${PAY_PATH}' && php visitor_analytics_migrate.php"

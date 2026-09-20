@@ -87,7 +87,7 @@ if ($printId === '' || $requestedTitle === '' || mb_strlen($requestedTitle) > 16
     rental_json(['ok' => false, 'error' => 'invalid_print'], 422);
 }
 
-$metadataPath = __DIR__ . '/data/prints_metadata.json';
+$metadataPath = __DIR__ . '/assets/data/prints_metadata.json';
 $metadata = is_file($metadataPath) ? json_decode((string) file_get_contents($metadataPath), true) : null;
 $title = '';
 foreach (($metadata['prints'] ?? []) as $print) {

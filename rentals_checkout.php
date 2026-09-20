@@ -20,11 +20,14 @@ $customerName = rental_clean_text($customer['name'] ?? '');
 $customerEmail = filter_var(rental_clean_text($customer['email'] ?? ''), FILTER_VALIDATE_EMAIL) ?: '';
 $customerPhone = rental_clean_text($customer['phone'] ?? '');
 
-if ($customerName === '' || $customerEmail === '') {
+if ($customerName === '' || mb_strlen($customerName) > 120 || $customerEmail === '' || mb_strlen($customerPhone) > 40) {
     rental_json(['ok' => false, 'error' => 'missing_customer'], 422);
 }
 
 $itemsInput = is_array($payload['items'] ?? null) ? $payload['items'] : [];
+if (count($itemsInput) > 50) {
+    rental_json(['ok' => false, 'error' => 'too_many_items'], 422);
+}
 $items = [];
 foreach ($itemsInput as $entry) {
     if (!is_array($entry)) {
@@ -32,7 +35,7 @@ foreach ($itemsInput as $entry) {
     }
     $id = rental_normalize_item_id((string) ($entry['id'] ?? ''));
     $title = rental_clean_text($entry['title'] ?? '');
-    if ($id === null || $title === '') {
+    if ($id === null || $title === '' || mb_strlen($title) > 160) {
         continue;
     }
     $items[$id] = ['id' => $id, 'title' => $title, 'rate_cents' => rental_item_rate_cents($id)];
@@ -71,7 +74,7 @@ if ($accountUser !== null && $totalAmount >= WELCOME_DISCOUNT_CENTS) {
 $form = [
     'mode' => 'payment',
     'payment_method_types[0]' => 'card',
-    'success_url' => rental_base_url() . '/rentals_confirm.php?session_id={CHECKOUT_SESSION_ID}',
+    'success_url' => rental_pay_site_url() . '/rentals_confirm.php?session_id={CHECKOUT_SESSION_ID}',
     'cancel_url' => rental_public_url('equipment.html?rental=cancelled'),
     'customer_email' => $customerEmail,
     'metadata[start_date]' => $startDate,

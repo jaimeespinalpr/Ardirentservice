@@ -34,6 +34,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/instagram_latest.json assets/instagram scripts/update_instagram_cache.py
+          git add assets/data/instagram_latest.json assets/instagram scripts/update_instagram_cache.py
           git commit -m "chore: refresh Instagram cache"
           git push origin HEAD:gh-pages

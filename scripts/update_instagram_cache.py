@@ -13,7 +13,7 @@ USERNAME = os.environ.get("IG_USERNAME", "ardirentservice").strip()
 LIMIT = int(os.environ.get("IG_LIMIT", "10"))
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT_JSON = ROOT / "data" / "instagram_latest.json"
+OUT_JSON = ROOT / "assets" / "data" / "instagram_latest.json"
 OUT_DIR = ROOT / "assets" / "instagram"
 MAX_RETRIES = int(os.environ.get("IG_MAX_RETRIES", "5"))
 BASE_BACKOFF_SECONDS = float(os.environ.get("IG_RETRY_BASE_SECONDS", "1.5"))

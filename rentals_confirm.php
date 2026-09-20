@@ -14,11 +14,6 @@ if (!$stripe['ok']) {
 }
 
 $session = $stripe['data'];
-$paymentStatus = (string) ($session['payment_status'] ?? '');
-if ($paymentStatus !== 'paid') {
-    rental_redirect(rental_public_url('equipment.html?rental=unpaid'));
-}
-
 $metadata = is_array($session['metadata'] ?? null) ? $session['metadata'] : [];
 $startDate = rental_validate_date(rental_clean_text($metadata['start_date'] ?? ''));
 $endDate = rental_validate_date(rental_clean_text($metadata['end_date'] ?? ''));
@@ -29,7 +24,6 @@ $totalAmount = (int) ($metadata['total_amount_cents'] ?? 0);
 $accountId = (int) ($metadata['account_id'] ?? 0);
 $discountCents = max(0, (int) ($metadata['welcome_discount_cents'] ?? 0));
 $discountToken = rental_clean_text($metadata['welcome_discount_token'] ?? '');
-$paidTotal = max(0, $totalAmount - $discountCents);
 $currency = rental_clean_text($metadata['currency'] ?? CURRENCY);
 
 $itemIds = json_decode((string) ($metadata['item_ids'] ?? '[]'), true);
@@ -50,6 +44,23 @@ foreach ($itemIds as $rawId) {
 $cleanItemIds = array_values(array_unique($cleanItemIds));
 
 if ($cleanItemIds === []) {
+    rental_redirect(rental_public_url('equipment.html?rental=error'));
+}
+
+$days = rental_days_between($startDate, $endDate);
+$recalculatedTotal = 0;
+foreach ($cleanItemIds as $itemId) {
+    $recalculatedTotal += rental_item_rate_cents($itemId) * $days;
+}
+$validDiscount = $discountCents === 0
+    || ($discountCents === WELCOME_DISCOUNT_CENTS && $accountId > 0 && $discountToken !== '');
+$paidTotal = max(0, $recalculatedTotal - $discountCents);
+if (
+    !$validDiscount
+    || $totalAmount !== $recalculatedTotal
+    || strtolower($currency) !== CURRENCY
+    || !rental_checkout_session_matches($session, $paidTotal, CURRENCY)
+) {
     rental_redirect(rental_public_url('equipment.html?rental=error'));
 }
 
@@ -116,7 +127,7 @@ try {
 
     foreach ($cleanItemIds as $index => $itemId) {
         $title = $cleanTitles[$index] ?? $itemId;
-        $unitAmount = (int) ($cleanRates[$index] ?? rental_item_rate_cents($itemId));
+        $unitAmount = rental_item_rate_cents($itemId);
         $insertItem->execute([$reservationId, $itemId, $title, $unitAmount]);
     }
 
